@@ -1,0 +1,24 @@
+Brainstorming 21.03.2017:
+
+Projektideen - Brainstroming:
+- Seitliches automatisiertes einparken zwischen zwei Hindernissen
+- Kommunikation mit weiteren Fahrzeugen
+- Unfallerkennung
+
+Benötigte Bau-Elemente:
+- Laser 1x (eingebaut)
+- Ultraschallsensor 1x (eingebaut)
+
+Ablauf:
+- Abfahren von festgelegten Koordinaten
+- Zwischen zwei Punkten werden bestimmte Aktionen definiert
+
+
+
+
+Ergebnis:
+
+Umsetzung (priorisiert):
+1. a) Triangulieren und erkennen der Position in einem Raum
+   b) Fahrtberechnung von A -> B: autonomes Fahren von A -> B
+2. Einparken zwischen zwei Hindernissen (Fahrzeuge oder sonstige Elemente..) 
