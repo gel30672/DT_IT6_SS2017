@@ -1,1 +1,0 @@
-/usr/bin/cc     CMakeFiles/Motordriver.dir/GPIO/gpio.c.o CMakeFiles/Motordriver.dir/ISR/isr.c.o CMakeFiles/Motordriver.dir/MAIN/main.c.o CMakeFiles/Motordriver.dir/PID_CONTROLLER/main.c.o CMakeFiles/Motordriver.dir/PID_CONTROLLER/pid.c.o CMakeFiles/Motordriver.dir/STEERING/steering.c.o  -o Motordriver -I -L -rpath,/usr/local/lib64 
