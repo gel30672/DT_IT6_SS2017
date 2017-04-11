@@ -23,6 +23,8 @@ private:
     // Test Map
     Map *map;
 
+
+    // !!! IMPLEMENTATION JUST FOR FIRST TESTING PURPOSES !!!
     MapVector calculate(MapPoint *start, MapPoint *destination) {
 
         // Create the Vector
