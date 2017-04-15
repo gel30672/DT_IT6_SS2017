@@ -8,9 +8,11 @@
 #ifndef GPIO_GPIO_H_
 #define GPIO_GPIO_H_
 
-#define SET_PWM_VALUE(x)((1024/100)*x)
 
-#define GPIO_PWM_1 18
+#define GPIO_PWM_HW 18
+
+/* rotary sensor */
+#define GPIO_ROTARY 27
 
 void gpio_init(void);
 
