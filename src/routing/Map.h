@@ -31,7 +31,7 @@
 class Map {
 
 private:
-    unsigned int* nodelist; //todo!! wie soll die map gespeichert werden?! binär! (1 und 0)!! -32 bit system
+    unsigned int* nodelist;
     int _size;
     bool isFree(int x, int y);
 
