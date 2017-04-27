@@ -74,6 +74,7 @@ void Map::getNeighbours(Node* nodelist, int x, int y) {
 }
 
 Node* Map::getCarPosition() {
+    // Wait till the localization implementation, then implement the car position getter!
     char xc = *_carX;
     char yc = *_carY;
     int x = (int)xc;
