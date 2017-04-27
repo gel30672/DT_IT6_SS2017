@@ -7,12 +7,7 @@ Map::Map() {
 
     _size = (MapHeightCM*MapWidthCM)/MapRasterCM/32;
     nodelist = new unsigned int[_size];
-    nodelist[0] = 115824;
-
-    // normally call the function from localization to get the position
-    char a = 'a';
-    _carX = &a;
-    _carY = &a;
+    nodelist[0] = 115824; // This inits a test map!
 }
 
 Map::~Map() {}
@@ -76,9 +71,6 @@ void Map::getNeighbours(Node* nodelist, int x, int y) {
             index++;
         }
     }
-
-    // return all calculated neighbours
-    //return neighbours;
 }
 
 Node* Map::getCarPosition() {
