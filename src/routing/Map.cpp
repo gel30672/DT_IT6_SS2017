@@ -79,9 +79,5 @@ Node* Map::getCarPosition() {
     int x = (int)xc;
     int y = (int)yc;
 
-    //TESTEN
-    x = 2;
-    y = 0;
-
     return new Node(x, y);
 }
