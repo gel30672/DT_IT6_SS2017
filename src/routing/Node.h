@@ -17,22 +17,23 @@ private:
     int _costs;
 
     Node *_predessesor;
-    vector<Node*> _successors;
 
 public:
+    Node();
     Node(int x, int y);
+    ~Node();
 
     friend bool operator<(const Node& lmp, const Node& hmp);
 
-    int X() const;
-    int Y() const;
+    int getX();
+    int getY();
 
     void setCosts(int costs);
     int getCosts();
     bool equals(Node* comp);
 
     void setPredessesor(Node* node);
-    vector<Node*> getSuccessors();
+    Node* getPredessesor();
 };
 
 

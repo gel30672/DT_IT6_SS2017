@@ -2,45 +2,70 @@
 // Created by Andreas Zinkl on 23.04.17.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "Route.h"
 
-Route::Route(Node *from, Node *to) : _start(from), _destination(to) {}
+Route::Route(Map* map, int xDestination, int yDestinationNode) : _map(map) {
+    _start = *map->getCarPosition();
+    _destination = *map->getNode(xDestination, yDestinationNode);
+    _openlistPQ = nullptr;
+}
+
+Route::~Route() {
+}
 
 bool Route::calculate() {
 
+    if(_openlistPQ == nullptr) {
+        _openlistPQ = new PriorityQueue();
+    }
+
     //initialize the open list - priorityQueue
-    _openlistPQ->insert(_start, 0);
+    _openlistPQ->insert(&_start, 0);
 
     while(!_openlistPQ->isEmpty()) {
-        Element currentElement = *_openlistPQ->extractMin();
-        Node *currentNode = currentElement.getNode();
-        // check if we found a route
-        if(currentNode->equals(_destination)) {
 
-            Node *tmp = currentNode;
-            while(!currentNode->equals(_start)) {
-                printf("Node=(%d,%d)", currentNode->X(), currentNode->Y());
+        //Print not the list while runtime
+        //_openlistPQ->print();
+
+        Element* currentElement = _openlistPQ->extractMin();
+        Node *currentNode = currentElement->getNode();
+        // check if we found a route
+        if(currentNode->equals(&_destination)) {
+
+            while(!currentNode->equals(&_start)) {
+                //printf("Node=(%d,%d)\n", currentNode->getX(), currentNode->getY());
+                _route.push(currentNode);
+                currentNode = currentNode->getPredessesor();
             }
             return 0;
         }
 
         // no route found - continue work on finding a route!
-        _closedlist.push_back(*currentNode);
+        _closedlist.push_back(currentNode);
 
-        for (Node* next : currentNode->getSuccessors()) {
+
+        Node* nodes = new Node[9];
+        _map->getNeighbours(nodes, currentNode->getX(), currentNode->getY());
+        for (int i = 0; i < 9; i++) {
+
+            Node* next = &nodes[i];
+
+            if(next->getX() < 0 || next->getY() < 0) {
+                continue;
+            }
 
             // search for the point in the closed list
-            for(Node n : _closedlist) {
-                if (n.equals(next)) {
+            for(Node* n : _closedlist) {
+                if (n->equals(next)) {
                     continue;
                 }
             }
 
             // calculate the possible new costs
             int costs = 0;
-            int destCosts = abs(_destination->X()-next->X()) + abs(_destination->Y()-next->Y());
-            if(next->X() != currentNode->X() && next->Y() != currentNode->Y()) {
+            int destCosts = abs(_destination.getX()-next->getX()) + abs(_destination.getY()-next->getY());
+            if(next->getX() != currentNode->getX() && next->getY() != currentNode->getY()) {
                 // Diagonal Field
                 costs = DiagonalFieldCost * destCosts;
             } else {
@@ -51,13 +76,17 @@ bool Route::calculate() {
 
             // check if we got the field already and if the costs are less or equal than the new costs
             Element *e = _openlistPQ->search(next);
-            if(e != NULL && e->getNode()->getCosts() <= costs) { // todo checken auf die kosten nicht vergessen!!
+            if(e != NULL) {
+                next = e->getNode();
+            }
+
+            if(e != NULL && next->getCosts() <= costs) {
                 continue;
             }
 
             // save the field with its costs
             next->setCosts(costs);
-            currentNode->setPredessesor(next);
+            next->setPredessesor(currentNode);
 
             // add the new node to the openlist;
             _openlistPQ->insert(next, costs);

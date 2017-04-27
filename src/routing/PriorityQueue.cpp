@@ -2,14 +2,9 @@
 // Created by Andreas Zinkl on 23.04.17.
 //
 
-#include <cstdio>
+#include <iostream>
 #include "PriorityQueue.h"
-
-PriorityQueue::PriorityQueue() : _size(0) {
-
-    _size = 0;
-    elements = new Element(new Node(0,0), 0);
-}
+#include "Map.h"
 
 void PriorityQueue::heapify(Element *e, int first, int last, int root) {
     int largest = 0;
@@ -52,9 +47,8 @@ void PriorityQueue::sort(Element *e, int first, int last) {
 void PriorityQueue::insert(Node* e, int p) {
     //inserts a node e with the priority p
     Element* newElement = new Element(e, p);
-    if(isEmpty()) {
-        delete elements;
-        elements = newElement;
+    if(_size == 0) {
+        elements = new Element[(MapHeightCM*MapWidthCM)/MapRasterCM/32];
     }
     elements[_size] = *newElement;
     _size++;
@@ -67,9 +61,10 @@ Element* PriorityQueue::getMin() {
 }
 
 void PriorityQueue::print() {
+    std::cout << std::endl;
     for(int i = 0; i < _size; i++) {
         Element *test = &elements[i];
-        printf("%d\n",test->getPriority());
+        std::cout << test->getPriority() << " - " << "(" << test->getNode()->getX() << "," << test->getNode()->getY() << ")" << std::endl;
     }
 }
 
@@ -86,7 +81,7 @@ Element* PriorityQueue::extractMin() {
     Element *newElem = (elements+1);
 
     // Remove the extracted element from the list
-    delete elements;
+    //delete elements;
     _size--;
 
     // change the order -> second lowest value is now min
@@ -115,10 +110,10 @@ Element* PriorityQueue::search(Node* n) {
     if(!isEmpty()){
 
         for(int i = 0; i < _size; i++) {
-            Element elem = elements[i];
-            if(elem.getNode()->equals(n)) {
-                return &elem;
-            }
+            //compare the element
+            Element* elem = &elements[i];
+            Node* m = elem->getNode();
+            if(n->equals(m)) { return elem; }
         }
     }
 

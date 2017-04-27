@@ -9,9 +9,11 @@
 #define DiagonalFieldCost 14
 
 #include "Node.h"
-#include <list>
+#include <vector>
 #include "PriorityQueue.h"
-#include <set>
+#include "Map.h"
+#include <stdlib.h>
+#include <stack>
 
 using namespace std;
 
@@ -19,19 +21,20 @@ using namespace std;
 class Route {
 
 private:
-    Node* _start;
-    Node* _destination;
+    Node _start;
+    Node _destination;
+    Map* _map;
 
-    list<Node> _route;
+    stack<Node *> _route;
     PriorityQueue* _openlistPQ;
-    list<Node> _closedlist;
+    vector<Node *> _closedlist;
 
 
 public:
-    Route(Node* from, Node* to);
+    Route(Map *map, int xDestination, int yDestination);
+    ~Route();
 
     bool calculate();
-
 };
 
 

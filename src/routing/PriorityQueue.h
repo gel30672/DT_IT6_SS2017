@@ -7,6 +7,7 @@
 
 #include "Element.h"
 #include <vector>
+#include <stdio.h>
 
 using namespace std;
 
@@ -26,11 +27,7 @@ private:
 
     void sort(Element* e, int first, int last);
 
-    void print();
-
 public:
-
-    PriorityQueue();
 
     void insert(Node *e, int p);
 
@@ -44,6 +41,7 @@ public:
 
     Element* search(Node* n);
 
+    void print();
 };
 
 #endif //ALGORITHMS_CPP_PRIORITYQUEUE_H

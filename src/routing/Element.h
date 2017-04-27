@@ -14,10 +14,13 @@ private:
     int _priority;
 
 public:
+
+    Element();
     Element(Node *node, int priority);
+    ~Element();
 
     Node* getNode();
-
+    void setNode(Node* node);
     void setPriority(int prio);
     int getPriority();
 };
