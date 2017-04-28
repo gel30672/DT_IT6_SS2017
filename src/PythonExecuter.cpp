@@ -1,6 +1,8 @@
 //
 // Created by pfm on 4/20/17.
 //
+//Code adapted from https://docs.python.org/2/extending/embedding.html
+//© Copyright 1990-2017, Python Software Foundation.
 
 #include "../include/PythonExecuter.h"
 #include <python2.7/Python.h>
@@ -43,7 +45,7 @@ long PythonExecuter::execute(int argc, char *argv[]) {
                 /* pValue reference stolen here: */
                 PyTuple_SetItem(pArgs, i, pValue);
             }
-            while(1){
+
             pValue = PyObject_CallObject(pFunc, pArgs);
             Py_DECREF(pArgs);
             if (pValue != NULL) {
@@ -56,7 +58,6 @@ long PythonExecuter::execute(int argc, char *argv[]) {
                 PyErr_Print();
                 fprintf(stderr,"Call failed\n");
                 return 1;
-            }
             }
         }
         else {
