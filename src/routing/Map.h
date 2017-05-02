@@ -5,27 +5,31 @@
 #ifndef ROUTING_MAP_H
 #define ROUTING_MAP_H
 
-#define MapRasterCM 15
-#define MapWidthCM 500
-#define MapHeightCM 500
+#define MapRasterWidth_cm 15
+#define MapEnvWidth_cm 500
+#define MapEnvHeight_cm 500
+#define MapListElementBitsCount 32
 
 #include "Node.h"
 #include <stdlib.h>
 
 /*
  * The map will be saved this way:
- * 000000011100010001110000
- * (read this from right to left)
  *
+ * (read this from right to left)
+ * 0000000000111000100010010000110011100010
  * Mapping:
  * 1 = obstacle
  * 0 = free
  *
- * This displays e.g.:
- * 0 0 0 0 0 0
- * 0 0 1 1 1 0
- * 1 0 0 0 1 0
- * 0 0 0 0 1 1
+ * This displays e.g.: (line 1 till 4 = 948505826 and line 5 = 0)
+ * 4| 0 0 0 0 0 0 0 0
+ * 3| 0 0 0 1 1 1 0 0
+ * 2| 1 0 0 1 0 0 0 1
+ * 1| 0 0 1 1 0 0 0 0
+ * 0| 0 1 0 0 0 1 1 1
+ *  |________________
+ *    0 1 2 3 4 5 6 7
  */
 
 class Map {
@@ -35,8 +39,10 @@ private:
     int _size;
     bool isFree(int x, int y);
 
-    char* _carX;
-    char* _carY;
+    short _carX;
+    short _carY;
+
+    void initTestMap(); // Just for testing purpose
 
 public:
     Map();
@@ -45,6 +51,7 @@ public:
     Node* getNode(int x, int y);
     Node* getCarPosition();
     void getNeighbours(Node* nodelist, int x, int y);
+    int updateField(short x, short y, bool isObstacle);
 };
 
 #endif //ROUTING_MAP_H

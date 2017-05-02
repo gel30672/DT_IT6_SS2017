@@ -1,20 +1,43 @@
 //
 // Created by Andreas Zinkl on 25.04.17.
 //
+#include <string>
 #include "Map.h"
 
 Map::Map() {
 
-    _size = (MapHeightCM*MapWidthCM)/MapRasterCM/32;
+    // create the map on the size
+    _size = (MapEnvHeight_cm*MapEnvWidth_cm)/MapRasterWidth_cm/MapListElementBitsCount;
     nodelist = new unsigned int[_size];
-    nodelist[0] = 115824; // This inits a test map!
+
+    // set every field to 0
+    for(int i = 0; i < _size; i++) {
+        nodelist[i] = 0;
+    }
+
+    // TODO test - just test with a random map
+    initTestMap();
+}
+
+void Map::initTestMap() {
+    // This inits a test map!
+    char* map = "0000000000111000100010010000110011100010";
+    for(int i = 0; i < 40; i++) {
+        short t = i/32;
+        unsigned int akt = nodelist[t];
+        unsigned int in = map[i] == '0' ? 0 : 1;
+        akt = akt << 1;
+        akt |= in;
+        nodelist[t] = akt;
+    }
 }
 
 Map::~Map() {}
 
+// Returns a node with the given coordinates
 Node* Map::getNode(int x, int y) {
 
-    int pos = (MapWidthCM/MapRasterCM)*y+x;
+    int pos = (MapEnvWidth_cm/MapRasterWidth_cm)*y+x;
 
     Node* npointer = nullptr;
 
@@ -29,19 +52,21 @@ Node* Map::getNode(int x, int y) {
     return npointer;
 }
 
+// Check the map if the given field is free or if there's a obstacle
 bool Map::isFree(int x, int y) {
 
+    // There are only positive fields! no fields with negative indexes
     if(x < 0) return 0;
     if(y < 0) return 0;
 
-    //bitmuster der map
-    //bitmuster der pos verunden!
-    short fieldbit = (6*y)+x;
-    short mapindex = fieldbit/32;
+    //bit pattern of the map
+    //bit pattern of the pos and-ing!
+    short fieldbit = (_size*y)+x;
+    short mapindex = fieldbit/MapListElementBitsCount;
 
     unsigned int mapbits = nodelist[mapindex];
     printf("%d", mapbits);
-    fieldbit -= (32*mapindex);
+    fieldbit -= (MapListElementBitsCount*mapindex);
     printf("%d", fieldbit);
     unsigned int fieldbits = 1;
     fieldbits = fieldbits << fieldbit;
@@ -73,12 +98,31 @@ void Map::getNeighbours(Node* nodelist, int x, int y) {
     }
 }
 
-Node* Map::getCarPosition() {
-    // Wait till the localization implementation, then implement the car position getter!
-    char xc = *_carX;
-    char yc = *_carY;
-    int x = (int)xc;
-    int y = (int)yc;
+int Map::updateField(short x, short y, bool isObstacle) {
+    // calculate the bit position
+    int pos = x+y*MapEnvWidth_cm;
 
-    return new Node(x, y);
+    // calculate the array index from the bit position
+    short cntIndex = pos/32;
+
+    // generate the mapvalue
+    unsigned int obstacle = isObstacle == true ? 1 : 0;
+    obstacle = obstacle << pos-(cntIndex*MapListElementBitsCount);
+
+    // save the new obstacle in the map
+    nodelist[cntIndex] |= obstacle;
+    //Todo update auch wenns jetzt ein leeres feld ist
+
+    // Everything went through successfully!
+    return 0;
+}
+
+// returns the car position given from the localization
+Node* Map::getCarPosition() {
+
+    // TODO Wait till the localization implementation, then implement the car position getter!
+    _carX = 0;//Test with this data
+    _carY = 0;
+
+    return new Node(_carX, _carY);
 }
