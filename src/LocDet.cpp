@@ -2,8 +2,8 @@
 // Created by pfm on 4/20/17.
 //
 
-#include "../include/LocDet.h"
-#include "../include/testclass.h"
+#include "LocDet.h"
+#include "ReadDataFromSerial.h"
 #define _USE_MATH_DEFINES
 #include <iostream>
 #include <cmath>
@@ -35,7 +35,7 @@ void LocDet::calc_xpos(){
     double angle = 0.0;
     calculate_angle(Dist_A, distance, Dist_C, &angle);
     Pos_x = Dist_A* std::sin((angle / 180 )* M_PI);
-    std::cout << "XPos: " << Pos_x << std::endl;
+    //std::cout << "XPos: " << Pos_x << std::endl;
     calc_ypos();
 }
 
@@ -43,16 +43,16 @@ void LocDet::calc_ypos(){
     double angle = 0.0;
     calculate_angle(Dist_A, distance, Dist_B, &angle);
     Pos_y = Dist_A* std::sin((angle / 180 )* M_PI);
-    std::cout << "YPos: " << Pos_y << std::endl;
+    //std::cout << "YPos: " << Pos_y << std::endl;
 }
 
 void LocDet::execute() {
     Dist_A = 0;
     Dist_B = 0;
     Dist_C = 0;
-    testclass *tc = new testclass();
+    ReadDataFromSerial *Reader = new ReadDataFromSerial();
     input inp;
-    tc->get_data(&inp);
+    Reader->GetData(&inp,10);
 
 
     Dist_A = inp.A;
@@ -60,7 +60,7 @@ void LocDet::execute() {
     Dist_C = inp.C;
 
 
-    tc->get_data(&inp);
+    //Reader->GetData(&inp,5);
     calc_xpos();
 
 }
