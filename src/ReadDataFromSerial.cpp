@@ -2,7 +2,7 @@
 // Created by Kevin Krämer on 27.04.17.
 //
 
-#include "ReadDataFromSerial.h"
+#include "../include/ReadDataFromSerial.h"
 #include <iostream>
 #include <string>
 #include <stdio.h>   /* Standard input/output definitions */
