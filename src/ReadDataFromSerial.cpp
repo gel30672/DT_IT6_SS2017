@@ -10,12 +10,6 @@
 #include <fcntl.h>   /* File control definitions */
 #include <termios.h> /* POSIX terminal control definitions */
 
-#define OK 1
-#define Err -1
-#define TcgetattrErr -2
-#define ReadErr -3
-#define ReadNothingErr -4
-
 
 //Public Functions
 
@@ -104,7 +98,7 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
 
 /* Error Handling */
     if ( tcgetattr ( Port, &tty ) != 0 ) {
-        return TcgetattrErr;
+        return TcGetAttrErr;
     }
 
 /* Setting Port Stuff
@@ -127,7 +121,7 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
 /* Flush Port, then applies attributes */
     tcflush( Port, TCIFLUSH );
     if ( tcsetattr ( Port, TCSANOW, &tty ) != 0) {
-        return TcgetattrErr;
+        return TcGetAttrErr;
     }
 
     int n = 0,
@@ -139,7 +133,7 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
     //memset(&buffer, '\0', sizeof buffer);
 
     do {
-        n = read( Port, &buf, 1 );
+        n = (int)read( Port, &buf, 1 );
         sprintf(&response[spot], "%c", buf );
         spot += n;
     } while( buf != '\r' && n > 0);
