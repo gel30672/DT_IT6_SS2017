@@ -2,7 +2,7 @@
 //#include"Typs.h"
 //#inlude"ErrorCodes.h"
 
-#include "ReadDataFromSerial.h"
+
 #include "LocDet.h"
 
 
@@ -10,8 +10,8 @@
 
 int main(int argc, char* argv[]){
 
-   while(1)
-   {
+   //while(1)
+   //{
        LocDet *locsrv = new LocDet();
 
        position akt_pos;
@@ -25,6 +25,6 @@ int main(int argc, char* argv[]){
        std::cout <<"y: " <<(float) akt_pos.y / 1000 << " m" << std::endl;
 
 
-   }
+   //}
     return 0;
 }

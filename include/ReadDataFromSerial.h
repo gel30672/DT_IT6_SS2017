@@ -19,6 +19,8 @@ public:
     ReadDataFromSerial(){};
     ~ReadDataFromSerial(){};
     int GetData(input * Buffer, int MeanAmount);
+    int GetTestData(input * Buffer, int MeanAmount);
+
 private:
     void InitData();
     int ReadFromSerial(std::string *buffer);

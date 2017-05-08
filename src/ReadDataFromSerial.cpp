@@ -189,3 +189,11 @@ int ReadDataFromSerial::GetAnchorData(std::string SerialOutput,int* Buffer) {
     }
 
 }
+
+int ReadDataFromSerial::GetTestData(input *Buffer, int MeanAmount) {
+    Buffer->A = 8200;
+    Buffer->B = 4700;
+    Buffer->C = 7000;
+
+    return 0;
+}

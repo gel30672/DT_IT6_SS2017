@@ -12,8 +12,6 @@ struct position{
     short y;
 };
 
-
-
 class LocDet {
 public:
     LocDet();
@@ -30,6 +28,7 @@ private:
 
     void calculate_angle(int Side_A, int Side_B, int Side_C, double* angle);
     void execute();
+    void executewithVector();
     void calc_xpos();
     void calc_ypos();
 
