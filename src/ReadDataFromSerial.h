@@ -6,6 +6,7 @@
 #define READDATA_READDATAFROMSERIAL_H
 #include <iostream>
 #include <string>
+#include "ErrorCodes.h"
 
 struct input
 {
