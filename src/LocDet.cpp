@@ -5,15 +5,14 @@
 #include "../include/LocDet.h"
 #include "../include/ReadDataFromSerial.h"
 //#include "vector.h"
-#define _USE_MATH_DEFINES
 #include <iostream>
-#include <cmath>
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+
 
 LocDet::LocDet() {
-    distance = 5000;
+    Anchor_B.x = 5000;
+    Anchor_B.y = 0000;
+    Anchor_C.x = 4000;
+    Anchor_C.y = 4000;
 }
 
 LocDet::~LocDet() {}
@@ -28,27 +27,24 @@ void LocDet::get_position(position *pos){
 
 }
 
-void LocDet::calculate_angle(int Side_A, int Side_B, int Side_C, double* angle){
-    double numerator;
-    double denominator;
-    numerator = (Side_A * Side_A) + (Side_B * Side_B) - (Side_C * Side_C);
-    denominator = (Side_A * Side_B);
-    *angle = std::acos(0.5*(numerator / denominator))*(180/M_PI);
-}
-
 void LocDet::calc_xpos(){
-    double angle = 0.0;
-    calculate_angle(Dist_A, distance, Dist_C, &angle);
-    Pos_x = Dist_A* std::sin((angle / 180 )* M_PI);
-    //std::cout << "XPos: " << Pos_x << std::endl;
-    calc_ypos();
+    double x;
+    double numerator, demoniator;
+    numerator = (Dist_A*Dist_A)-(Dist_B*Dist_B)+(Anchor_B.x*Anchor_B.x);
+    demoniator = 2 *Anchor_B.x;
+    x = numerator / demoniator;
+    Pos_x = x;
+
+    calc_ypos(x);
 }
 
-void LocDet::calc_ypos(){
-    double angle = 0.0;
-    calculate_angle(Dist_A, distance, Dist_B, &angle);
-    Pos_y = Dist_A* std::sin((angle / 180 )* M_PI);
-    //std::cout << "YPos: " << Pos_y << std::endl;
+void LocDet::calc_ypos(int x){
+    double y;
+    double numerator, demoniator;
+    numerator = (Dist_A*Dist_A)-(Dist_C*Dist_C)+(Anchor_C.x*Anchor_C.x)+(Anchor_C.y*Anchor_C.y);
+    demoniator = 2 *Anchor_C.y;
+    y = (numerator / demoniator) - ((double)Anchor_C.x /(double) Anchor_C.y)*x;
+    Pos_y = y;
 }
 
 void LocDet::executewithVector() {
@@ -59,11 +55,6 @@ void LocDet::executewithVector() {
     input inp;
 
     Reader->GetTestData(&inp,10);
-
-
-    Dist_A = inp.A;
-    Dist_B = inp.B;
-    Dist_C = inp.C;
 
 }
 
@@ -82,14 +73,10 @@ int LocDet::execute() {
 
     }while (ERROR == !OK);
 
-
-
     Dist_A = inp.A;
     Dist_B = inp.B;
     Dist_C = inp.C;
 
-
-    //Reader->GetData(&inp,5);
     calc_xpos();
 
     return OK;
