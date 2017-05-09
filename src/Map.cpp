@@ -2,7 +2,7 @@
 // Created by Andreas Zinkl on 25.04.17.
 //
 #include <iostream>
-#include "Map.h"
+#include "../include/Map.h"
 
 Map::Map() {
 

@@ -1,6 +1,6 @@
 #include <iostream>
-#include "RouteCalculation.h"
-#include "Map.h"
+#include "../include/RouteCalculation.h"
+#include "../include/Map.h"
 
 
 int main() {

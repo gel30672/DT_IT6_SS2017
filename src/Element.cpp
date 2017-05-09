@@ -2,7 +2,7 @@
 // Created by Andreas Zinkl on 25.04.17.
 //
 
-#include "Element.h"
+#include "../include/Element.h"
 
 Element::Element() : _node(NULL), _priority(0) {}
 

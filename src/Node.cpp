@@ -2,7 +2,7 @@
 // Created by Andreas Zinkl on 23.04.17.
 //
 
-#include "Node.h"
+#include "../include/Node.h"
 
 Node::Node() : _x(0), _y(0), _costs(0){
     _predessesor = NULL;

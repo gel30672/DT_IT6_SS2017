@@ -4,7 +4,7 @@
 
 #include <cstdlib>
 #include <iostream>
-#include "RouteCalculation.h"
+#include "../include/RouteCalculation.h"
 
 RouteCalculation::RouteCalculation(Map* map, int xDestination, int yDestinationNode) : _map(map) {
     _start = *map->getCarPosition();
