@@ -8,6 +8,6 @@ add_executable(locsrv ${SOURCE_FILES})
 
 if (APPLE)
     target_link_libraries(locsrv -I /usr/local/include -L /usr/lib -lpython2.7) #Mac
-elseif (LINUX)
+elseif (UNIX AND NOT APPLE)
     target_link_libraries(locsrv -I /usr/local/include -L /usr/local/lib64 -lpython2.7) #Linux
 endif()
