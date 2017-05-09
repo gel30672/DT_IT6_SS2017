@@ -15,7 +15,9 @@ LocDet::LocDet() {
     Anchor_C.y = 4000;
 }
 
-LocDet::~LocDet() {}
+LocDet::~LocDet() {
+    delete &Anchor_B, &Anchor_C;
+}
 
 void LocDet::get_position(position *pos){
     Pos_x = 0;
@@ -30,7 +32,7 @@ void LocDet::get_position(position *pos){
 void LocDet::calc_xpos(){
     double x;
     double numerator, demoniator;
-    numerator = (Dist_A*Dist_A)-(Dist_B*Dist_B)+(Anchor_B.x*Anchor_B.x);
+    numerator = quad(Dist_A) - quad(Dist_B) + quad(Anchor_B.x);
     demoniator = 2 *Anchor_B.x;
     x = numerator / demoniator;
     Pos_x = x;
@@ -41,7 +43,7 @@ void LocDet::calc_xpos(){
 void LocDet::calc_ypos(int x){
     double y;
     double numerator, demoniator;
-    numerator = (Dist_A*Dist_A)-(Dist_C*Dist_C)+(Anchor_C.x*Anchor_C.x)+(Anchor_C.y*Anchor_C.y);
+    numerator = quad(Dist_A) - quad(Dist_C) + quad(Anchor_C.x) + quad(Anchor_C.y);
     demoniator = 2 *Anchor_C.y;
     y = (numerator / demoniator) - ((double)Anchor_C.x /(double) Anchor_C.y)*x;
     Pos_y = y;

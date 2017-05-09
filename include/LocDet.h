@@ -4,8 +4,7 @@
 
 #ifndef LOCSRV_LOCDET_H
 #define LOCSRV_LOCDET_H
-
-
+#define quad(x) ((x)*(x))
 
 struct position{
     short x;
@@ -31,9 +30,6 @@ private:
     void executewithVector();
     void calc_xpos();
     void calc_ypos(int x);
-
-
 };
-
 
 #endif //LOCSRV_LOCDET_H
