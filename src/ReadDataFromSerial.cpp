@@ -10,6 +10,7 @@
 #include <fcntl.h>   /* File control definitions */
 #include <termios.h> /* POSIX terminal control definitions */
 
+#define PORT "/dev/ttyACM0"
 
 //Public Functions
 
@@ -91,7 +92,7 @@ void ReadDataFromSerial::InitData() {
 int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
 {
     //Open Port
-    int Port = open( "/dev/ttyACM0", O_RDWR| O_NOCTTY );
+    int Port = open( PORT , O_RDWR| O_NOCTTY );
     struct termios tty;
 
     //memset (&tty, 0, sizeof tty);
