@@ -29,14 +29,14 @@ int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount)
             //Try Again
             if(ReadFromSerial(&SerialLine) != OK)
             {
-                return ReadErr;
+                return ERR;
             }
         }
         else
         {
             if(GetAnchorData(SerialLine, AnchorData) != OK)
             {
-                return Err;
+                return ERR;
             }
             else
             {
@@ -121,7 +121,7 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
 /* Flush Port, then applies attributes */
     tcflush( Port, TCIFLUSH );
     if ( tcsetattr ( Port, TCSANOW, &tty ) != 0) {
-        return TcGetAttrErr;
+        return TCGETATTRERR;
     }
 
     int n = 0,
@@ -142,7 +142,7 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
        return ReadErr;
     }
     else if (n == 0) {
-        return ReadNothingErr;
+        return READNOTHINGERR;
     }
     else {
         //Save response in given Buffer
@@ -150,7 +150,7 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
         return OK;
     }
 
-    return Err;
+    return ERR;
 
 }
 
@@ -164,7 +164,7 @@ int ReadDataFromSerial::GetAnchorData(std::string SerialOutput,int* Buffer) {
 
     if(pos == -1) // if start not found !
     {
-        return Err;
+        return ERR;
     }
     else
     {
