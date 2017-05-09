@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Route.h"
+#include "RouteCalculation.h"
 #include "Map.h"
 
 
@@ -7,7 +7,7 @@ int main() {
 
     // Init alle Sachen
     Map* map = new Map();
-    Route* routing = new Route(map,0,3);
+    RouteCalculation* routing = new RouteCalculation(map,2,5);
     routing->calculate();
 
     // Lösche das mal hier!

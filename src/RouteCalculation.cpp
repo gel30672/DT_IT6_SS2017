@@ -46,9 +46,9 @@ bool RouteCalculation::calculate() {
 
 
         // Check the neighbours
-        Node* nodes = new Node[9];
+        Node* nodes = new Node[MapCellNeighbourCount];
         _map->getNeighbours(nodes, currentNode->getX(), currentNode->getY());
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < MapCellNeighbourCount; i++) {
 
             Node* next = &nodes[i];
 
@@ -57,11 +57,14 @@ bool RouteCalculation::calculate() {
             }
 
             // search for the point in the closed list
+            bool found = false;
             for(Node* n : _closedlist) {
                 if (n->equals(next)) {
-                    continue;
+                    found = true;
+                    break;
                 }
             }
+            if(found) continue;
 
             // calculate the possible new costs
             int costs = 0;

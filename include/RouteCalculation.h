@@ -7,6 +7,7 @@
 
 #define StraightFieldCost 10
 #define DiagonalFieldCost 14
+#define MapCellNeighbourCount 8
 
 #include "Node.h"
 #include <vector>
