@@ -24,7 +24,7 @@ public:
 
 private:
     void InitData();
-    int ReadFromSerial(std::string *buffer);
+    int ReadFromSerial(std::string *buffer, std::string Typ);
     int GetAnchorData(std::string SerialOutput,int* Buffer);
 
     int AnchorData[4];

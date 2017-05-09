@@ -11,6 +11,7 @@
 #include <termios.h> /* POSIX terminal control definitions */
 
 #define PORT "/dev/ttyACM0"
+#define DATATYP "mr"
 
 //Public Functions
 
@@ -25,10 +26,10 @@ int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount)
 
     for(runs = 0; runs < MeanAmount; runs++)
     {
-        if(ReadFromSerial(&SerialLine) != OK) //Error
+        if(ReadFromSerial(&SerialLine,DATATYP) != OK) //Error
         {
             //Try Again
-            if(ReadFromSerial(&SerialLine) != OK)
+            if(ReadFromSerial(&SerialLine,DATATYP) != OK)
             {
                 return ERR;
             }
@@ -89,13 +90,11 @@ void ReadDataFromSerial::InitData() {
 }
 
 //Opens The Port and saves the Serial line in the given buffer
-int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
+int ReadDataFromSerial::ReadFromSerial(std::string *buffer , std::string Typ)
 {
     //Open Port
     int Port = open( PORT , O_RDWR| O_NOCTTY );
     struct termios tty;
-
-    //memset (&tty, 0, sizeof tty);
 
 /* Error Handling */
     if ( tcgetattr ( Port, &tty ) != 0 ) {
@@ -131,13 +130,31 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
 
 /* Whole response*/
     char response[1024];
-    //memset(&buffer, '\0', sizeof buffer);
 
     do {
         n = (int)read( Port, &buf, 1 );
         sprintf(&response[spot], "%c", buf );
         spot += n;
+        //Drop if wrong line
+        if(spot == 2)
+        {
+            if(Typ.find(Typ) == std::string::npos) // Not found -> Drop
+            {
+                //Reset
+                spot = n = 0;
+
+                tcflush( Port, TCIFLUSH );
+                if ( tcsetattr ( Port, TCSANOW, &tty ) != 0)
+                {
+                    return TCGETATTRERR;
+                }
+
+            }
+        }
     } while( buf != '\r' && n > 0);
+
+    //Close Port
+    close(Port);
 
     if (n < 0) {
        return READERR;
@@ -161,27 +178,20 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
 int ReadDataFromSerial::GetAnchorData(std::string SerialOutput,int* Buffer) {
 
     //checking if in correct form
-    unsigned long pos = SerialOutput.find("mc");
+    unsigned long pos = 6; // Jump to first Char of Anchor Data   // = SerialOutput.find("mc");
 
-    if(pos == -1) // if start not found !
+
+    //Coping Anchor Data in Buffer. Max 4 Anchors
+    //If one Anchor is not used Value = 0
+    for(int Index = 0; Index < 4; Index++)
     {
-        return ERR;
+        //Get data of Anchor Index and convert char to integer (base hex)
+        Buffer[Index] = (int)std::stoul(SerialOutput.substr(pos, 8), nullptr, 16);
+        pos += 9; // Next Anchor data
     }
-    else
-    {
-        pos += 6; // Jump to first Char of Anchor Data
 
-        //Coping Anchor Data in Buffer. Max 4 Anchors
-        //If one Anchor is not used Value = 0
-        for(int Index = 0; Index < 4; Index++)
-        {
-            //Get data of Anchor Index and convert char to integer (base hex)
-            Buffer[Index] = (int)std::stoul(SerialOutput.substr(pos, 8), nullptr, 16);
-            pos += 9; // Next Anchor data
-        }
+    return OK;
 
-        return OK;
-    }
 
 }
 
@@ -190,5 +200,5 @@ int ReadDataFromSerial::GetTestData(input *Buffer, int MeanAmount) {
     Buffer->B = 4700;
     Buffer->C = 7000;
 
-    return 0;
+    return OK;
 }
