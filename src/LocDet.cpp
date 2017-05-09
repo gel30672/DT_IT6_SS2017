@@ -4,7 +4,7 @@
 
 #include "../include/LocDet.h"
 #include "../include/ReadDataFromSerial.h"
-#include "vector.h"
+//#include "vector.h"
 #define _USE_MATH_DEFINES
 #include <iostream>
 #include <cmath>
@@ -80,7 +80,7 @@ int LocDet::execute() {
         if(count++ > 10)
             return TIMEOUTERR;
 
-    }while (ERROR = !OK);
+    }while (ERROR == !OK);
 
 
 
@@ -92,4 +92,5 @@ int LocDet::execute() {
     //Reader->GetData(&inp,5);
     calc_xpos();
 
+    return OK;
 }

@@ -21,5 +21,5 @@
 #define TCGETATTRERR -2 //Can't get information of terminal
 #define READERR -3 //Can't Read any data from SerialPort
 #define READNOTHINGERR -4 // SerialPort has no valid value -> Nothing read
-#define TIMEOURERR -5
+#define TIMEOUTERR -5
 #endif //READDATA_ERRORCODES_H

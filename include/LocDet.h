@@ -27,7 +27,7 @@ private:
     double Pos_y;
 
     void calculate_angle(int Side_A, int Side_B, int Side_C, double* angle);
-    void execute();
+    int execute();
     void executewithVector();
     void calc_xpos();
     void calc_ypos();

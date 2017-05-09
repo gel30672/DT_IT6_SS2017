@@ -98,7 +98,7 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
 
 /* Error Handling */
     if ( tcgetattr ( Port, &tty ) != 0 ) {
-        return TcGetAttrErr;
+        return TCGETATTRERR;
     }
 
 /* Setting Port Stuff
@@ -139,7 +139,7 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
     } while( buf != '\r' && n > 0);
 
     if (n < 0) {
-       return ReadErr;
+       return READERR;
     }
     else if (n == 0) {
         return READNOTHINGERR;
