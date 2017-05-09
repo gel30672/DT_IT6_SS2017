@@ -17,9 +17,9 @@
 #define OK 1 //Everything worked like excepted
 
 /* Negative Response */
-#define Err -1 // Something went wrong
-#define TcGetAttrErr -2 //Can't get information of terminal
-#define ReadErr -3 //Can't Read any data from SerialPort
-#define ReadNothingErr -4 // SerialPort has no valid value -> Nothing read
-
+#define ERR -1 // Something went wrong
+#define TCGETATTRERR -2 //Can't get information of terminal
+#define READERR -3 //Can't Read any data from SerialPort
+#define READNOTHINGERR -4 // SerialPort has no valid value -> Nothing read
+#define TIMEOURERR -5
 #endif //READDATA_ERRORCODES_H

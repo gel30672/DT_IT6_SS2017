@@ -8,6 +8,9 @@
 #define _USE_MATH_DEFINES
 #include <iostream>
 #include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 LocDet::LocDet() {
     distance = 5000;
@@ -18,8 +21,8 @@ LocDet::~LocDet() {}
 void LocDet::get_position(position *pos){
     Pos_x = 0;
     Pos_y = 0;
-    //execute();
-    executewithVector();
+    execute();
+    //executewithVector();
     pos->x = Pos_x;
     pos->y = Pos_y;
 
@@ -54,6 +57,7 @@ void LocDet::executewithVector() {
     Dist_C = 0;
     ReadDataFromSerial *Reader = new ReadDataFromSerial();
     input inp;
+
     Reader->GetTestData(&inp,10);
 
 
@@ -61,18 +65,23 @@ void LocDet::executewithVector() {
     Dist_B = inp.B;
     Dist_C = inp.C;
 
-
-
-
 }
 
-void LocDet::execute() {
+int LocDet::execute() {
     Dist_A = 0;
     Dist_B = 0;
     Dist_C = 0;
+    int ERROR = 0;
+    int count = 0;
     ReadDataFromSerial *Reader = new ReadDataFromSerial();
     input inp;
-    Reader->GetData(&inp,10);
+    do{
+        ERROR = Reader->GetTestData(&inp,10);
+        if(count++ > 10)
+            return TIMEOUTERR;
+
+    }while (ERROR = !OK);
+
 
 
     Dist_A = inp.A;
