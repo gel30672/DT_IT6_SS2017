@@ -135,22 +135,6 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer , std::string Typ)
         n = (int)read( Port, &buf, 1 );
         sprintf(&response[spot], "%c", buf );
         spot += n;
-        //Drop if wrong line
-        if(spot == 2)
-        {
-            if(Typ.find(Typ) == std::string::npos) // Not found -> Drop
-            {
-                //Reset
-                spot = n = 0;
-
-                tcflush( Port, TCIFLUSH );
-                if ( tcsetattr ( Port, TCSANOW, &tty ) != 0)
-                {
-                    return TCGETATTRERR;
-                }
-
-            }
-        }
     } while( buf != '\r' && n > 0);
 
     //Close Port
@@ -178,20 +162,27 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer , std::string Typ)
 int ReadDataFromSerial::GetAnchorData(std::string SerialOutput,int* Buffer) {
 
     //checking if in correct form
-    unsigned long pos = 6; // Jump to first Char of Anchor Data   // = SerialOutput.find("mc");
+    unsigned long pos = SerialOutput.find("mc");
 
-
-    //Coping Anchor Data in Buffer. Max 4 Anchors
-    //If one Anchor is not used Value = 0
-    for(int Index = 0; Index < 4; Index++)
+    if(pos == -1) // if start not found !
     {
-        //Get data of Anchor Index and convert char to integer (base hex)
-        Buffer[Index] = (int)std::stoul(SerialOutput.substr(pos, 8), nullptr, 16);
-        pos += 9; // Next Anchor data
+        return ERR;
     }
+    else
+    {
+        pos += 6; // Jump to first Char of Anchor Data
 
-    return OK;
+        //Coping Anchor Data in Buffer. Max 4 Anchors
+        //If one Anchor is not used Value = 0
+        for(int Index = 0; Index < 4; Index++)
+        {
+            //Get data of Anchor Index and convert char to integer (base hex)
+            Buffer[Index] = (int)std::stoul(SerialOutput.substr(pos, 8), nullptr, 16);
+            pos += 9; // Next Anchor data
+        }
 
+        return OK;
+    }
 
 }
 
