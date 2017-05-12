@@ -4,35 +4,32 @@
 
 #include "../include/ReadDataFromSerial.h"
 #include <iostream>
-#include <string>
-#include <stdio.h>   /* Standard input/output definitions */
+#include <stdio.h>
+#include <string.h>   /* Standard input/output definitions */
 #include <unistd.h>  /* UNIX standard function definitions */
 #include <fcntl.h>   /* File control definitions */
 #include <termios.h> /* POSIX terminal control definitions */
 
 #define PORT "/dev/ttyACM0"
-#define DATATYP "mr"
 
 //Public Functions
 
-int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount)
+int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount, int Typ)
 {
     std::string SerialLine; // Stores the complete string from serial Port
 
-    InitData();
+    if(InitData(Typ) != OK)
+    {
+        return ERR;
+    }
 
     int runs = 0;
     //Mean the Data
-
     for(runs = 0; runs < MeanAmount; runs++)
     {
-        if(ReadFromSerial(&SerialLine,DATATYP) != OK) //Error
+        if(ReadFromSerial(&SerialLine) != OK) //Error
         {
-            //Try Again
-            if(ReadFromSerial(&SerialLine,DATATYP) != OK)
-            {
                 return ERR;
-            }
         }
         else
         {
@@ -66,6 +63,7 @@ int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount)
         }
     }
 
+
     Buffer->A = (short)AnchorDataOverall[0];
     Buffer->B = (short)AnchorDataOverall[1];
     Buffer->C = (short)AnchorDataOverall[2];
@@ -77,7 +75,20 @@ int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount)
 //Private Functions
 
 //Sets all Variables to 0 - Just to be sure in the n+1 call
-void ReadDataFromSerial::InitData() {
+int ReadDataFromSerial::InitData(int Typ) {
+
+    if(Typ == MR)
+    {
+        strcpy(RawOrCorr,"mr");
+    }
+    else if (Typ == MC)
+    {
+        strcpy(RawOrCorr,"mc");
+    }
+    else
+    {
+        return WRONGTYPERR;
+    }
 
     //Just set Values for Anchor Array to 0
     for(int i = 0; i < 4; i++)
@@ -86,12 +97,14 @@ void ReadDataFromSerial::InitData() {
         AnchorDataOverall[i] = 0;
     }
 
+    return OK;
 
 }
 
 //Opens The Port and saves the Serial line in the given buffer
-int ReadDataFromSerial::ReadFromSerial(std::string *buffer , std::string Typ)
+int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
 {
+
     //Open Port
     int Port = open( PORT , O_RDWR| O_NOCTTY );
     struct termios tty;
@@ -131,11 +144,25 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer , std::string Typ)
 /* Whole response*/
     char response[1024];
 
-    do {
-        n = (int)read( Port, &buf, 1 );
-        sprintf(&response[spot], "%c", buf );
-        spot += n;
-    } while( buf != '\r' && n > 0);
+    //Read until DATATYP (mr or mc) found
+    do
+    {
+        spot = 0;
+        n = 0;
+        //Read one line Char for Char
+        do {
+            n = (int)read(Port, &buf, 1 );
+            //Drop Whitespaces
+            if(buf != ' ')
+            {
+                sprintf(&response[spot], "%c", buf);
+                spot += n;
+            }
+
+        } while( buf != '\r' && n > 0);
+
+    }while(strstr(response,RawOrCorr) == NULL);
+
 
     //Close Port
     close(Port);
@@ -161,30 +188,29 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer , std::string Typ)
 //Needed unmodified version of Serial string
 int ReadDataFromSerial::GetAnchorData(std::string SerialOutput,int* Buffer) {
 
-    //checking if in correct form
-    unsigned long pos = SerialOutput.find("mc");
+    //std::cout << SerialOutput << std::endl;
+    unsigned long pos = 0;
 
-    if(pos == -1) // if start not found !
+    pos = SerialOutput.find(RawOrCorr);
+
+    if(pos == std::string::npos)
     {
         return ERR;
     }
-    else
+
+    pos += 4;
+    //Coping Anchor Data in Buffer. Max 4 Anchors
+    //If one Anchor is not used Value = 0
+    for(int Index = 0; Index < 4; Index++)
     {
-        pos += 6; // Jump to first Char of Anchor Data
-
-        //Coping Anchor Data in Buffer. Max 4 Anchors
-        //If one Anchor is not used Value = 0
-        for(int Index = 0; Index < 4; Index++)
-        {
-            //Get data of Anchor Index and convert char to integer (base hex)
-            Buffer[Index] = (int)std::stoul(SerialOutput.substr(pos, 8), nullptr, 16);
-            pos += 9; // Next Anchor data
-        }
-
-        return OK;
+        //Get data of Anchor Index and convert char to integer (base hex)
+        Buffer[Index] = (int)std::stoul(SerialOutput.substr(pos, 8), nullptr, 16);
+        pos += 8; // Next Anchor data
     }
 
+    return OK;
 }
+
 
 int ReadDataFromSerial::GetTestData(input *Buffer, int MeanAmount) {
     Buffer->A = 5400;

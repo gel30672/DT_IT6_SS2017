@@ -13,6 +13,10 @@
 #ifndef READDATA_ERRORCODES_H
 #define READDATA_ERRORCODES_H
 
+//Defines TODO: define.h ?
+#define MR 0
+#define MC 1
+
 /* Positive Response */
 #define OK 1 //Everything worked like excepted
 
@@ -22,4 +26,5 @@
 #define READERR -3 //Can't Read any data from SerialPort
 #define READNOTHINGERR -4 // SerialPort has no valid value -> Nothing read
 #define TIMEOUTERR -5
+#define WRONGTYPERR -6
 #endif //READDATA_ERRORCODES_H

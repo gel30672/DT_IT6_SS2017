@@ -19,16 +19,18 @@ class ReadDataFromSerial {
 public:
     ReadDataFromSerial(){};
     ~ReadDataFromSerial(){};
-    int GetData(input * Buffer, int MeanAmount);
+    int GetData(input * Buffer, int MeanAmount,int Typ);
     int GetTestData(input * Buffer, int MeanAmount);
 
 private:
-    void InitData();
-    int ReadFromSerial(std::string *buffer, std::string Typ);
+    int InitData(int Typ);
+    int ReadFromSerial(std::string *buffer);
     int GetAnchorData(std::string SerialOutput,int* Buffer);
 
     int AnchorData[4];
     long AnchorDataOverall[4];
+    char RawOrCorr[2];
+
 };
 
 

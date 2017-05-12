@@ -69,7 +69,7 @@ int LocDet::execute() {
     ReadDataFromSerial *Reader = new ReadDataFromSerial();
     input inp;
     do{
-        ERROR = Reader->GetTestData(&inp,10);
+        ERROR = Reader->GetData(&inp,10,MC);
         if(count++ > 10)
             return TIMEOUTERR;
 
@@ -78,6 +78,8 @@ int LocDet::execute() {
     Dist_A = inp.A;
     Dist_B = inp.B;
     Dist_C = inp.C;
+
+    std::cout << "Dis: " << inp.A << std::endl;
 
     calc_xpos();
 
