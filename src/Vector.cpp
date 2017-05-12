@@ -2,7 +2,7 @@
 // Created by Andreas Zinkl on 11.05.17.
 //
 
-#include "Vector.h"
+#include "../include/Vector.h"
 
 Vector::Vector(Position head, Position foot) : head(head), foot(foot) { }
 
