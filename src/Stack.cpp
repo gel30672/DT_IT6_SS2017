@@ -4,9 +4,11 @@
 
 #include "../include/Stack.h"
 
-Stack::Stack() : top(0) {}
+template <class T>
+Stack<T>::Stack() : top(0) {}
 
-Stack::~Stack() {
+template <class T>
+Stack<T>::~Stack() {
     while ( !isEmpty() ) {
         pop();
     }
