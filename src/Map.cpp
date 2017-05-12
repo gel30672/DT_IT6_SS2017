@@ -157,7 +157,7 @@ int Map::updateField(short x, short y, bool isObstacle) {
 
     // generate the mapvalue
     unsigned int obstacle = isObstacle == true ? 1 : 0;
-    obstacle = obstacle << pos-(cntIndex*MapBitsInRow);
+    obstacle = obstacle << (pos - (cntIndex*MapBitsInRow));
 
     // save the new obstacle in the map
     nodelist[cntIndex] |= obstacle;
@@ -167,22 +167,15 @@ int Map::updateField(short x, short y, bool isObstacle) {
     return 0;
 }
 
-// returns the car position given from the localization
+// returns the car position node
+// this one does not check the current position!!!!!
 Node* Map::getCarPosition() {
 
-    // TODO Wait till the localization implementation, then implement the car position getter!
     _carX = 7;//Test with this data
     _carY = 0;
 
-    // todo the position check
-
-    // Get Car position from localization
-
-    // Check the old position and add the droven way
-
-    // check if the position are likely to be similar
-
-    // if the positions are completely different, something went wrong! stop the car and do the localization initialization again and then drive again
+    // todo this will not calculate the position ! it will just return a node with the position coordinates!!
+    // todo the calculation will be done at the driving part
 
     return new Node(_carX, _carY);
 }

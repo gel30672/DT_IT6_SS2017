@@ -8,7 +8,7 @@
 
 RouteCalculation::RouteCalculation(Map* map, int xDestination, int yDestinationNode) : _map(map) {
     _start = *map->getCarPosition();
-    _destination = *map->getNode(xDestination, yDestinationNode);
+    _destination = Node(xDestination, yDestinationNode);
     _openlistPQ = nullptr;
 }
 
