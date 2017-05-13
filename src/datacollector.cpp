@@ -2,7 +2,7 @@
 // Created by pfm on 5/11/17.
 //
 
-
+/*
 
 #include "../include/datacollector.h"
 #include <string>
@@ -43,3 +43,4 @@ void datacollector::run() {
     }
 }
 
+*/

@@ -14,7 +14,7 @@
 
 //Public Functions
 
-int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount, int Typ)
+int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount, short Typ)
 {
     std::string SerialLine; // Stores the complete string from serial Port
 
@@ -42,6 +42,7 @@ int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount, int Typ)
                 //Add new Values
                 for (int j = 0; j < 4; j++) {
                     //std::cout << "Adding Value for Index: " << j << " Value: " << AnchorData[j] << std::endl;
+                    //ValidateData(AnchorData);
                     AnchorDataOverall[j] += AnchorData[j];
                     //std::cout << "Value for Index  : " << j << " Value: " << AnchorDataOverall[j] << std::endl;
                 }
@@ -69,13 +70,14 @@ int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount, int Typ)
     Buffer->C = (short)AnchorDataOverall[2];
 
     return OK;
+
 }
 
 
 //Private Functions
 
 //Sets all Variables to 0 - Just to be sure in the n+1 call
-int ReadDataFromSerial::InitData(int Typ) {
+int ReadDataFromSerial::InitData(short Typ) {
 
     if(Typ == MR)
     {
@@ -217,5 +219,10 @@ int ReadDataFromSerial::GetTestData(input *Buffer, int MeanAmount) {
     Buffer->B = 10200;
     Buffer->C = 10900;
 
+    return OK;
+}
+
+int ValidateData(int* AnchorData)
+{
     return OK;
 }
