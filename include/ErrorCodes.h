@@ -5,7 +5,7 @@
  * Feel free to add new owns
  * Negative Values = Error Code
  * Positive Values = Information return (for example: written bytes after a successful operation)
- * ! DON'T USE VALUE : 0 !
+ * ! DON'T USE VALUE : 0 ! (For ERROR CODE)
  * Please add commands to your Codes !
  * Created by Kevin Krämer on 08.05.17.
 */

@@ -26,19 +26,24 @@ public:
 
 private:
     //Init all Data of Class
-    int InitData(short Typ);
+    int InitData();
     //Reads line of SerialPort (/tty/ACM0)
     int ReadFromSerial(std::string *buffer);
     //Collect Anchordata of given Serialline
     int GetAnchorData(std::string SerialOutput,int* Buffer);
     //Checks if AnchorData is valid TODO: Implement
     int ValidateData(int* AnchorData);
+    //Set Read Mode (MR or MC)
+    int SetReadTypMode(short Typ);
+    //
+    int ValidSerialLine(char* response);
 
 
     /* Class Variables */
     int AnchorData[4];
     long AnchorDataOverall[4];
-    char RawOrCorr[2];
+    char RawOrCorr[3];
+    char NotRawOrCorr[3];
 
 };
 

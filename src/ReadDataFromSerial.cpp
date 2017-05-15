@@ -12,13 +12,17 @@
 
 #define PORT "/dev/ttyACM0"
 
+
+
 //Public Functions
 
 int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount, short Typ)
 {
     std::string SerialLine; // Stores the complete string from serial Port
 
-    if(InitData(Typ) != OK)
+    InitData();
+
+    if(SetReadTypMode(Typ) != OK)
     {
         return ERR;
     }
@@ -29,22 +33,28 @@ int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount, short Typ)
     {
         if(ReadFromSerial(&SerialLine) != OK) //Error
         {
+
                 return ERR;
         }
         else
         {
             if(GetAnchorData(SerialLine, AnchorData) != OK)
             {
+
                 return ERR;
             }
             else
             {
                 //Add new Values
                 for (int j = 0; j < 4; j++) {
+
                     //std::cout << "Adding Value for Index: " << j << " Value: " << AnchorData[j] << std::endl;
+
                     //ValidateData(AnchorData);
                     AnchorDataOverall[j] += AnchorData[j];
+
                     //std::cout << "Value for Index  : " << j << " Value: " << AnchorDataOverall[j] << std::endl;
+
                 }
             }
         }
@@ -76,21 +86,32 @@ int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount, short Typ)
 
 //Private Functions
 
-//Sets all Variables to 0 - Just to be sure in the n+1 call
-int ReadDataFromSerial::InitData(short Typ) {
+int ReadDataFromSerial::SetReadTypMode(short Typ)
+{
+    switch(Typ)
+    {
+        case(MR):
+            strncpy(RawOrCorr,"mr",sizeof(RawOrCorr));
+            strncpy(NotRawOrCorr,"mc", sizeof(NotRawOrCorr));
+            break;
 
-    if(Typ == MR)
-    {
-        strcpy(RawOrCorr,"mr");
+        case (MC):
+            strncpy(RawOrCorr,"mc",sizeof(RawOrCorr));
+            strncpy(NotRawOrCorr,"mr",sizeof(NotRawOrCorr));
+            break;
+
+        default:
+            return WRONGTYPERR;
+
     }
-    else if (Typ == MC)
-    {
-        strcpy(RawOrCorr,"mc");
-    }
-    else
-    {
-        return WRONGTYPERR;
-    }
+    return OK;
+}
+
+
+
+//Sets all Variables to 0 - Just to be sure in the n+1 call
+int ReadDataFromSerial::InitData() {
+
 
     //Just set Values for Anchor Array to 0
     for(int i = 0; i < 4; i++)
@@ -139,31 +160,34 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
         return TCGETATTRERR;
     }
 
-    int n = 0,
-    spot = 0;
+    int n = 0, spot = 0, cnt = 0;
     char buf = '\0';
 
 /* Whole response*/
     char response[1024];
 
-    //Read until DATATYP (mr or mc) found
+    //Read until RawOrCorr (mr or mc) found
     do
     {
+        //Reset values
         spot = 0;
         n = 0;
+        buf = '\0';
+
         //Read one line Char for Char
         do {
-            n = (int)read(Port, &buf, 1 );
-            //Drop Whitespaces
-            if(buf != ' ')
-            {
-                sprintf(&response[spot], "%c", buf);
-                spot += n;
-            }
+                n = (int)read(Port, &buf, 1 );
+                //Drop Whitespaces
+                if(buf != ' ')
+                {
+                    sprintf(&response[spot], "%c", buf);
+                    spot += n;
+                }
 
-        } while( buf != '\r' && n > 0);
+            } while( buf != '\r' && n > 0);
 
-    }while(strstr(response,RawOrCorr) == NULL);
+
+    }while(ValidSerialLine(response) != OK);
 
 
     //Close Port
@@ -185,15 +209,38 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
 
 }
 
+int ReadDataFromSerial::ValidSerialLine(char* response)
+{
+    if(strstr(response,RawOrCorr) != NULL) //Check if RawOrCorr in Line
+    {
+        if(strstr(response,NotRawOrCorr) != NULL) //Check if NotRawOrCorr in Line
+        {
+            //std::cout << "Found" << std::endl;
+            return ERR;
+
+        }
+
+        return OK;
+    }
+
+    return ERR;
+}
+
 
 //Gets the Anchor Data from the given Serial string.
 //Needed unmodified version of Serial string
 int ReadDataFromSerial::GetAnchorData(std::string SerialOutput,int* Buffer) {
 
     //std::cout << SerialOutput << std::endl;
-    unsigned long pos = 0;
+    std::string::size_type pos = 0;
 
-    pos = SerialOutput.find(RawOrCorr);
+
+      //  std::cout << "GetAnchorData" << std::endl;
+      //  std::cout << SerialOutput << std::endl;
+
+
+    pos = SerialOutput.find(RawOrCorr,0);
+
 
     if(pos == std::string::npos)
     {
@@ -221,6 +268,7 @@ int ReadDataFromSerial::GetTestData(input *Buffer, int MeanAmount) {
 
     return OK;
 }
+
 
 int ValidateData(int* AnchorData)
 {
