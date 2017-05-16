@@ -15,9 +15,6 @@ e_state setSpeed(signed char speed)
 			speed = speed*-1;
 			speed |= 128;
 		}
-
-		printf("%d", (char) speed);
-
 		serialPutchar(uart, speed);
 		return E_OK;
 	}
@@ -30,7 +27,7 @@ int motorInit()
 	return uart;
 }
 
-e_state move(int rpm)
+e_state MotorMoveRpm(int rpm)
 {
 	//if(rpm > 80) return E_NOT_OK;
 	//else
@@ -40,7 +37,7 @@ e_state move(int rpm)
 	//}
 }
 
-e_state moveKph(float speed)
+e_state MotorMoveKph(float speed)
 {
 	if(speed > 19) return E_NOT_OK;
 	else
@@ -49,7 +46,7 @@ e_state moveKph(float speed)
 		return E_OK;
 	}
 }
-e_state moveMps(float speed)
+e_state MotorMoveMps(float speed)
 {
 	if(speed > 5.27) return E_NOT_OK;
 	else

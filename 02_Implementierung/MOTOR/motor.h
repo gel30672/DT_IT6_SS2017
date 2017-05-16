@@ -25,8 +25,8 @@ int direction;
 
 e_state setSpeed(signed char speed);
 int motorInit();
-e_state move(int rpm);
-e_state moveKph(float speed);
-e_state moveMps(float speed);
+e_state MotorMoveRpm(int rpm);
+e_state MotorMoveKph(float speed);
+e_state MotorMoveMps(float speed);
 
 #endif

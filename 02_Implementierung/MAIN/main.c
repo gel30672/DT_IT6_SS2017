@@ -14,8 +14,6 @@ int shaft_rpm;
 unsigned int shaft_rotations;
 int last_input;
 
-int ctr;
-
 void main_init()
 {
 	gpio_init();
@@ -96,11 +94,6 @@ void vehicle_state_machine()
 
 void task_100_ms()
 {
-	++ctr;
-	if(ctr == 200)
-		move(0);
-
-
 	/* rotations / 2700ms */
 	shaft_rotations = serialGetchar(uart);
 	/*/2.7 /10 == ration/100ms; *6.666 == ration of wheel */
@@ -126,8 +119,8 @@ void task_100_ms()
 	/* pid controller rpm */
 	calc_pid(&motor_pid);
 
-	printf("out: %d, state: %d, sp: %d, rpm %d, dist: %lf, err: %d, rot: %d \n", motor_pid.out,
-			e_driving_state, motor_pid.actual_setpoint, motor_pid.in, distanceSinceStart, motor_pid.old_err, shaft_rotations);
+	//printf("out: %d, state: %d, sp: %d, rpm %d, dist: %lf, err: %d, rot: %d \n", motor_pid.out,
+	//		e_driving_state, motor_pid.actual_setpoint, motor_pid.in, distanceSinceStart, motor_pid.old_err, shaft_rotations);
 }
 
 int main(void)
@@ -135,10 +128,6 @@ int main(void)
 	main_init();
     printf("Press CTRL+C to quit.\n");
 
-    ctr = 0;
-
-    SetDegrees(0);
-    move(500);
     int old_time, time;
     while(1)
     {

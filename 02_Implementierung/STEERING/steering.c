@@ -19,7 +19,7 @@ void HwPwmSteeringInit()
 	pwmSetRange(HW_PWM_RANGE);
 }
 
-e_state SetDegrees(int degree)
+e_state SteerDegrees(int degree)
 {
 	if(degree>-26 && degree<26)
 	{

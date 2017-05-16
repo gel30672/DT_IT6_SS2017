@@ -15,6 +15,6 @@
 #define HW_PWM_RANGE 1000
 
 void HwPwmSteeringInit();
-e_state SetDegrees(int degree);
+e_state SteerDegrees(int degree);
 
 #endif /* STEERING_H_ */
