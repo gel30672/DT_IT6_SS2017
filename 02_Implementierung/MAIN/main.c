@@ -20,9 +20,9 @@ void main_init()
 	distanceSinceStart = 0;
 
 	/* motor pid params */
-	motor_pid.kp = 0.009;
-	motor_pid.ki = 0.001;
-	motor_pid.kd = 0.0006;
+	motor_pid.kp = 0.013;//0.009
+	motor_pid.ki = 0.002;//0.001
+	motor_pid.kd = 0.0008;//0.0006
 
 	motor_pid.out_max = 100; //~70% of maximum
 	motor_pid.out_min = -100;
