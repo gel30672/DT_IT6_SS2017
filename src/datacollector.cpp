@@ -2,11 +2,11 @@
 // Created by pfm on 5/11/17.
 //
 
-/*
 
 #include "../include/datacollector.h"
 #include <string>
 #include "../include/ReadDataFromSerial.h"
+#include "../include/LocDet.h"
 
 
 datacollector::datacollector() {
@@ -28,8 +28,9 @@ void datacollector::run() {
     if(book){
         libxl::Sheet* sheet = book->addSheet(label.c_str(), 0);
 
-        for(int i = 3; i < 20; i++){
-            reader->GetTestData(&buf, 5);
+        for(int i = 0; i < 999; i++){
+            std::cout << i << std::endl;
+            reader->GetData(&buf, 1, MC);
             //std::cout << buf.A << " " << buf.B << " " << buf.C << std::endl;
             sheet->writeStr(i,3, std::to_string(buf.A).c_str());
             sheet->writeStr(i,4, std::to_string(buf.B).c_str());
@@ -42,5 +43,3 @@ void datacollector::run() {
         book->release();
     }
 }
-
-*/

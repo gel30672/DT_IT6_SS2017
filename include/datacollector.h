@@ -3,7 +3,7 @@
 //
 
 
-/*
+
 #ifndef LOCSRV_DATACOLLECTOR_H
 #define LOCSRV_DATACOLLECTOR_H
 
@@ -23,4 +23,3 @@ private:
 
 
 #endif //LOCSRV_DATACOLLECTOR_H
-*/

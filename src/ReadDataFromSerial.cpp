@@ -4,7 +4,6 @@
 
 #include "../include/ReadDataFromSerial.h"
 #include <iostream>
-#include <stdio.h>
 #include <string.h>   /* Standard input/output definitions */
 #include <unistd.h>  /* UNIX standard function definitions */
 #include <fcntl.h>   /* File control definitions */
@@ -190,6 +189,7 @@ int ReadDataFromSerial::ReadFromSerial(std::string *buffer)
     }while(ValidSerialLine(response) != OK);
 
 
+    //std::cout << "Serial Line: " << response << std::endl;
     //Close Port
     close(Port);
 
@@ -262,9 +262,9 @@ int ReadDataFromSerial::GetAnchorData(std::string SerialOutput,int* Buffer) {
 
 
 int ReadDataFromSerial::GetTestData(input *Buffer, int MeanAmount) {
-    Buffer->A = 5400;
-    Buffer->B = 10200;
-    Buffer->C = 10900;
+    Buffer->A = 5900;
+    Buffer->B = 6300;
+    Buffer->C = 9500;
 
     return OK;
 }

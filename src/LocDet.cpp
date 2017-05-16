@@ -4,29 +4,30 @@
 
 #include "../include/LocDet.h"
 #include "../include/ReadDataFromSerial.h"
-//#include "vector.h"
+#include <xls/libxl.h>
+
 #include <iostream>
 
 
 LocDet::LocDet() {
-    Anchor_B.x = 5000;
+    Anchor_B.x = 5010;
     Anchor_B.y = 0000;
-    Anchor_C.x = 4000;
-    Anchor_C.y = 4000;
+    Anchor_C.x = 2503;
+    Anchor_C.y = 3022;
 }
 
 LocDet::~LocDet() {
     delete &Anchor_B, &Anchor_C;
 }
 
-void LocDet::get_position(position *pos){
+int LocDet::get_position(Position *pos){
     Pos_x = 0;
     Pos_y = 0;
-    execute();
+    int ret = execute();
     //executewithVector();
     pos->x = Pos_x;
     pos->y = Pos_y;
-
+    return ret;
 }
 
 void LocDet::calc_xpos(){
@@ -45,7 +46,7 @@ void LocDet::calc_ypos(int x){
     double numerator, demoniator;
     numerator = quad(Dist_A) - quad(Dist_C) + quad(Anchor_C.x) + quad(Anchor_C.y);
     demoniator = 2 *Anchor_C.y;
-    y = (numerator / demoniator) - ((double)Anchor_C.x /(double) Anchor_C.y)*x;
+    y = (numerator / demoniator) - ((double)Anchor_C.x /(double) Anchor_C.y)*(double)x;
     Pos_y = y;
 }
 
@@ -60,6 +61,35 @@ void LocDet::executewithVector() {
 
 }
 
+void LocDet::collectTestData() {
+    libxl::Book* book = xlCreateBookA();
+    std::string label = "Data";
+    ReadDataFromSerial *reader = new ReadDataFromSerial();
+    input buf;
+
+
+    book->load("/home/pfm/Documents/data.xls");
+    if(book){
+        libxl::Sheet* sheet = book->addSheet(label.c_str(), 0);
+
+        for(int i = 0; i < 501; i++) {
+            std::cout << i << std::endl;
+            //reader->GetData(&buf, 1, MC);
+            execute();
+            //std::cout << buf.A << " " << buf.B << " " << buf.C << std::endl;
+            sheet->writeStr(i, 3, std::to_string(Dist_A).c_str());
+            sheet->writeStr(i, 4, std::to_string(Dist_B).c_str());
+            sheet->writeStr(i, 5, std::to_string(Dist_C).c_str());
+            sheet->writeStr(i, 6, std::to_string(Pos_x).c_str());
+            sheet->writeStr(i, 7, std::to_string(Pos_y).c_str());
+        }
+
+        book->save("/home/pfm/Documents/data.xls");
+        book->release();
+    }
+
+}
+
 int LocDet::execute() {
     Dist_A = 0;
     Dist_B = 0;
@@ -69,7 +99,10 @@ int LocDet::execute() {
     ReadDataFromSerial *Reader = new ReadDataFromSerial();
     input inp;
     do{
-        ERROR = Reader->GetData(&inp,10,MC);
+        ERROR = Reader->GetData(&inp,5,MR);
+        if(!inp.A || !inp.B || !inp.C){
+            ERROR = !OK;
+        }
         if(count++ > 10)
             return TIMEOUTERR;
 
@@ -79,9 +112,9 @@ int LocDet::execute() {
     Dist_B = inp.B;
     Dist_C = inp.C;
 
-    std::cout << "Dis: " << inp.A << std::endl;
 
     calc_xpos();
+
 
     return OK;
 }
