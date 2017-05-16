@@ -67,16 +67,13 @@ void LocDet::collectTestData() {
     ReadDataFromSerial *reader = new ReadDataFromSerial();
     input buf;
 
-
     book->load("/home/pfm/Documents/data.xls");
     if(book){
         libxl::Sheet* sheet = book->addSheet(label.c_str(), 0);
 
         for(int i = 0; i < 501; i++) {
             std::cout << i << std::endl;
-            //reader->GetData(&buf, 1, MC);
             execute();
-            //std::cout << buf.A << " " << buf.B << " " << buf.C << std::endl;
             sheet->writeStr(i, 3, std::to_string(Dist_A).c_str());
             sheet->writeStr(i, 4, std::to_string(Dist_B).c_str());
             sheet->writeStr(i, 5, std::to_string(Dist_C).c_str());
@@ -99,7 +96,7 @@ int LocDet::execute() {
     ReadDataFromSerial *Reader = new ReadDataFromSerial();
     input inp;
     do{
-        ERROR = Reader->GetData(&inp,5,MR);
+        ERROR = Reader->GetData(&inp,1,MR);
         if(!inp.A || !inp.B || !inp.C){
             ERROR = !OK;
         }
@@ -112,9 +109,6 @@ int LocDet::execute() {
     Dist_B = inp.B;
     Dist_C = inp.C;
 
-
     calc_xpos();
-
-
     return OK;
 }

@@ -6,7 +6,6 @@
 #include "../include/datacollector.h"
 #include <string>
 #include "../include/ReadDataFromSerial.h"
-#include "../include/LocDet.h"
 
 
 datacollector::datacollector() {
@@ -30,7 +29,7 @@ void datacollector::run() {
 
         for(int i = 0; i < 999; i++){
             std::cout << i << std::endl;
-            reader->GetData(&buf, 1, MC);
+            reader->GetData(&buf, 1, MR);
             //std::cout << buf.A << " " << buf.B << " " << buf.C << std::endl;
             sheet->writeStr(i,3, std::to_string(buf.A).c_str());
             sheet->writeStr(i,4, std::to_string(buf.B).c_str());
