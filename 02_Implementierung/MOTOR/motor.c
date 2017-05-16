@@ -42,7 +42,7 @@ e_state MotorMoveKph(float speed)
 	if(speed > 19) return E_NOT_OK;
 	else
 	{
-		move(speed*25/6);
+		MotorMoveRpm(speed*25/6);
 		return E_OK;
 	}
 }
@@ -51,7 +51,7 @@ e_state MotorMoveMps(float speed)
 	if(speed > 5.27) return E_NOT_OK;
 	else
 	{
-		move(speed*15);
+		MotorMoveRpm(speed*15);
 		return E_OK;
 	}
 }
