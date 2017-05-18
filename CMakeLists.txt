@@ -1,4 +1,3 @@
 cmake_minimum_required(VERSION 3.6)
-project(locsrv)
+project(dt2017)
 add_subdirectory(src)
-
