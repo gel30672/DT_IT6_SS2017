@@ -2,7 +2,7 @@
 // Created by pfm on 5/11/17.
 //
 
-
+/*
 #include "../include/datacollector.h"
 #include <string>
 #include "../include/ReadDataFromSerial.h"
@@ -42,3 +42,5 @@ void datacollector::run() {
         book->release();
     }
 }
+
+ */

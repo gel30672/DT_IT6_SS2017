@@ -61,6 +61,8 @@ void LocDet::executewithVector() {
 
 }
 
+/*
+
 void LocDet::collectTestData() {
     libxl::Book* book = xlCreateBookA();
     std::string label = "Data";
@@ -86,6 +88,8 @@ void LocDet::collectTestData() {
     }
 
 }
+
+ */
 
 int LocDet::execute() {
     Dist_A = 0;

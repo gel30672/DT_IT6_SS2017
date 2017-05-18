@@ -3,7 +3,7 @@
 //#inlude"ErrorCodes.h"
 
 #include "../include/LocDet.h"
-
+/*
 int main(int argc, char* argv[]){
        LocDet *locsrv = new LocDet();
        Position akt_pos;
@@ -16,3 +16,5 @@ int main(int argc, char* argv[]){
 
     return 0;
 }
+
+ */
