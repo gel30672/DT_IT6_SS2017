@@ -29,12 +29,12 @@ int motorInit()
 
 e_state MotorMoveRpm(int rpm)
 {
-	//if(rpm > 80) return E_NOT_OK;
-	//else
-	//{
+	if(rpm > 4700) return E_NOT_OK;
+	else
+	{
 		motor_pid.setpoint = rpm;
 		return E_OK;
-	//}
+	}
 }
 
 e_state MotorMoveKph(float speed)
@@ -42,8 +42,7 @@ e_state MotorMoveKph(float speed)
 	if(speed > 19) return E_NOT_OK;
 	else
 	{
-		MotorMoveRpm(speed*25/6);
-		return E_OK;
+		return MotorMoveRpm(speed*25/6);
 	}
 }
 e_state MotorMoveMps(float speed)
@@ -51,7 +50,6 @@ e_state MotorMoveMps(float speed)
 	if(speed > 5.27) return E_NOT_OK;
 	else
 	{
-		MotorMoveRpm(speed*15);
-		return E_OK;
+		return MotorMoveRpm(speed*15);
 	}
 }

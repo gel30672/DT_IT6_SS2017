@@ -14,6 +14,8 @@ int shaft_rpm;
 unsigned int shaft_rotations;
 int last_input;
 
+int ctr = 0;
+
 void main_init()
 {
 	gpio_init();
@@ -86,7 +88,7 @@ void vehicle_state_machine()
 		else
 		{
 			reset_pid(&motor_pid);
-			setSpeed(0);
+			setSpeed(-5);
 		}
 	break;
 	}
@@ -94,11 +96,22 @@ void vehicle_state_machine()
 
 void task_100_ms()
 {
+	ctr++;
+	if(distanceSinceStart >= 100)
+	{
+		printf("stop");
+		MotorMoveRpm(0);
+	}
+	if(ctr == 60)
+		MotorMoveRpm(0);
+	if(ctr == 70)
+		MotorMoveRpm(0);
+
 	/* rotations / 2700ms */
 	shaft_rotations = serialGetchar(uart);
 	/*/2.7 /10 == ration/100ms; *6.666 == ration of wheel */
 	/*in cm*/
-	distanceSinceStart += ((shaft_rotations/2.7) /10) *6.666;
+	distanceSinceStart += ((shaft_rotations/2.7) /10) * 6.735; //6.83
 	serialFlush(uart);
 
 	/* average filter shaft_rpm for pid controller input */
@@ -119,14 +132,16 @@ void task_100_ms()
 	/* pid controller rpm */
 	calc_pid(&motor_pid);
 
-	//printf("out: %d, state: %d, sp: %d, rpm %d, dist: %lf, err: %d, rot: %d \n", motor_pid.out,
-	//		e_driving_state, motor_pid.actual_setpoint, motor_pid.in, distanceSinceStart, motor_pid.old_err, shaft_rotations);
+	printf("out: %d, state: %d, sp: %d, rpm %d, dist: %lf, err: %d, rot: %d \n", motor_pid.out,
+			e_driving_state, motor_pid.actual_setpoint, motor_pid.in, distanceSinceStart, motor_pid.old_err, shaft_rotations);
 }
 
 int main(void)
 {
 	main_init();
     printf("Press CTRL+C to quit.\n");
+
+    MotorMoveRpm(800);
 
     int old_time, time;
     while(1)
