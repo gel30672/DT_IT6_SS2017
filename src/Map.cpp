@@ -10,6 +10,8 @@ Map::Map() {
     _size = (MapColumnsCount*MapRowsCount)/MapBitsInRow;
     _size += ((MapColumnsCount*MapRowsCount)%MapBitsInRow > 0) ? 1 : 0;
     nodelist = new unsigned short[_size];
+    currentPosition.x = 0;
+    currentPosition.y = 0;
 
     // set every field to 0
     for(int i = 0; i < _size; i++) {
@@ -120,6 +122,7 @@ bool Map::isFree(short x, short y) {
     unsigned short checkbits = 1;
     checkbits = checkbits << bitInMapIndex;
 
+    // check if the fild is free or not
     short isFree = mapbits&checkbits;
 
     return !(bool)isFree; // if not 0 then free.. if 1 then obstacle
@@ -141,8 +144,8 @@ void Map::getNeighbours(Node* nodelist, short x, short y) {
                 continue;
             }
 
-            if(isFree(m,n)) nodelist[index] = Node(m,n);
-            else nodelist[index] = Node(-1,-1);
+            if(isFree(m,n)) nodelist[index] = Node(m,n); // field is free, save the node
+            else nodelist[index] = Node(-1,-1); // field is not free, save a error node
             index++;
         }
     }
@@ -155,36 +158,49 @@ int Map::updateField(short x, short y, bool isObstacle) {
     // calculate the array index from the bit position
     short cntIndex = pos/32;
 
-    // generate the mapvalue
-    unsigned int obstacle = isObstacle == true ? 1 : 0;
-    obstacle = obstacle << pos-(cntIndex*MapBitsInRow);
+    // save the "obstacle" in the map
+    unsigned int obstacle = 0;
+    obstacle = 1;
+    obstacle = obstacle << (pos-(cntIndex*MapBitsInRow));
+    if(isObstacle) {
 
-    // save the new obstacle in the map
-    nodelist[cntIndex] |= obstacle;
-    //Todo update auch wenns jetzt ein leeres feld ist
+        // save the new obstacle in the map
+        nodelist[cntIndex] |= obstacle;
+    } else {
+
+        // invert the map
+        obstacle = ~obstacle;
+
+        // save the new free field in the map
+        nodelist[cntIndex] = nodelist[cntIndex] && obstacle;
+    }
 
     // Everything went through successfully!
     return 0;
 }
 
+
 // returns the car position given from the localization
-Node* Map::getCarPosition() {
+Position* Map::getCarPosition() {
 
-    // TODO Wait till the localization implementation, then implement the car position getter!
-    _carX = 7;//Test with this data
-    _carY = 0;
+    //todo
 
-    // todo the position check
+    // check the positions and update it if necessary
 
-    // Get Car position from localization
+    // call the uwb sensor for localization
 
-    // Check the old position and add the droven way
+    // return the current position
+    return &currentPosition;
+}
 
-    // check if the position are likely to be similar
+// returns the car position given from the localization
+Node* Map::getCarPositionNode() {
 
-    // if the positions are completely different, something went wrong! stop the car and do the localization initialization again and then drive again
+    //Test with this data
+    currentPosition.x = 7;
+    currentPosition.y = 0;
 
-    return new Node(_carX, _carY);
+    return new Node(currentPosition.x, currentPosition.y);
 }
 
 void Map::print() {

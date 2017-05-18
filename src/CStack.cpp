@@ -2,13 +2,13 @@
 // Created by Andreas Zinkl on 12.05.17.
 //
 
-#include "../include/Stack.h"
+#include "../include/CStack.h"
 
 template <class T>
-Stack<T>::Stack() : top(0) {}
+CStack<T>::CStack() : top(0) {}
 
 template <class T>
-Stack<T>::~Stack() {
+CStack<T>::~CStack() {
     while ( !isEmpty() ) {
         pop();
     }
@@ -16,12 +16,12 @@ Stack<T>::~Stack() {
 }
 
 template <class T>
-void Stack<T>::push(const T& obj) {
+void CStack<T>::push(const T& obj) {
     top = new StackNode(obj, top);
 }
 
 template <class T>
-T Stack<T>::pop() {
+T CStack<T>::pop() {
     if ( !isEmpty() ) {
         StackNode *topNode = top;
         top = top->next;
@@ -32,13 +32,13 @@ T Stack<T>::pop() {
 }
 
 template <class T>
-const T& Stack<T>::topElement() {
+const T& CStack<T>::topElement() {
     if ( !isEmpty() ) {
         return top->data;
     }
 }
 
 template <class T>
-bool Stack<T>::isEmpty() {
+bool CStack<T>::isEmpty() {
     return top == 0;
 }

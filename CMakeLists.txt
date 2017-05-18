@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.6)
 project(dt2017)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -v -stdlib=libc++")
 
-file(GLOB_RECURSE header ./include/*.h)
-file(GLOB_RECURSE sources ./src/*.cpp)
+include_directories(./include)
+file(GLOB sources ./src/*.cpp)
 
-add_executable(dt2017 ${sources} ${header})
+add_executable(dt2017 ${sources})

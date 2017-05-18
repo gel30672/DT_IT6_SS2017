@@ -1,20 +1,19 @@
-#include <iostream>
-#include "../include/RouteCalculation.h"
-#include "../include/Map.h"
 
+#include "../include/Map.h"
+#include "../include/Route.h"
 
 int main() {
 
     // Init alle Sachen
     Map* map = new Map();
-    RouteCalculation* routing = new RouteCalculation(map,2,5);
-    routing->calculate();
+    Route* r = new Route(map);
+    r->startCalculation();
 
     // Lösche das mal hier!
     delete map;
     map = nullptr;
-    delete routing;
-    routing = nullptr;
+    delete r;
+    r = nullptr;
 
     return 0;
 }

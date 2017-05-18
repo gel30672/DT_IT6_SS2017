@@ -4,10 +4,12 @@
 
 #include "../include/Command.h"
 
-Command::Command(short fullDistance, short partDistance, short direction) : _fullDistance(fullDistance), _partDistance(partDistance), _direction(direction) {}
+Command::Command(short fullDistance, short partDistance, Position* destination, short direction)
+        : _fullDistance(fullDistance), _partDistance(partDistance), _destination(destination), _direction(direction) {}
 
 Command::~Command() {
     // delete the positions if necessary
+    delete _destination;
 }
 
 void Command::execute() {

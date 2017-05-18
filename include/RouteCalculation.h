@@ -2,19 +2,18 @@
 // Created by Andreas Zinkl on 23.04.17.
 //
 
-#ifndef ROUTING_ROUTE_H
-#define ROUTING_ROUTE_H
+#ifndef DT2017_ROUTECALCULATION_H
+#define DT2017_ROUTECALCULATION_H
 
 #define StraightFieldCost 10
 #define DiagonalFieldCost 14
 #define MapCellNeighbourCount 8
 
-#include "Node.h"
 #include <vector>
 #include "PriorityQueue.h"
 #include "Map.h"
 #include <stdlib.h>
-#include <stack>
+#include "CStack.h"
 
 using namespace std;
 
@@ -26,7 +25,9 @@ private:
     Node _destination;
     Map* _map;
 
-    stack<Node *> _route; //todo hier noch anders speichern!
+    CStack<Node *> _route; //todo hier noch anders speichern!
+    short _routeNodeCount;
+
     PriorityQueue* _openlistPQ;
     vector<Node *> _closedlist;
 
@@ -36,7 +37,10 @@ public:
     ~RouteCalculation();
 
     bool calculate();
+
+    CStack<Node *> getRouteStack();
+    short getRouteNodeCount();
 };
 
 
-#endif //ROUTING_ROUTE_H
+#endif //DT2017_ROUTECALCULATION_H

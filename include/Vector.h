@@ -2,8 +2,8 @@
 // Created by Andreas Zinkl on 11.05.17.
 //
 
-#ifndef ALGORITHMS_CPP_VECTOR_H
-#define ALGORITHMS_CPP_VECTOR_H
+#ifndef DT2017_VECTOR_H
+#define DT2017_VECTOR_H
 
 //todo delete this quad define after merge!!!
 //todo just implemented temporarily for development purposes

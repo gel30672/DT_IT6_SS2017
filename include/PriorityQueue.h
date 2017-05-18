@@ -2,10 +2,12 @@
 // Created by Andreas Zinkl on 25.04.17.
 //
 
-#ifndef ALGORITHMS_CPP_PRIORITYQUEUE_H
-#define ALGORITHMS_CPP_PRIORITYQUEUE_H
+#ifndef DT2017_PRIORITYQUEUE_H
+#define DT2017_PRIORITYQUEUE_H
 
+#include <iostream>
 #include "Element.h"
+#include "Map.h"
 #include <vector>
 #include <stdio.h>
 

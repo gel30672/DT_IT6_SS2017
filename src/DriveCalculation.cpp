@@ -2,17 +2,9 @@
 // Created by Andreas Zinkl on 07.05.17.
 //
 
-#include <iostream>
 #include "../include/DriveCalculation.h"
 
-DriveCalculation::DriveCalculation(float startX, float startY) {
-
-    // Save the current position
-    current.x = startX;
-    current.y = startY;
-    lastPositionKnown.x = startX;
-    lastPositionKnown.y = startY;
-}
+DriveCalculation::DriveCalculation(CStack<Command> commandStack) : drivingCommands(commandStack) { }
 
 DriveCalculation::~DriveCalculation() {
     delete &current;
@@ -22,8 +14,6 @@ DriveCalculation::~DriveCalculation() {
 }
 
 void DriveCalculation::updateCurrentPosition(float x, float y) {
-
-    // todo check if the current position is correct
 
     // save first the old position
     lastPositionKnown.x = current.x;
@@ -62,6 +52,7 @@ short DriveCalculation::checkCurrentDirection() {
     float distance = DROVENDISTANCE;
     float alpha =  distance*360/2*M_PI*CIRCLERADIUS;
 
+    //todo this needs to be updated! we need to calculate this if we drive on the turnaround!
     // get the position on the circle by the droven distance
     /*float addHeight = sin(alpha) / CIRCLERADIUS;
     float addWidth = cos(alpha) / CIRCLERADIUS;
@@ -121,21 +112,29 @@ void DriveCalculation::initCalculation() {
     circleCore.x = parrVec->getHead()->x;
     circleCore.y = parrVec->getHead()->y;
 
-    /* todo   we may get some rounding problems here,
-      todo    first test everything and then may modify the details if there are big problems*/
+    /*
+     * we may get some rounding problems here,
+     * first test everything and then may modify the details if there are big problems
+     */
 }
 
 void DriveCalculation::changeTo(short direction) {
 
-    // todo tell the vehicle what to do
-
+    // create the command and safe it in the command-stack
+    drivingCommands.push(Command(0,0,&destination,direction));
 }
 
-int DriveCalculation::calculate(float destinationX, float destinationY) {
+int DriveCalculation::calculate(Position* start, Position *end) {
+
+    // Save the start position
+    current.x = start->x;
+    current.y = start->y;
+    lastPositionKnown.x = start->x;
+    lastPositionKnown.y = start->y;
 
     // Save the destination coordinates
-    destination.x = destinationX;
-    destination.y = destinationY;
+    destination.x = end->x;
+    destination.y = end->y;
 
     // init the calculation
     initCalculation();

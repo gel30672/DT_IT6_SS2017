@@ -2,15 +2,17 @@
 // Created by Andreas Zinkl on 12.05.17.
 //
 
-#ifndef ALGORITHMS_CPP_STACK_H
-#define ALGORITHMS_CPP_STACK_H
+#ifndef DT2017_STACK_H
+#define DT2017_STACK_H
+
+#include <stdlib.h>
 
 template <class T>
-class Stack {
+class CStack {
 
 public:
-    Stack();
-    ~Stack();
+    CStack();
+    ~CStack();
 
     void push (const T& object);
     T pop();

@@ -2,8 +2,8 @@
 // Created by Andreas Zinkl on 25.04.17.
 //
 
-#ifndef ROUTING_MAP_H
-#define ROUTING_MAP_H
+#ifndef DT2017_MAP_H
+#define DT2017_MAP_H
 
 // Physical Dimensions of the Map
 #define MapRasterWidth_cm 15
@@ -22,6 +22,7 @@
 
 #include "Node.h"
 #include <stdlib.h>
+#include "Vector.h"
 
 /*
  * The map will be saved this way:
@@ -33,11 +34,6 @@
  * 0 = free
  */
 
-struct carPosition {
-    short _carX;
-    short _carY;
-};
-
 class Map {
 
 private:
@@ -45,11 +41,7 @@ private:
     short _size;
     bool isFree(short x, short y);
 
-    short _carX;
-    short _carY;
-
-    struct carPosition lastCarPos;
-    struct carPosition actCarPos;
+    struct Position currentPosition;
 
     void initTestMap(char* map); // Just for testing purpose
     void print();
@@ -59,7 +51,8 @@ public:
     ~Map();
 
     Node* getNode(short x, short y);
-    Node* getCarPosition();
+    Position* getCarPosition();
+    Node* getCarPositionNode();
     void getNeighbours(Node* nodelist, short x, short y);
     int updateField(short x, short y, bool isObstacle);
 };

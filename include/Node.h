@@ -2,8 +2,8 @@
 // Created by Andreas Zinkl on 23.04.17.
 //
 
-#ifndef ROUTING_NODE_H
-#define ROUTING_NODE_H
+#ifndef DT2017_NODE_H
+#define DT2017_NODE_H
 
 #include <vector>
 

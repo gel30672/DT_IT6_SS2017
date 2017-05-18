@@ -1,18 +1,26 @@
 //
 // Created by Andreas Zinkl on 23.04.17.
 //
-
-#include <cstdlib>
-#include <iostream>
 #include "../include/RouteCalculation.h"
 
 RouteCalculation::RouteCalculation(Map* map, int xDestination, int yDestinationNode) : _map(map) {
-    _start = *map->getCarPosition();
+    _start = *map->getCarPositionNode();
     _destination = *map->getNode(xDestination, yDestinationNode);
     _openlistPQ = nullptr;
+    _routeNodeCount = 0;
 }
 
 RouteCalculation::~RouteCalculation() {}
+
+short RouteCalculation::getRouteNodeCount() {
+    return _routeNodeCount;
+}
+
+CStack<Node *> RouteCalculation::getRouteStack() {
+    return _route;
+}
+
+
 
 bool RouteCalculation::calculate() {
 
@@ -34,8 +42,9 @@ bool RouteCalculation::calculate() {
         if(currentNode->equals(&_destination)) {
 
             while(!currentNode->equals(&_start)) {
-                std::cout << "Node=(" << currentNode->getX() << "|" << currentNode->getY() << ")" << std::endl;
+                //std::cout << "Node=(" << currentNode->getX() << "|" << currentNode->getY() << ")" << std::endl;
                 _route.push(currentNode);
+                _routeNodeCount++;
                 currentNode = currentNode->getPredessesor();
             }
             return 0;

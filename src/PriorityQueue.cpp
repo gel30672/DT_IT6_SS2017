@@ -2,9 +2,7 @@
 // Created by Andreas Zinkl on 23.04.17.
 //
 
-#include <iostream>
 #include "../include/PriorityQueue.h"
-#include "../include/Map.h"
 
 void PriorityQueue::heapify(Element *e, int first, int last, int root) {
     int largest = 0;

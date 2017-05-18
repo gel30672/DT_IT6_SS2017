@@ -2,8 +2,8 @@
 // Created by Andreas Zinkl on 25.04.17.
 //
 
-#ifndef ALGORITHMS_CPP_ELEMENT_H
-#define ALGORITHMS_CPP_ELEMENT_H
+#ifndef DT2017_ELEMENT_H
+#define DT2017_ELEMENT_H
 
 #import "Node.h"
 
