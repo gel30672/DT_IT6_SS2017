@@ -26,8 +26,6 @@ Node RouteCalculation::popNodeFromRouteStack() {
     return n;
 }
 
-
-
 bool RouteCalculation::calculate() {
 
     if(_openlistPQ == nullptr) {
