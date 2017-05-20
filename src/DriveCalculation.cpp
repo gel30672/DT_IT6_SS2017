@@ -4,7 +4,15 @@
 
 #include "../include/DriveCalculation.h"
 
-DriveCalculation::DriveCalculation() : drivingCommands() { }
+DriveCalculation::DriveCalculation(Position* initStart, Position* initEnd) : drivingCommands() {
+
+    // save the positions for the init process
+    current = *initEnd;
+    lastPositionKnown = *initStart;
+
+    // now initialize the whole calculation
+    initCalculation();
+}
 
 DriveCalculation::~DriveCalculation() {
     delete &current;

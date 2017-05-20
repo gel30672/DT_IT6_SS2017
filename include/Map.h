@@ -42,6 +42,7 @@ private:
     bool isFree(short x, short y);
 
     struct Position currentPosition;
+    struct Position lastKnownPosition;
 
     void initTestMap(char* map); // Just for testing purpose
     void print();
@@ -51,7 +52,10 @@ public:
     ~Map();
 
     Node* getNode(short x, short y);
-    Position* getCarPosition();
+
+    Position* getLastKnownPosition();
+    Position* getCarPosition(); //todo this needs to save the last position!!
+
     Node* getCarPositionNode();
     void getNeighbours(Node* nodelist, short x, short y);
     int updateField(short x, short y, bool isObstacle);

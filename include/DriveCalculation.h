@@ -32,7 +32,7 @@ private:
     void changeTo(short direction);
 
 public:
-    DriveCalculation();
+    DriveCalculation(Position* initStart, Position* initEnd);
     ~DriveCalculation();
 
     int calculate(Position* start, Position* end);

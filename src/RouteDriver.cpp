@@ -6,16 +6,8 @@
 
 RouteDriver::RouteDriver(Map *map) : map(map){
 
-    // todo Define the destination coordinates
-    short xDes = 2;
-    short yDes = 4;
-
-    // init calculater
-    routeCalculater = new RouteCalculation(map, xDes, yDes);
-    driveCalculater = new DriveCalculation(drivingCommandStack);
-
     //initialize the route calculation
-    initCalculation();
+    initRouterDriver();
 }
 
 RouteDriver::~RouteDriver() {
@@ -27,107 +19,165 @@ RouteDriver::~RouteDriver() {
     delete &driverCommands;
 }
 
-short RouteDriver::initCalculation() {
+short RouteDriver::initRouteCalculation(short xDestination, short yDestination) {
 
-    // first calculate the route
-    routeCalculater->calculate();
+    // init the route calculater
+    routeCalculater = new RouteCalculation(map, xDestination, yDestination);
 
-    // now we need to optimize the route
-    optimizeRoute();
+    // calculate the route
+    bool calcRes = routeCalculater->calculate();
 
-    // remember the last positions;
-    Position lastPosition;
+    // check if the calculation went well
+    if(!calcRes) return 0; //Todo Return an error code!
 
-    // run through the fields and look for straight lines!
-    while(!destinationStack.isEmpty()) {
+    return calcRes;
+}
 
-        // Get the top element!
-        Position destination = destinationStack.pop();
+short RouteDriver::initDriveCalculation(Position *last, Position *current) {
 
-        /*
-         * DriveCalculater:
-         *  - calculates the route by the main nodes
-         *  - generates the commands for each way from one to another main node
-         */
-        driveCalculater->calculate(&lastPosition, &destination);
+    // init the drive calculater
+    driveCalculater = new DriveCalculation(last, current);
 
-        // remeber the destination
+    // start generation of commands
+    Position* lastPosition = destinations[0]; // at beginning it is the start position
+    for(int i = 1; i < destinations.size(); i++) {
+
+        // get the current destination
+        Position* destination = destinations[i];
+
+        // calculate the command for this drive
+        int calcRes = driveCalculater->calculate(lastPosition, destination);
+
+        // check calcRes if there's a error message
+        if(!calcRes) return 404; // todo return a error message
+
+        // save the destination as the lastPosition for the next calculation
         lastPosition = destination;
     }
 
-    // We finished the command generation successfully
+    // we successfully calculated the commands
     return 0;
+}
+
+short RouteDriver::initRouterDriver() {
+
+    // get and save the current position as lastpositionknown before driving
+    map->getCarPosition();
+
+    // drive the initialization way and stop the car again
+    Command initCMD = Command(INIT_CONFIG_DISTANCE, INIT_CONFIG_DISTANCE, nullptr, 0);
+    initCMD.execute();
+
+    // get the new position and save it as currentposition
+    Position current = map->getCarPosition();
+
+    // initialize the route calculation
+    short initResRoute = initRouteCalculation(current.x, current.y);
+
+    // optimize the current route to get just main nodes
+    optimizeRoute();
+
+    // initialize the drive calculator and generate all commands
+    short initResDrive = initDriveCalculation(map->getLastKnownPosition(), &current);
+
+    // check for errors
+    if(!initResRoute) return 1; //todo Error for route calculation
+    if(!initResDrive) return 2; //todo Error for drive calculation
+
+    // everything went well! go for it!
+    return 0;
+}
+
+void RouteDriver::saveToDestination(short x, short y) {
+
+    // transform node to position
+    Position pos;
+    pos.x = x;
+    pos.y = y;
+
+    // save the position
+    destinations.push_back(pos);
 }
 
 void RouteDriver::optimizeRoute() {
 
-    // check values
-    bool lastWasDiagonal = false;
-    Position prev;
-    short xDiff;
-    short yDiff;
+    // Now start optimizing the route by going through the whole route
+    Position* predecessor = nullptr;
+    while(routeCalculater->getRouteNodeCount() > 0) {
 
-    // This method always tries to optimize the route by searching for main nodes
-    CStack<Node *> calculatedRoute = routeCalculater->getRouteStack();
-    while(!calculatedRoute.isEmpty()) {
+        // Get the top node from the route stack
+        Node node = routeCalculater->popNodeFromRouteStack();
 
-        // Get the node from the calculatedRouteStack
-        Node *n = calculatedRoute.topElement();
+        // check if it is the first node
+        if(destinations.size() == 0) {
 
-        // create a position
-        Position nodePos;
-        nodePos.x = n->getX();
-        nodePos.y = n->getY();
+            // always save the first node
+            saveNodeAsDestination(node.getX(), node.getY());
+        } else {
 
-        // First checked Node can always be added to the destinations (this is always the starting point)
-        if(destinationStack.isEmpty()) {
+            // not the first destination
+            bool needSave = false;
+            bool lastWasDiagonal = false;
 
-            // save this position for next checks
-            prev.x = nodePos.x;
-            prev.y = nodePos.y;
+            // check if we can save the destination
+            short indexPredecessor = destinations.size()-1;
+            if(predecessor == nullptr) {
+                Position pre;
+                pre.x = destinations[indexPredecessor].x;
+                pre.y = destinations[indexPredecessor].y;
+                predecessor = &pre;
+            }
 
-            // push the position to the stack
-            destinationStack.push(nodePos);
-            continue;
+            // Check if the old and new one are on the same diagonal line
+            if((quad(node.getX()+1) == quad(predecessor->x) && quad(node.getY()+1) == quad(predecessor->y))
+               || (quad(node.getX()-1) == quad(predecessor->x) && quad(node.getY()-1) == quad(predecessor->y))){
+
+                lastWasDiagonal = true;
+                needSave = true;
+            }
+
+            // Check if the positions are on the same horizontal line
+            if(node.getY() == predecessor->y
+               && (node.getX()+1 == predecessor->x || node.getX()-1 == predecessor->x)
+               && lastWasDiagonal) {
+
+                lastWasDiagonal = false;
+                needSave = true;
+            }
+
+            // Check if the position is on the same vertical line
+            if((node.getX() == predecessor->x
+                && (node.getY()+1 == predecessor->y || node.getY()-1 == predecessor->y))
+                && lastWasDiagonal) {
+
+                lastWasDiagonal = false;
+                needSave = true;
+            }
+
+            // Check if it is the last position
+            if(routeCalculater->getRouteNodeCount() == 0) needSave = true;
+
+            // That one is not in the line, save the predecessor
+            if(needSave) saveNodeAsDestination(predecessor->x, predecessor->y);
+
+            // save as predecessor details
+            predecessor->x = node.getX();
+            predecessor->y = node.getY();
         }
-
-        // So now we already added a node to the stack
-        // We need to check the last position and the new node position
-
-        short xDiffOld = xDiff;
-        short yDiffOld = yDiff;
-
-        xDiff = nodePos.x - prev.x;
-        yDiff = nodePos.y - nodePos.y;
-
-        // Check if the old and new one are on the same diagonal line
-        if((quad(xDiff+1) == quad(xDiffOld) && quad(yDiff+1) == quad(yDiffOld))
-           || (quad(xDiff-1) == quad(xDiffOld) && quad(yDiff-1) == quad(yDiffOld))){
-
-            lastWasDiagonal = true;
-            continue;
-        }
-
-        // Check if the positions are on the same horizontal line
-        if(yDiff == yDiffOld && (xDiff+1 == xDiffOld ||xDiff-1 == xDiffOld) && !lastWasDiagonal) {
-            continue;
-        }
-
-        // Check if the position is on the same vertical line
-        if((xDiff == xDiffOld && (yDiff+1 == yDiffOld || yDiff-1 == yDiffOld)) && !lastWasDiagonal) {
-            continue;
-        }
-
-        //todo check this here! we need to safe the last position in row or line - not the first one!!
-
-        // Now we are on a field which changes from a line to a diagonal or from a diagonal to a straight line
-
-        // save this position for next checks
-        prev.x = nodePos.x;
-        prev.y = nodePos.y;
-        lastWasDiagonal = false;
-
-        // push the position to the stack
-        destinationStack.push(nodePos);
     }
+
+}
+
+bool RouteDriver::checkDrive() {
+
+    // check if we're still on the correct way?
+    //todo ask the drivecalculator
+
+    // do we need a new command? - remove the old one and check if the new one is correct / if not recalculate
+    //todo
+
+    // execute if necessary the current command
+    //todo
+
+    return true;
 }

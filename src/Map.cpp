@@ -183,11 +183,14 @@ int Map::updateField(short x, short y, bool isObstacle) {
 // returns the car position given from the localization
 Position* Map::getCarPosition() {
 
-    //todo
-
-    // check the positions and update it if necessary
+    // calculate the current position
+    Position calculatedPosition; //todo
 
     // call the uwb sensor for localization
+    Position uwbPosition; // todo call here the uwb sensor
+
+    // compare each other and then save the current position
+    currentPosition = uwbPosition; //todo
 
     // return the current position
     return &currentPosition;
