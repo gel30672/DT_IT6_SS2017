@@ -9,7 +9,7 @@
 #include <math.h>
 #include "Vector.h"
 #include "Command.h"
-#include "CStack.h"
+#include <stack>
 
 #define DIRECTION_CHANGE_NEEDED true
 #define DIRECTION_CHANGE_NOT_NEEDED false
@@ -23,7 +23,7 @@ private:
     Position circleCore;
     Position destination;
 
-    CStack<Command> drivingCommands;
+    std::stack<Command> drivingCommands;
 
     void initCalculation();
     void updateCurrentPosition(float x, float y);
@@ -32,10 +32,12 @@ private:
     void changeTo(short direction);
 
 public:
-    DriveCalculation(CStack<Command> commandStack);
+    DriveCalculation();
     ~DriveCalculation();
 
     int calculate(Position* start, Position* end);
+
+    Command getNextCommand();
 };
 
 

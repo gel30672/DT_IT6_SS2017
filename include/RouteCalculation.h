@@ -13,7 +13,7 @@
 #include "PriorityQueue.h"
 #include "Map.h"
 #include <stdlib.h>
-#include "CStack.h"
+#include <stack>
 
 using namespace std;
 
@@ -25,7 +25,7 @@ private:
     Node _destination;
     Map* _map;
 
-    CStack<Node *> _route; //todo hier noch anders speichern!
+    std::stack<Node> _route;
     short _routeNodeCount;
 
     PriorityQueue* _openlistPQ;
@@ -38,7 +38,7 @@ public:
 
     bool calculate();
 
-    CStack<Node *> getRouteStack();
+    Node popNodeFromRouteStack();
     short getRouteNodeCount();
 };
 

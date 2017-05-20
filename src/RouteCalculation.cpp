@@ -16,8 +16,14 @@ short RouteCalculation::getRouteNodeCount() {
     return _routeNodeCount;
 }
 
-CStack<Node *> RouteCalculation::getRouteStack() {
-    return _route;
+Node RouteCalculation::popNodeFromRouteStack() {
+    if(_routeNodeCount <= 0) {
+        return Node(-1,-1);
+    }
+    _routeNodeCount--;
+    Node n = _route.top();
+    _route.pop();
+    return n;
 }
 
 
@@ -43,7 +49,7 @@ bool RouteCalculation::calculate() {
 
             while(!currentNode->equals(&_start)) {
                 //std::cout << "Node=(" << currentNode->getX() << "|" << currentNode->getY() << ")" << std::endl;
-                _route.push(currentNode);
+                _route.push(*currentNode);
                 _routeNodeCount++;
                 currentNode = currentNode->getPredessesor();
             }

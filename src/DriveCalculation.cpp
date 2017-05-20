@@ -4,7 +4,7 @@
 
 #include "../include/DriveCalculation.h"
 
-DriveCalculation::DriveCalculation(CStack<Command> commandStack) : drivingCommands(commandStack) { }
+DriveCalculation::DriveCalculation() : drivingCommands() { }
 
 DriveCalculation::~DriveCalculation() {
     delete &current;
@@ -75,9 +75,6 @@ short DriveCalculation::checkCurrentDirection() {
 }
 
 void DriveCalculation::initCalculation() {
-
-    // call the vehicle and tell it needs to drive about the size of the radius
-    //todo implement the call for the drive of the INIT_CONFIG_DISTANCE
 
     // now update the current position
     updateCurrentPosition(WHEREAMI_X(current.x), WHEREAMI_Y(current.y));
