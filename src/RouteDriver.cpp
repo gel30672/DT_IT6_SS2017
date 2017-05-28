@@ -28,7 +28,7 @@ short RouteDriver::initRouteCalculation(short xDestination, short yDestination) 
     bool calcRes = routeCalculater->calculate();
 
     // check if the calculation went well
-    if(!calcRes) return 0; //Todo Return an error code!
+    if(!calcRes) return COULD_NOT_CALCULATE_ROUTE_ERROR;
 
     return calcRes;
 }
@@ -39,17 +39,17 @@ short RouteDriver::initDriveCalculation(Position *last, Position *current) {
     driveCalculater = new DriveCalculation(last, current);
 
     // start generation of commands
-    Position* lastPosition = destinations[0]; // at beginning it is the start position
+    Position* lastPosition = &destinations[0]; // at beginning it is the start position
     for(int i = 1; i < destinations.size(); i++) {
 
         // get the current destination
-        Position* destination = destinations[i];
+        Position* destination = &destinations[i];
 
         // calculate the command for this drive
         int calcRes = driveCalculater->calculate(lastPosition, destination);
 
         // check calcRes if there's a error message
-        if(!calcRes) return 404; // todo return a error message
+        if(!calcRes) return COULD_NOT_CALCULATE_DRIVECOMMAND_ERROR;
 
         // save the destination as the lastPosition for the next calculation
         lastPosition = destination;
@@ -62,27 +62,27 @@ short RouteDriver::initDriveCalculation(Position *last, Position *current) {
 short RouteDriver::initRouterDriver() {
 
     // get and save the current position as lastpositionknown before driving
-    map->getCarPosition();
+    Position *current = map->getCarPosition();
 
     // drive the initialization way and stop the car again
-    Command initCMD = Command(INIT_CONFIG_DISTANCE, INIT_CONFIG_DISTANCE, nullptr, 0);
+    Command initCMD = Command(INIT_CONFIG_DISTANCE, current, nullptr, 0);
     initCMD.execute();
 
     // get the new position and save it as currentposition
-    Position current = map->getCarPosition();
+    current = map->getCarPosition();
 
     // initialize the route calculation
-    short initResRoute = initRouteCalculation(current.x, current.y);
+    short initResRoute = initRouteCalculation(current->x, current->y);
 
     // optimize the current route to get just main nodes
     optimizeRoute();
 
     // initialize the drive calculator and generate all commands
-    short initResDrive = initDriveCalculation(map->getLastKnownPosition(), &current);
+    short initResDrive = initDriveCalculation(map->getLastKnownPosition(), current);
 
     // check for errors
-    if(!initResRoute) return 1; //todo Error for route calculation
-    if(!initResDrive) return 2; //todo Error for drive calculation
+    if(!initResRoute) return ERROR_WHILE_ROUTECALC_INIT;
+    if(!initResDrive) return ERROR_WHILE_DRIVECALC_INIT;
 
     // everything went well! go for it!
     return 0;
@@ -112,7 +112,7 @@ void RouteDriver::optimizeRoute() {
         if(destinations.size() == 0) {
 
             // always save the first node
-            saveNodeAsDestination(node.getX(), node.getY());
+            saveToDestination(node.getX(), node.getY());
         } else {
 
             // not the first destination
@@ -158,7 +158,7 @@ void RouteDriver::optimizeRoute() {
             if(routeCalculater->getRouteNodeCount() == 0) needSave = true;
 
             // That one is not in the line, save the predecessor
-            if(needSave) saveNodeAsDestination(predecessor->x, predecessor->y);
+            if(needSave) saveToDestination(predecessor->x, predecessor->y);
 
             // save as predecessor details
             predecessor->x = node.getX();
@@ -170,14 +170,42 @@ void RouteDriver::optimizeRoute() {
 
 bool RouteDriver::checkDrive() {
 
+    // get the droven distance
+    double drovenDistance = GET_CURRENT_DRIVEN_DISTANCE;
+
+    // calculate the current position
+    Command currentCommand = driverCommands.top();
+    Position* calculatedCurrentPosition = currentCommand.getPredictedPositionBy(drovenDistance);
+
     // check if we're still on the correct way?
-    //todo ask the drivecalculator
+    Position* last = map->getLastKnownPosition();
+    Position* currentUWB = map->getCarPosition();
+
+    // now compare the positions!
+    short xRes = calculatedCurrentPosition->x - currentUWB->x;
+    short yRes = calculatedCurrentPosition->y - currentUWB->y;
+
+    // compare it
+    bool allGood = true;
+    if(quad(xRes) > quad(POSITIONCOMPAREQUALITY) || quad(yRes) > (POSITIONCOMPAREQUALITY)) allGood = false;
+
+    // we don't need to check if we're on the route -> the position seems correct
+    if(allGood) return false;
+
+    // we compared the positions and now we need to check the direction
+    Vector* way = new Vector(*currentUWB, *last);
+    bool correctWay = way->isOnLineTo(&destinations[destinations.size()-1]);
 
     // do we need a new command? - remove the old one and check if the new one is correct / if not recalculate
-    //todo
+    if(correctWay) return false;
+
+    //create command for a "turn to the destination"
+    driveCalculater->calculate(currentUWB, currentCommand.getDestinationPosition());
 
     // execute if necessary the current command
-    //todo
+    if(!driverCommands.top().isActive()) {
+        driverCommands.top().execute();
+    }
 
     return true;
 }

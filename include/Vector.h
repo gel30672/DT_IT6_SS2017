@@ -5,23 +5,18 @@
 #ifndef DT2017_VECTOR_H
 #define DT2017_VECTOR_H
 
-//todo delete this quad define after merge!!!
-//todo just implemented temporarily for development purposes
 #define quad(x) ((x)*(x))
 
 // Degree calculation
 #define DEGTORAD(D) ((D * M_PI) / 180.0) // Converts Degrees to radians
 #define RADTODEG(R) ((180.0 * R) / M_PI)//Converts Radians to Degrees
 
-// This defines the side of another vector to this one
-#define LEFT_DIRECTION 0
-#define RIGHT_DIRECTION 1
-
 #include <math.h>
+#include "DeviceConfiguration.h"
 
 struct Position {
-    float x;
-    float y;
+    short x;
+    short y;
 };
 
 class Vector {
@@ -34,8 +29,8 @@ public:
     Vector(Position head, Position foot);
     ~Vector();
 
-    float getX();
-    float getY();
+    short getX();
+    short getY();
 
     Position* getHead();
     Position* getFoot();
@@ -44,6 +39,7 @@ public:
     short getSideOf(Vector *v);
     short rotate(float degrees);
     bool isOnLineTo(struct Position* p);
+    void changeDirection();
 };
 
 

@@ -13,7 +13,6 @@
 
 #define DIRECTION_CHANGE_NEEDED true
 #define DIRECTION_CHANGE_NOT_NEEDED false
-#define FORWARD_DIRECTION -1
 
 class DriveCalculation {
 
@@ -22,20 +21,20 @@ private:
     Position lastPositionKnown;
     Position circleCore;
     Position destination;
+    Vector* initVector;
 
     std::stack<Command> drivingCommands;
 
     void initCalculation();
-    void updateCurrentPosition(float x, float y);
-    short checkCurrentDirection();
+    void calculateTurningPoint(Vector *currVec, short direction);
+
     short checkDestinationDirection();
-    void changeTo(short direction);
 
 public:
     DriveCalculation(Position* initStart, Position* initEnd);
     ~DriveCalculation();
 
-    int calculate(Position* start, Position* end);
+    short calculate(Position* start, Position* end);
 
     Command getNextCommand();
 };

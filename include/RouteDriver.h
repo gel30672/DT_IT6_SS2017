@@ -5,12 +5,16 @@
 #ifndef DT2017_ROUTEDRIVER_H
 #define DT2017_ROUTEDRIVER_H
 
+//this defines just an integer value which defines the max difference of the position comparison
+#define POSITIONCOMPAREQUALITY 0
+
 #include "RouteCalculation.h"
 #include "DriveCalculation.h"
 #include "Map.h"
 #include "DeviceConfiguration.h"
 #include <vector>
 #include <stack>
+#include "ErrorHandling.h"
 
 class RouteDriver {
 
@@ -23,13 +27,13 @@ private:
     std::stack<Command> driverCommands;
 
     // This initializes the RouteDriver - will be called by the Constructor
-    short initRouteCalculation();
-    short initDriveCalculation();
+    short initRouteCalculation(short xDestination, short yDestination);
+    short initDriveCalculation(Position *last, Position *current);
     short initRouterDriver();
 
     // This optimizes the calculated route by removing destinations which are on the same track
     void optimizeRoute();
-    void saveNodeAsDestination(Node *node);
+    void saveToDestination(short x, short y);
 
     // this executes the current command
     short executeCurrentCommand();

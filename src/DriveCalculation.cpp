@@ -4,7 +4,7 @@
 
 #include "../include/DriveCalculation.h"
 
-DriveCalculation::DriveCalculation(Position* initStart, Position* initEnd) : drivingCommands() {
+DriveCalculation::DriveCalculation(Position* initStart, Position* initEnd) {
 
     // save the positions for the init process
     current = *initEnd;
@@ -21,77 +21,74 @@ DriveCalculation::~DriveCalculation() {
     delete &circleCore;
 }
 
-void DriveCalculation::updateCurrentPosition(float x, float y) {
-
-    // save first the old position
-    lastPositionKnown.x = current.x;
-    lastPositionKnown.y = current.y;
-
-    //now update to the new position
-    current.x = x;
-    current.y = y;
-}
-
-short DriveCalculation::checkDestinationDirection() {
-
-    // Get the driving direction
-    struct Vector* posVector = new Vector(current, lastPositionKnown);
-
-    // Get the destination direction
-    struct Vector* destVector = new Vector(destination, lastPositionKnown);
-
-    // return the direction
-    return posVector->getSideOf(destVector);
-}
-
-short DriveCalculation::checkCurrentDirection() {
-
-    // check if we are on the route and return if we are
-    struct Vector* posVector = new Vector(current, lastPositionKnown);
-    if(posVector->isOnLineTo(&destination)) return DIRECTION_CHANGE_NOT_NEEDED;
-
-    // now we need to calculate the direction change, because the destination is not on the straight drove
-
-    // get the current position
-    float currX = current.x;
-    float currY = current.y;
-
-    // calculate the new position from the droven distance
-    float distance = DROVENDISTANCE;
-    float alpha =  distance*360/2*M_PI*CIRCLERADIUS;
-
-    //todo this needs to be updated! we need to calculate this if we drive on the turnaround!
-    // get the position on the circle by the droven distance
-    /*float addHeight = sin(alpha) / CIRCLERADIUS;
-    float addWidth = cos(alpha) / CIRCLERADIUS;
-    currX += addWidth;
-    currY += addHeight;
-
-    // update the current position if necessary
-    if(currX != current.x || currY != current.y) updateCurrentPosition(currX, currY);*/
-
-    // generate tangente (y = -1/m * x + n) --> n = x coordinate of circle core
-    float gradient = (circleCore.y-currY)/(circleCore.x-currX);
-    gradient = (-1)/gradient;
-
-    // check if the point is on the tangente
-    float calcY = gradient*destination.x + circleCore.x;
-    if(calcY == destination.y) return DIRECTION_CHANGE_NOT_NEEDED;
-
-    // we need to change the direction
-    return DIRECTION_CHANGE_NEEDED;
-}
-
 void DriveCalculation::initCalculation() {
 
-    // now update the current position
-    updateCurrentPosition(WHEREAMI_X(current.x), WHEREAMI_Y(current.y));
+    // Init the car and direction calculation
+    Command initCMD = Command(INIT_CONFIG_DISTANCE, nullptr, nullptr, DIRECTION_FORWARD);
+    initCMD.execute();
 
-    // now just check first if we are directly on the route to the destination
-    if(checkCurrentDirection() == DIRECTION_CHANGE_NOT_NEEDED) return; // we don't need to change or calculate anything!
+    // calculate the direction (the vector) we've droven
+    initVector = new Vector(current, lastPositionKnown);
+}
 
-    // get the current vector
-    Vector* currVec = new Vector(current, lastPositionKnown);
+short DriveCalculation::calculate(Position *start, Position *end) {
+
+    // calculate the destination vector
+    Vector* destVector = new Vector(*end, *start);
+
+    // the position on the turning circle, when the car can drive straight to the destination
+    Position* endOfTurning = nullptr;
+
+    // calculate the length of the way
+    short lengthTurning;
+    short lengthStraight;
+
+    // generate the first command for turning the car
+    Command *cmdTurning = nullptr;
+
+    // generate the second command for the car driving straight from the turningpoint to the destination
+    Command *cmdStraight = nullptr;
+
+    // first check if the last way we drove is on the way to the destination or if a turn is needed
+    if(!initVector->isOnLineTo(end)) {
+
+        // get the direction
+        short direction = initVector->getSideOf(destVector);
+
+        // now calculate the turning point for drive changing
+        calculateTurningPoint(destVector, direction);
+
+        // get the degrees for the turn
+        double degrees = initVector->getAngleTo(destVector)*0.7;
+        // TODO Check if we can fix that by a correct calculation
+        // TODO 0.8 is a factor which could be used to get the percentage of the degree the car needs to drive, to get in the correct direction
+
+        // calculate the length of the way
+        short lengthTurning = CALC_DISTANCE_BY_ANGLE(degrees);
+
+        // calculate the endofturning point
+        Vector *turningVec = new Vector(*start, circleCore);
+        turningVec->rotate(degrees);
+
+        // Now get the endofturning
+        endOfTurning = turningVec->getHead();
+
+        // generate the first command for turning the car
+        cmdTurning = new Command(lengthTurning, start, endOfTurning, direction);
+    }
+
+    // check the endOfTurning position
+    if(endOfTurning == nullptr) endOfTurning = start;
+
+    // Now generate the straight command
+    cmdStraight = new Command(lengthStraight, endOfTurning, end, DIRECTION_FORWARD);
+
+    // save first the cmdStraight and then the cmdTurning on the stack
+    if(cmdStraight != nullptr) drivingCommands.push(*cmdStraight);
+    if(cmdTurning != nullptr) drivingCommands.push(*cmdTurning);
+}
+
+void DriveCalculation::calculateTurningPoint(Vector *currVec, short direction) {
 
     // calculate a point which is on the same x-coord like the last known position
     // we will use this one for the calculation of the vector which is parallel to the x-axis
@@ -106,7 +103,12 @@ void DriveCalculation::initCalculation() {
     float rotationAngle = currVec->getAngleTo(parrVec);
 
     // calculate the end rotation angle in degrees
-    float degrees = (float) DEGTORAD(90 + rotationAngle);
+    float degrees = 0.0;
+    if(direction == DIRECTION_LEFT) {
+        degrees = (float) DEGTORAD(90 + rotationAngle);
+    } else {
+        degrees = (float) DEGTORAD(-90 - rotationAngle);
+    }
     parallelX.x = current.x+CIRCLERADIUS;
     parrVec = new Vector(parallelX, lastPositionKnown);
 
@@ -123,40 +125,14 @@ void DriveCalculation::initCalculation() {
      */
 }
 
-void DriveCalculation::changeTo(short direction) {
+short DriveCalculation::checkDestinationDirection() {
 
-    // create the command and safe it in the command-stack
-    drivingCommands.push(Command(0,0,&destination,direction));
-}
+    // Get the driving direction
+    Vector* posVector = new Vector(current, lastPositionKnown);
 
-int DriveCalculation::calculate(Position* start, Position *end) {
+    // Get the destination direction
+    Vector* destVector = new Vector(destination, lastPositionKnown);
 
-    // Save the start position
-    current.x = start->x;
-    current.y = start->y;
-    lastPositionKnown.x = start->x;
-    lastPositionKnown.y = start->y;
-
-    // Save the destination coordinates
-    destination.x = end->x;
-    destination.y = end->y;
-
-    // init the calculation
-    initCalculation();
-
-    // know perform the turn
-    while(checkCurrentDirection()) {
-
-        // check in which direction should be droven
-        // left or right?
-        short direction = checkDestinationDirection();
-
-        // tell the vehicle to drive in the new direction
-        changeTo(direction);
-    }
-
-    // drive forward to the destination
-    changeTo(FORWARD_DIRECTION);
-
-    return 0; // all good now - drive straight and have fun! ;-)
+    // return the direction
+    return posVector->getSideOf(destVector);
 }

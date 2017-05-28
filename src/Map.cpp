@@ -48,7 +48,7 @@ Map::Map() {
 void Map::initTestMap(char* map) {
 
     // This inits a given test map!
-    std::cout << "Karte:" << std::endl;
+    //std::cout << "Karte:" << std::endl;
 
     // map values
     unsigned short free = 0; //free
@@ -70,11 +70,11 @@ void Map::initTestMap(char* map) {
             if(i != MapBitsInRow-1) value = value << 1;
 
             //printout the map
-            std::cout << field << " ";
+            //std::cout << field << " ";
             if(i == (MapBitsInRow/2)-1) std::cout << endl;
         }
-        std::cout << "         - value=" << value;
-        std::cout << std::endl;
+        //std::cout << "         - value=" << value;
+        //std::cout << std::endl;
         nodelist[s] = value;
     }
 
@@ -155,6 +155,9 @@ int Map::updateField(short x, short y, bool isObstacle) {
     // calculate the bit position
     int pos = x+y*MapEnvWidth_cm;
 
+    // check if the field is in the map or not!
+    if(pos < 0 || pos > _size) return INDEX_OUT_OF_MAP_ERROR;
+
     // calculate the array index from the bit position
     short cntIndex = pos/32;
 
@@ -179,18 +182,18 @@ int Map::updateField(short x, short y, bool isObstacle) {
     return 0;
 }
 
+Position* Map::getLastKnownPosition() {
+    return &lastKnownPosition;
+}
 
 // returns the car position given from the localization
 Position* Map::getCarPosition() {
 
-    // calculate the current position
-    Position calculatedPosition; //todo
+    // first save the old position
+    lastKnownPosition = currentPosition;
 
     // call the uwb sensor for localization
-    Position uwbPosition; // todo call here the uwb sensor
-
-    // compare each other and then save the current position
-    currentPosition = uwbPosition; //todo
+    GET_POSITION_FROM_UWB(&currentPosition);
 
     // return the current position
     return &currentPosition;
@@ -199,14 +202,13 @@ Position* Map::getCarPosition() {
 // returns the car position given from the localization
 Node* Map::getCarPositionNode() {
 
-    //Test with this data
-    currentPosition.x = 7;
-    currentPosition.y = 0;
+    // Update the Car Position
+    getCarPosition();
 
     return new Node(currentPosition.x, currentPosition.y);
 }
 
-void Map::print() {
+void Map::print() { //todo need to print it properly
 
     short check = 1;
     for(int i = 0; i < _size; i++) {

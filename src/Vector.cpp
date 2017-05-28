@@ -11,11 +11,11 @@ Vector::~Vector() {
     delete &foot;
 }
 
-float Vector::getX() {
+short Vector::getX() {
     return head.x-foot.x;
 }
 
-float Vector::getY() {
+short Vector::getY() {
     return head.y-foot.y;
 }
 
@@ -70,7 +70,7 @@ short Vector::getSideOf(Vector* v) {
     short position = getX()*v->getY() - getY()*v->getX();
 
     // return the direction
-    return position < 0 ? RIGHT_DIRECTION : LEFT_DIRECTION;
+    return position < 0 ? DIRECTION_RIGHT : DIRECTION_LEFT;
 }
 
 bool Vector::isOnLineTo(struct Position *p) {
@@ -105,4 +105,12 @@ short Vector::rotate(float degrees) {
     head.y = foot.y+newY;
 
     return 0;
+}
+
+void Vector::changeDirection() {
+
+    // Change the direction
+    Position tmp = head;
+    head = foot;
+    foot = tmp;
 }

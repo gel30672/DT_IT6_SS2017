@@ -13,15 +13,34 @@
 // The maximum wheel lock is by 20°
 #define MAXWHEELLOCK 20
 
-// Calculation of the radius
+// Calculation of the turnaround circle
 #define CIRCLERADIUS WHEELBASE/sin(MAXWHEELLOCK)
+#define CALC_DISTANCE_BY_ANGLE(x) (2*M_PI*CIRCLERADIUS*(x/360))
+#define CALC_DROVEN_ANGLE_BY_LENGTH(x) ((x*360)/(2*M_PI*CIRCLERADIUS))
 
 // The droven distance for the configuration and the general distance
 #define INIT_CONFIG_DISTANCE 30
 #define DROVENDISTANCE 0 //this will later contain an method call
 
-// The call for the current position //todo we need to change that to get the real position
-#define WHEREAMI_X(x) x+3
-#define WHEREAMI_Y(y) y+0
+// The device driving directions
+#define DIRECTION_BACKWARD -1
+#define DIRECTION_FORWARD 0
+#define DIRECTION_LEFT 1
+#define DIRECTION_RIGHT 2
+
+// Device specific configuration
+#define FULLSPEED 2
+#define BACKSPEED (-FULLSPEED)
+#define WHEEL_ANGLE(x) (x < 0 ? (-MAXWHEELLOCK) : MAXWHEELLOCK)
+
+
+
+//TODO THIS MAY NEED TO BE REMOVED BY REAL FUNCTION CALLS
+//TODO THIS IS JUST FOR LATER MERGE PURPOSE
+//This defines the needed changes or calls to functions in other modules
+#define GET_CURRENT_DRIVEN_DISTANCE 10.0
+#define GET_POSITION_FROM_UWB(position) (*position.x=4;*positiony=4;)
+#define CALL_CAR_WHEEL_DEGREES(x) SteerDegrees(x);
+#define CALL_CAR_MOTOR_SPEED(x) MotorMoveKph(x);
 
 #endif //ALGORITHMS_CPP_DEVICECONFIGURATION_H

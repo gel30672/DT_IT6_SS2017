@@ -51,7 +51,7 @@ bool RouteCalculation::calculate() {
                 _routeNodeCount++;
                 currentNode = currentNode->getPredessesor();
             }
-            return 0;
+            return PATH_FOUND_SUCCESSFULLY;
         }
 
         // no route found - continue work on finding a route!
@@ -110,5 +110,5 @@ bool RouteCalculation::calculate() {
         }
     }
 
-    return 1; // not path found
+    return NO_PATH_FOUND_ERROR;
 }

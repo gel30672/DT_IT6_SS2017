@@ -5,26 +5,33 @@
 #ifndef DT2017_COMMAND_H
 #define DT2017_COMMAND_H
 
-//todo these configurations need to go to the device-config-header!!!
 #include "Vector.h"
+#include "DeviceConfiguration.h"
+#include <math.h>
 
-#define FULLSPEED 20
-#define BACKSPEED (-FULLSPEED)
-#define WHEEL_ANGLE(x) (x == 0 ? -20 : 20) //todo this needs to be the max wheel angle from the device config header
+extern "C" {
+#include "../src/libmdrv/MOTOR/motor.h"
+#include "../src/libmdrv/STEERING/steering.h"
+}
 
 class Command {
 
 private:
-    short _fullDistance;
-    short _partDistance;
+    double _distance;
+    Position* _start;
     Position* _destination;
     short _direction;
+    bool _active;
 
 public:
-    Command(short fullDistance, short partDistance, Position* destination, short direction);
+    Command(double distance, Position* start, Position* destination, short direction);
     ~Command();
 
     void execute();
+    bool isActive();
+    Position* getStartPosition();
+    Position* getDestinationPosition();
+    Position* getPredictedPositionBy(double distance);
 };
 
 #endif //DT2017_COMMAND_H
