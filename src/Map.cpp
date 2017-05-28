@@ -18,6 +18,9 @@ Map::Map() {
         nodelist[i] = 0;
     }
 
+    // init the localization
+    locsrv = new LocDet();
+
     // If a test map should
     if(useTestMap) initTestMap("000010000011100010001001000011100000000011100010");
 }
@@ -193,7 +196,7 @@ Position* Map::getCarPosition() {
     lastKnownPosition = currentPosition;
 
     // call the uwb sensor for localization
-    GET_POSITION_FROM_UWB(&currentPosition);
+    locsrv->get_position(&currentPosition);
 
     // return the current position
     return &currentPosition;

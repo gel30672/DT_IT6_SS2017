@@ -11,6 +11,7 @@
 #include "ErrorHandling.h"
 #include "DeviceConfiguration.h"
 #include "MapConfiguration.h"
+#include "LocDet.h"
 
 /*
  * The map will be saved this way:
@@ -28,6 +29,7 @@ private:
     unsigned short* nodelist;
     short _size;
     bool isFree(short x, short y);
+    LocDet* locsrv; // This is the UWB Localization Sensor
 
     struct Position currentPosition;
     struct Position lastKnownPosition;
