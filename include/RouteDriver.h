@@ -24,7 +24,6 @@ private:
     DriveCalculation* driveCalculater;
 
     std::vector<Position> destinations;
-    std::stack<Command> driverCommands;
 
     // This initializes the RouteDriver - will be called by the Constructor
     short initRouteCalculation(short xDestination, short yDestination);

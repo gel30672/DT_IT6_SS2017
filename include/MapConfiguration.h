@@ -18,6 +18,6 @@
 #define MapRowsCount MapEnvHeight_cm/MapRasterWidth_cm
 
 // Define if a TestMap should be used
-#define useTestMap false
+#define useTestMap true
 
 #endif //DT2017_MAPCONFIGURATION_H

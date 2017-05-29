@@ -9,7 +9,7 @@ Command::Command(double distance, Position* start, Position* destination, short 
 
 Command::~Command() {
     // delete the positions if necessary
-    delete _destination;
+    //delete _destination;
 }
 
 void Command::execute() {

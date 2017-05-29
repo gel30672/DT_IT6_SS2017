@@ -23,8 +23,6 @@ private:
     Position destination;
     Vector* initVector;
 
-    std::stack<Command> drivingCommands;
-
     void initCalculation();
     void calculateTurningPoint(Vector *currVec, short direction);
 
@@ -33,6 +31,8 @@ private:
 public:
     DriveCalculation(Position* initStart, Position* initEnd);
     ~DriveCalculation();
+
+    std::stack<Command> drivingCommands;
 
     short calculate(Position* start, Position* end);
 

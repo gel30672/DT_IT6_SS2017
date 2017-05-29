@@ -16,7 +16,6 @@ RouteDriver::~RouteDriver() {
     delete &routeCalculater;
     delete &driveCalculater;
     delete &destinations;
-    delete &driverCommands;
 }
 
 short RouteDriver::initRouteCalculation(short xDestination, short yDestination) {
@@ -28,7 +27,7 @@ short RouteDriver::initRouteCalculation(short xDestination, short yDestination) 
     bool calcRes = routeCalculater->calculate();
 
     // check if the calculation went well
-    if(!calcRes) return COULD_NOT_CALCULATE_ROUTE_ERROR;
+    if(calcRes != NO_PATH_FOUND_ERROR) return COULD_NOT_CALCULATE_ROUTE_ERROR;
 
     return calcRes;
 }
@@ -46,10 +45,10 @@ short RouteDriver::initDriveCalculation(Position *last, Position *current) {
         Position* destination = &destinations[i];
 
         // calculate the command for this drive
-        int calcRes = driveCalculater->calculate(lastPosition, destination);
+        int calcError = driveCalculater->calculate(lastPosition, destination);
 
         // check calcRes if there's a error message
-        if(!calcRes) return COULD_NOT_CALCULATE_DRIVECOMMAND_ERROR;
+        if(calcError) return COULD_NOT_CALCULATE_DRIVECOMMAND_ERROR;
 
         // save the destination as the lastPosition for the next calculation
         lastPosition = destination;
@@ -72,7 +71,7 @@ short RouteDriver::initRouterDriver() {
     current = map->getCarPosition();
 
     // initialize the route calculation
-    short initResRoute = initRouteCalculation(current->x, current->y);
+    short initResRoute = initRouteCalculation(DESTINATION_X_COORDINATE, DESTINATION_Y_COORDINATE);
 
     // optimize the current route to get just main nodes
     optimizeRoute();
@@ -158,7 +157,7 @@ void RouteDriver::optimizeRoute() {
             if(routeCalculater->getRouteNodeCount() == 0) needSave = true;
 
             // That one is not in the line, save the predecessor
-            if(needSave) saveToDestination(predecessor->x, predecessor->y);
+            if(needSave) saveToDestination(node.getX(), node.getY());
 
             // save as predecessor details
             predecessor->x = node.getX();
@@ -174,7 +173,7 @@ bool RouteDriver::checkDrive() {
     double drovenDistance = GET_CURRENT_DRIVEN_DISTANCE;
 
     // calculate the current position
-    Command currentCommand = driverCommands.top();
+    Command currentCommand = driveCalculater->drivingCommands.top();
     Position* calculatedCurrentPosition = currentCommand.getPredictedPositionBy(drovenDistance);
 
     // check if we're still on the correct way?
@@ -203,8 +202,8 @@ bool RouteDriver::checkDrive() {
     driveCalculater->calculate(currentUWB, currentCommand.getDestinationPosition());
 
     // execute if necessary the current command
-    if(!driverCommands.top().isActive()) {
-        driverCommands.top().execute();
+    if(!driveCalculater->drivingCommands.top().isActive()) {
+        driveCalculater->drivingCommands.top().execute();
     }
 
     return true;
