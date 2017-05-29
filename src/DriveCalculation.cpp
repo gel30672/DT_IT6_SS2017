@@ -86,6 +86,8 @@ short DriveCalculation::calculate(Position *start, Position *end) {
     // save first the cmdStraight and then the cmdTurning on the stack
     if(cmdStraight != nullptr) drivingCommands.push(*cmdStraight);
     if(cmdTurning != nullptr) drivingCommands.push(*cmdTurning);
+
+    return 0;
 }
 
 void DriveCalculation::calculateTurningPoint(Vector *currVec, short direction) {

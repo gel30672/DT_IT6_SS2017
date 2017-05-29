@@ -19,7 +19,7 @@ Map::Map() {
     }
 
     // init the localization
-    locsrv = new LocDet();
+    //locsrv = new LocDet(); //todo uncomment after merging
 
     // If a test map should
     if(useTestMap) initTestMap("000010000011100010001001000011100000000011100010");
@@ -196,7 +196,7 @@ Position* Map::getCarPosition() {
     lastKnownPosition = currentPosition;
 
     // call the uwb sensor for localization
-    locsrv->get_position(&currentPosition);
+    //locsrv->get_position(&currentPosition); //todo uncomment after merging
 
     // return the current position
     return &currentPosition;
