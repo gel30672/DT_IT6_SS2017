@@ -40,8 +40,8 @@ short DriveCalculation::calculate(Position *start, Position *end) {
     Position* endOfTurning = nullptr;
 
     // calculate the length of the way
-    short lengthTurning;
-    short lengthStraight;
+    double lengthTurning;
+    double lengthStraight;
 
     // generate the first command for turning the car
     Command *cmdTurning = nullptr;
@@ -79,6 +79,9 @@ short DriveCalculation::calculate(Position *start, Position *end) {
 
     // check the endOfTurning position
     if(endOfTurning == nullptr) endOfTurning = start;
+
+    // calculate the length of the straigth command
+    lengthStraight = Vector(*end, *endOfTurning).getLength();
 
     // Now generate the straight command
     cmdStraight = new Command(lengthStraight, endOfTurning, end, DIRECTION_FORWARD);

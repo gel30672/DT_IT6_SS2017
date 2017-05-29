@@ -13,6 +13,7 @@
 
 #include <math.h>
 #include "DeviceConfiguration.h"
+#include "MapConfiguration.h"
 
 struct Position {
     short x;
@@ -34,6 +35,8 @@ public:
 
     Position* getHead();
     Position* getFoot();
+
+    double getLength();
 
     float getAngleTo(Vector *v);
     short getSideOf(Vector *v);

@@ -7,8 +7,8 @@
 Vector::Vector(Position head, Position foot) : head(head), foot(foot) { }
 
 Vector::~Vector() {
-    delete &head;
-    delete &foot;
+    //delete &head;
+    //delete &foot;
 }
 
 short Vector::getX() {
@@ -113,4 +113,8 @@ void Vector::changeDirection() {
     Position tmp = head;
     head = foot;
     foot = tmp;
+}
+
+double Vector::getLength() {
+    return sqrt(quad(getX())+quad(getY()))*MapRasterWidth_cm;
 }
