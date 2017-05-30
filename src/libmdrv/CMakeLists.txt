@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 project(dt2017)
 
 include_directories(./*)
-file(GLOB_RECURSE SOURCE_FILES main.cpp "*.c")
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ")
+file(GLOB_RECURSE SOURCE_FILES "*.c")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 add_executable(dt2017 ${SOURCE_FILES})
 target_link_libraries(dt2017 -I /usr/local/include -L /usr/local/lib64 -lwiringPi)
 

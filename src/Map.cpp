@@ -84,7 +84,9 @@ void Map::initTestMap(char* map) {
     //print();
 }
 
-Map::~Map() {}
+Map::~Map() {
+
+}
 
 // Returns a node with the given coordinates
 Node* Map::getNode(short x, short y) {

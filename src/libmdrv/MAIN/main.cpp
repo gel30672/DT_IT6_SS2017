@@ -12,8 +12,8 @@ extern "C"{
 #include "../SENSING/current_sensing.h"
 #include "../MOTOR/motor.h"
 }
-#include "../../../include/RouteDriver.h"
-#include "../../../include/Map.h"
+#include "RouteDriver.h"
+#include "Map.h"
 
 int shaft_rpm;
 unsigned int shaft_rotations;
