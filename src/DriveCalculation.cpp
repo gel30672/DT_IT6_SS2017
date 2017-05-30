@@ -53,10 +53,10 @@ short DriveCalculation::calculate(Position *start, Position *end) {
     if(!initVector->isOnLineTo(end)) {
 
         // get the direction
-        short direction = initVector->getSideOf(destVector);
+        short dir = initVector->getSideOf(destVector);
 
         // now calculate the turning point for drive changing
-        calculateTurningPoint(destVector, direction);
+        calculateTurningPoint(destVector, dir);
 
         // get the degrees for the turn
         double degrees = initVector->getAngleTo(destVector)*0.7;
@@ -74,7 +74,7 @@ short DriveCalculation::calculate(Position *start, Position *end) {
         endOfTurning = turningVec->getHead();
 
         // generate the first command for turning the car
-        cmdTurning = new Command(lengthTurning, start, endOfTurning, direction);
+        cmdTurning = new Command(lengthTurning, start, endOfTurning, dir);
     }
 
     // check the endOfTurning position
@@ -93,7 +93,7 @@ short DriveCalculation::calculate(Position *start, Position *end) {
     return 0;
 }
 
-void DriveCalculation::calculateTurningPoint(Vector *currVec, short direction) {
+void DriveCalculation::calculateTurningPoint(Vector *currVec, short dir) {
 
     // calculate a point which is on the same x-coord like the last known position
     // we will use this one for the calculation of the vector which is parallel to the x-axis
@@ -109,7 +109,7 @@ void DriveCalculation::calculateTurningPoint(Vector *currVec, short direction) {
 
     // calculate the end rotation angle in degrees
     float degrees = 0.0;
-    if(direction == DIRECTION_LEFT) {
+    if(dir == DIRECTION_LEFT) {
         degrees = (float) DEGTORAD(90 + rotationAngle);
     } else {
         degrees = (float) DEGTORAD(-90 - rotationAngle);

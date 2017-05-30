@@ -4,8 +4,8 @@
 
 #include "../include/Command.h"
 
-Command::Command(double distance, Position* start, Position* destination, short direction)
-        : _distance(distance), _start(start), _destination(destination), _direction(direction), _active(false) {}
+Command::Command(double distance, Position* start, Position* destination, short dir)
+        : _distance(distance), _start(start), _destination(destination), _direction(dir), _active(false) {}
 
 Command::~Command() {
     // delete the positions if necessary

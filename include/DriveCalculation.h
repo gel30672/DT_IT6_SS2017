@@ -24,7 +24,7 @@ private:
     Vector* initVector;
 
     void initCalculation();
-    void calculateTurningPoint(Vector *currVec, short direction);
+    void calculateTurningPoint(Vector *currVec, short dir);
 
     short checkDestinationDirection();
 

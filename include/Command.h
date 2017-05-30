@@ -24,7 +24,7 @@ private:
     bool _active;
 
 public:
-    Command(double distance, Position* start, Position* destination, short direction);
+    Command(double distance, Position* start, Position* destination, short dir);
     ~Command();
 
     void execute();
