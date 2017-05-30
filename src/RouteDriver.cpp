@@ -72,6 +72,8 @@ short RouteDriver::initRouterDriver() {
     // get and save the current position as lastpositionknown before driving
     Position *current = map->getCarPosition();
 
+    if(PRINT_ERROR_CODE) std::cout << "start init drive for " << 1000*INIT_CONFIG_TIME << " seconds" << std::endl;
+
     // start driving the initialization way
     Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_FORWARD).execute();
 
@@ -80,6 +82,8 @@ short RouteDriver::initRouterDriver() {
 
     // Stop the configuration drive
     Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_STOP).execute();
+
+    if(PRINT_ERROR_CODE) std::cout << "init drive ended" << std::endl;
 
     // get the new position and save it as currentposition
     current = map->getCarPosition();
