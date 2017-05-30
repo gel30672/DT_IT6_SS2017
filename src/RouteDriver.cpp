@@ -188,8 +188,23 @@ bool RouteDriver::checkDrive() {
     bool allGood = true;
     if(quad(xRes) > quad(POSITIONCOMPAREQUALITY) || quad(yRes) > (POSITIONCOMPAREQUALITY)) allGood = false;
 
-    // we don't need to check if we're on the route -> the position seems correct
-    if(allGood) return false;
+    // we don't need to check if we're on the route -> the position seems correct -> remove current command
+    if(allGood) {
+        driveCalculater->drivingCommands.pop();
+
+
+        // check if we have commands
+        if(driveCalculater->drivingCommands.size() <= 0) {
+
+            Command* cmdStop = new Command(0, nullptr, nullptr, DIRECTION_STOP);
+            cmdStop;
+
+        } else {
+
+            driveCalculater->drivingCommands.top().execute();
+        }
+        return false;
+    }
 
     // we compared the positions and now we need to check the direction
     Vector* way = new Vector(*currentUWB, *last);

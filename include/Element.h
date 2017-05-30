@@ -5,7 +5,7 @@
 #ifndef DT2017_ELEMENT_H
 #define DT2017_ELEMENT_H
 
-#import "Node.h"
+#include "Node.h"
 
 class Element {
 

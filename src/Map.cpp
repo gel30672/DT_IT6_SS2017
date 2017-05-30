@@ -196,7 +196,17 @@ Position* Map::getCarPosition() {
     lastKnownPosition = currentPosition;
 
     // call the uwb sensor for localization
-    //locsrv->get_position(&currentPosition); //todo uncomment after merging
+    locsrv->get_position(&currentPosition);
+
+    // change the coordinates to the scale
+    float x_new = currentPosition.x;
+    float y_new = currentPosition.y;
+
+    x_new = x_new/10; //convert to mm
+    y_new = y_new/10;
+
+    currentPosition.x = x_new;
+    currentPosition.y = y_new;
 
     // return the current position
     return &currentPosition;

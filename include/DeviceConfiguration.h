@@ -31,6 +31,7 @@
 #define DIRECTION_FORWARD 0
 #define DIRECTION_LEFT 1
 #define DIRECTION_RIGHT 2
+#define DIRECTION_STOP 3
 
 // Device specific configuration
 #define FULLSPEED 2
@@ -43,7 +44,5 @@
 //TODO THIS IS JUST FOR LATER MERGE PURPOSE
 //This defines the needed changes or calls to functions in other modules
 #define GET_CURRENT_DRIVEN_DISTANCE 10.0
-#define CALL_CAR_WHEEL_DEGREES(x) ;//SteerDegrees(x);
-#define CALL_CAR_MOTOR_SPEED(x) ;//MotorMoveKph(x);
 
 #endif //ALGORITHMS_CPP_DEVICECONFIGURATION_H

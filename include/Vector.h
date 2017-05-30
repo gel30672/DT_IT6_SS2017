@@ -5,8 +5,6 @@
 #ifndef DT2017_VECTOR_H
 #define DT2017_VECTOR_H
 
-#define quad(x) ((x)*(x))
-
 // Degree calculation
 #define DEGTORAD(D) ((D * M_PI) / 180.0) // Converts Degrees to radians
 #define RADTODEG(R) ((180.0 * R) / M_PI)//Converts Radians to Degrees
@@ -14,11 +12,7 @@
 #include <math.h>
 #include "DeviceConfiguration.h"
 #include "MapConfiguration.h"
-
-struct Position {
-    short x;
-    short y;
-};
+#include "LocDet.h"
 
 class Vector {
 

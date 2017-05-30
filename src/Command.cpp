@@ -14,23 +14,26 @@ Command::~Command() {
 
 void Command::execute() {
 
-    // TODO We need to check the correct values! check also the DEFINES!
     // Need to call steering for the wheelangle
     switch (_direction) {
 
         case DIRECTION_LEFT:
-            CALL_CAR_WHEEL_DEGREES(WHEEL_ANGLE(_direction));
+            SteerDegrees(WHEEL_ANGLE(_direction));
             break;
         case DIRECTION_RIGHT:
-            CALL_CAR_WHEEL_DEGREES(WHEEL_ANGLE(_direction));
+            SteerDegrees(WHEEL_ANGLE(_direction));
             break;
 
         default:
-            CALL_CAR_WHEEL_DEGREES(0);
+            SteerDegrees(0);
     }
 
     // Need to call the motor to start driving
-    CALL_CAR_MOTOR_SPEED(FULLSPEED);
+    if(_direction == DIRECTION_STOP) {
+        MotorMoveKph(0);
+    } else {
+        MotorMoveKph(FULLSPEED);
+    }
 
     // We need to say, this top command is active
     _active = true;
