@@ -15,6 +15,7 @@
 #include <vector>
 #include <stack>
 #include "ErrorHandling.h"
+#include <unistd.h> // for init purpose
 
 class RouteDriver {
 

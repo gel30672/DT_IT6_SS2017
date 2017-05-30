@@ -68,12 +68,18 @@ short RouteDriver::initDriveCalculation(Position *last, Position *current) {
 }
 
 short RouteDriver::initRouterDriver() {
+
     // get and save the current position as lastpositionknown before driving
     Position *current = map->getCarPosition();
 
-    // drive the initialization way and stop the car again
-    Command initCMD = Command(INIT_CONFIG_DISTANCE, current, nullptr, 0);
-    initCMD.execute();
+    // start driving the initialization way
+    Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_FORWARD).execute();
+
+    // now wait just a few seconds then stop the car again
+    sleep(1000*INIT_CONFIG_TIME);
+
+    // Stop the configuration drive
+    Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_STOP).execute();
 
     // get the new position and save it as currentposition
     current = map->getCarPosition();
