@@ -10,6 +10,9 @@
 #include "../SENSING/current_sensing.h"
 #include "../MOTOR/motor.h"
 
+#include "../../../include/RouteDriver.h"
+#include "../../../include/Map.h"
+
 int shaft_rpm;
 unsigned int shaft_rotations;
 int last_input;
@@ -124,10 +127,16 @@ void task_100_ms()
 			e_driving_state, motor_pid.actual_setpoint, motor_pid.in, distanceSinceStart, motor_pid.old_err, shaft_rotations);
 }
 
+int init_routedrv(Map *map, RouteDriver *rtedrv){
+	rtedrv = new RouteDriver(map);
+}
+
 int main(void)
 {
 	main_init();
-
+	RouteDriver *rtedrv;
+	Map *map = new Map();
+	init_routedrv(map, rtedrv);
     int old_time, time;
     while(1)
     {
@@ -137,6 +146,8 @@ int main(void)
         	old_time = time;
         	task_100_ms();
     	}
+		bool status = rtedrv->checkDrive();
+
     }
 
     return 0;
