@@ -34,9 +34,9 @@ private:
     void optimizeRoute();
     void saveToDestination(short x, short y);
 
-    // this executes the current command
-    short executeCurrentCommand();
-
+    // Private check methods for the current command and movement
+    bool currentCommandIsFinished();
+    bool directionChangeIsNeeded();
 
 
 public:
@@ -47,7 +47,7 @@ public:
     // If a new command is needed there are 2 options available
     //  1. we just return the next command, because we are still on the way to the destination
     //  2. we need to recalculate the old route to get a new route
-    bool checkDrive();
+    short checkDrive();
 
 };
 

@@ -29,6 +29,7 @@ public:
 
     void execute();
     bool isActive();
+    double getDistance();
     Position* getStartPosition();
     Position* getDestinationPosition();
     Position* getPredictedPositionBy(double distance);

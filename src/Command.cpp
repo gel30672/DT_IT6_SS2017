@@ -118,3 +118,7 @@ Position* Command::getPredictedPositionBy(double distance) {
     // Return the predicted position
     return predictedPos;
 }
+
+double Command::getDistance() {
+    return _distance;
+}

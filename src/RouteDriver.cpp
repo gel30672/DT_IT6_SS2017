@@ -166,62 +166,121 @@ void RouteDriver::optimizeRoute() {
             predecessor->y = node.getY();
         }
     }
-
 }
 
-bool RouteDriver::checkDrive() {
+bool RouteDriver::currentCommandIsFinished() {
 
-    // get the droven distance
-    double drovenDistance = distanceSinceStart;
+    // define the result value
+    bool checkResult = true;
 
-    // calculate the current position
-    Command currentCommand = driveCalculater->drivingCommands.top();
-    Position* calculatedCurrentPosition = currentCommand.getPredictedPositionBy(drovenDistance);
+    // first get the current command
+    Command currentCMD = driveCalculater->drivingCommands.top();
 
-    // check if we're still on the correct way?
-    Position* last = map->getLastKnownPosition();
-    Position* currentUWB = map->getCarPosition();
-	std::cout << "!!!!!1!!!!!!" << std::endl;
-    // now compare the positions!
-    short xRes = calculatedCurrentPosition->x - currentUWB->x;
-    short yRes = calculatedCurrentPosition->y - currentUWB->y;
+    // check if we already did move the whole way
+    if(checkResult && distanceSinceStart < currentCMD.getDistance()) checkResult = false;
 
-    // compare it
-    bool allGood = true;
-    if(quad(xRes) > quad(POSITIONCOMPAREQUALITY) || quad(yRes) > (POSITIONCOMPAREQUALITY)) allGood = false;
-std::cout << "!!!!!2!!!!!!" << std::endl;
-    // we don't need to check if we're on the route -> the position seems correct -> remove current command
-    if(allGood) {
-        driveCalculater->drivingCommands.pop();
+    // check if we are near by the destination
+    Position* destinationPos = currentCMD.getDestinationPosition();
+    Position* uwbPos = map->getCarPosition();
 
-std::cout << "!!!!!3!!!!!!" << std::endl;
-        // check if we have commands
-        if(driveCalculater->drivingCommands.size() <= 0) {
+    // prevent the check from errors
+    if(destinationPos != nullptr && uwbPos != nullptr) {
 
-            Command* cmdStop = new Command(0, nullptr, nullptr, DIRECTION_STOP);
-            cmdStop;
+        short x_diff = quad(destinationPos->x) - quad(uwbPos->x);
+        short y_diff = quad(destinationPos->y) - quad(uwbPos->y);
 
-        } else {
-
-            driveCalculater->drivingCommands.top().execute();
-        }
-        return false;
+        // check if the current position is nearby our calculated destination
+        if(checkResult && (x_diff <= POSITION_PRECISION) && (y_diff <= POSITION_PRECISION)) checkResult = false;
     }
 
-    // we compared the positions and now we need to check the direction
-    Vector* way = new Vector(*currentUWB, *last);
-    bool correctWay = way->isOnLineTo(&destinations[destinations.size()-1]);
-std::cout << "!!!!!4!!!!!!" << std::endl;
-    // do we need a new command? - remove the old one and check if the new one is correct / if not recalculate
-    if(correctWay) return false;
+    // the current command is finished
+    return checkResult;
+}
 
-    //create command for a "turn to the destination"
-    driveCalculater->calculate(currentUWB, currentCommand.getDestinationPosition());
+bool RouteDriver::directionChangeIsNeeded() {
 
-    // execute if necessary the current command
+    // define the result value
+    bool checkResult = false;
+
+    // get the current command
+    Command currentCMD = driveCalculater->drivingCommands.top();
+
+    // check if we got an command destination
+    Position* destination = currentCMD.getDestinationPosition();
+
+    if(destination != nullptr) {
+
+        // save droven distance
+        double currentDistance = distanceSinceStart;
+
+        // we got a destination, so check if we need a direction change
+        Position *current = map->getCarPosition();
+        Position *lastKnown = map->getLastKnownPosition();
+
+        // now calculate the "current position"
+        Position *calculated = currentCMD.getPredictedPositionBy(currentDistance);
+
+        // check if we got a big difference between calculated and uwb position
+        if(calculated != nullptr && current != nullptr) {
+
+            short x_diff = quad(calculated->x) - quad(current->x);
+            short y_diff = quad(calculated->y) - quad(current->y);
+
+            // check if the current position is nearby our calculated destination
+            if(x_diff > POSITION_PRECISION && y_diff > POSITION_PRECISION) checkResult = true;
+        }
+
+        // check the current direction by a vector calculation
+        Vector* direction = new Vector(*current, *lastKnown);
+
+        // check if the destination is on the current droven direction
+        if(!direction->isOnLineTo(destination)) checkResult = true;
+    }
+
+    // the direction change is not needed
+    return checkResult;
+}
+
+
+short RouteDriver::checkDrive() {
+
+    // check if we moved to another place already
+    if(distanceSinceStart <= 10) return DROVEN_DISTANCE_IS_ZERO;
+
+    // we need to check, if the driveCalculater is initialized
+    if(driveCalculater == nullptr) return DRIVECALCULATER_NOT_INITIALIZED;
+
+    // check if we got an command
+    if(driveCalculater->drivingCommands.size() <= 0) {
+        Command(0, nullptr, nullptr, DIRECTION_STOP).execute(); // Execute the Stop command!
+        return NO_DRIVING_COMMANDS_LEFT;
+    }
+
+    // check if we can delete the current command
+    if(currentCommandIsFinished()) {
+        driveCalculater->drivingCommands.pop();
+    }
+
+    // check if we are still on our way to the destination and correct the movement if necessary
+    if(directionChangeIsNeeded()) {
+        Position* dest = driveCalculater->drivingCommands.top().getDestinationPosition();
+        Position* current = map->getCarPosition();
+        if(dest != nullptr) {
+
+            // check if the current command is active, if it is, then remove it
+            if(driveCalculater->drivingCommands.top().isActive()) driveCalculater->drivingCommands.pop();
+
+            // calculate the direction change and save it as a new command
+            driveCalculater->calculate(current, dest);
+        }
+    }
+
+    // check if the current command is active, if not, activate the command
     if(!driveCalculater->drivingCommands.top().isActive()) {
         driveCalculater->drivingCommands.top().execute();
+        distanceSinceStart = 0;
     }
-std::cout << "!!!!!5!!!!!!" << std::endl;
-    return true;
+
+    // we successfully checked the current command
+    return SUCCESSFULL_CHECKED;
 }
