@@ -25,6 +25,20 @@
 
 class Map {
 
+public:
+    Map();
+    ~Map();
+    void init();
+    Position* getLastKnownPosition();
+    Position* getCarPosition();
+
+    Node* getNode(short x, short y);
+    Node* getCarPositionNode();
+
+    void getNeighbours(Node* nodelist, short x, short y);
+    int updateField(short x, short y, bool isObstacle);
+
+
 private:
     unsigned short* nodelist;
     short _size;
@@ -37,18 +51,8 @@ private:
     void initTestMap(char* map); // Just for testing purpose
     void print();
 
-public:
-    Map();
-    ~Map();
 
-    Position* getLastKnownPosition();
-    Position* getCarPosition();
 
-    Node* getNode(short x, short y);
-    Node* getCarPositionNode();
-
-    void getNeighbours(Node* nodelist, short x, short y);
-    int updateField(short x, short y, bool isObstacle);
 };
 
 #endif //ROUTING_MAP_H

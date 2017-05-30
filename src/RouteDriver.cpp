@@ -3,6 +3,9 @@
 //
 
 #include "../include/RouteDriver.h"
+#include "./libmdrv/SENSING/current_sensing.h"
+
+double distanceSinceStart = 0;
 
 RouteDriver::RouteDriver(Map *map) : map(map){
 
@@ -59,7 +62,6 @@ short RouteDriver::initDriveCalculation(Position *last, Position *current) {
 }
 
 short RouteDriver::initRouterDriver() {
-
     // get and save the current position as lastpositionknown before driving
     Position *current = map->getCarPosition();
 
@@ -170,7 +172,7 @@ void RouteDriver::optimizeRoute() {
 bool RouteDriver::checkDrive() {
 
     // get the droven distance
-    double drovenDistance = GET_CURRENT_DRIVEN_DISTANCE;
+    double drovenDistance = distanceSinceStart;
 
     // calculate the current position
     Command currentCommand = driveCalculater->drivingCommands.top();
@@ -179,7 +181,7 @@ bool RouteDriver::checkDrive() {
     // check if we're still on the correct way?
     Position* last = map->getLastKnownPosition();
     Position* currentUWB = map->getCarPosition();
-
+	std::cout << "!!!!!1!!!!!!" << std::endl;
     // now compare the positions!
     short xRes = calculatedCurrentPosition->x - currentUWB->x;
     short yRes = calculatedCurrentPosition->y - currentUWB->y;
@@ -187,12 +189,12 @@ bool RouteDriver::checkDrive() {
     // compare it
     bool allGood = true;
     if(quad(xRes) > quad(POSITIONCOMPAREQUALITY) || quad(yRes) > (POSITIONCOMPAREQUALITY)) allGood = false;
-
+std::cout << "!!!!!2!!!!!!" << std::endl;
     // we don't need to check if we're on the route -> the position seems correct -> remove current command
     if(allGood) {
         driveCalculater->drivingCommands.pop();
 
-
+std::cout << "!!!!!3!!!!!!" << std::endl;
         // check if we have commands
         if(driveCalculater->drivingCommands.size() <= 0) {
 
@@ -209,7 +211,7 @@ bool RouteDriver::checkDrive() {
     // we compared the positions and now we need to check the direction
     Vector* way = new Vector(*currentUWB, *last);
     bool correctWay = way->isOnLineTo(&destinations[destinations.size()-1]);
-
+std::cout << "!!!!!4!!!!!!" << std::endl;
     // do we need a new command? - remove the old one and check if the new one is correct / if not recalculate
     if(correctWay) return false;
 
@@ -220,6 +222,6 @@ bool RouteDriver::checkDrive() {
     if(!driveCalculater->drivingCommands.top().isActive()) {
         driveCalculater->drivingCommands.top().execute();
     }
-
+std::cout << "!!!!!5!!!!!!" << std::endl;
     return true;
 }

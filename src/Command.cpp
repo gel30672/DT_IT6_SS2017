@@ -30,9 +30,9 @@ void Command::execute() {
 
     // Need to call the motor to start driving
     if(_direction == DIRECTION_STOP) {
-        MotorMoveKph(0);
+        MotorMoveRpm(0);
     } else {
-        MotorMoveKph(FULLSPEED);
+        MotorMoveRpm(FULLSPEED);
     }
 
     // We need to say, this top command is active

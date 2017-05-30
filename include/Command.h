@@ -9,7 +9,8 @@
 #include "DeviceConfiguration.h"
 #include <math.h>
 
-extern "C"{
+
+extern "C" {
 #include "../src/libmdrv/MOTOR/motor.h"
 #include "../src/libmdrv/STEERING/steering.h"
 }

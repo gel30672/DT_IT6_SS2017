@@ -8,7 +8,7 @@
 #ifndef CURRENT_SENSING_H_
 #define CURRENT_SENSING_H_
 
-double distanceSinceStart;
+extern double distanceSinceStart;
 
 //config values
 #define WHEEL_RADIUS_IN_CM 6

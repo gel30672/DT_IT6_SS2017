@@ -4,16 +4,16 @@
 
 #include "../include/LocDet.h"
 #include "../include/ReadDataFromSerial.h"
-#include <xls/libxl.h>
+//#include <xls/libxl.h>
 
 #include <iostream>
 
 
 LocDet::LocDet() {
-    Anchor_B.x = 5010;
+    Anchor_B.x = 2918;
     Anchor_B.y = 0000;
-    Anchor_C.x = 2503;
-    Anchor_C.y = 3022;
+    Anchor_C.x = 0530;
+    Anchor_C.y = 5251;
 }
 
 LocDet::~LocDet() {
@@ -27,6 +27,8 @@ int LocDet::get_position(Position *pos){
     //executewithVector();
     pos->x = Pos_x;
     pos->y = Pos_y;
+
+	std::cout << pos->x << " " << pos->y << std::endl;
     return ret;
 }
 

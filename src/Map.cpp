@@ -4,8 +4,12 @@
 #include <iostream>
 #include "../include/Map.h"
 
-Map::Map() {
 
+Map::Map() {
+    init();
+}
+
+void Map::init() {
     // create the map on the size
     _size = (MapColumnsCount*MapRowsCount)/MapBitsInRow;
     _size += ((MapColumnsCount*MapRowsCount)%MapBitsInRow > 0) ? 1 : 0;
@@ -23,6 +27,7 @@ Map::Map() {
 
     // If a test map should
     if(useTestMap) initTestMap("000010000011100010001001000011100000000011100010");
+
 }
 
 /*

@@ -4,16 +4,12 @@
 
 #include <errno.h>
 
-extern "C"{
+#include "../../../include/RouteDriver.h"
 
+extern "C"{
 #include "../GPIO/gpio.h"
-#include "../PID_CONTROLLER/pid.h"
-#include "../STEERING/steering.h"
 #include "../SENSING/current_sensing.h"
-#include "../MOTOR/motor.h"
 }
-#include "RouteDriver.h"
-#include "Map.h"
 
 int shaft_rpm;
 unsigned int shaft_rotations;
@@ -24,7 +20,7 @@ void main_init()
 	gpio_init();
 	distanceSinceStart = 0;
 
-	/* motor pid params */
+	/* Wmotor pid params */
 	motor_pid.kp = 0.013;//0.009
 	motor_pid.ki = 0.002;//0.001
 	motor_pid.kd = 0.0008;//0.0006
@@ -99,7 +95,7 @@ void vehicle_state_machine()
 
 void task_100_ms()
 {
-
+	std::cout << "HUHU" << std::endl;
 	/* rotations / 2700ms */
 	shaft_rotations = serialGetchar(uart);
 	/*/2.7 /10 == ration/100ms; *6.666 == ration of wheel */
@@ -139,8 +135,8 @@ int main()
 
 	Map *map = new Map();
     RouteDriver *rtedrv = new RouteDriver(map);
-	init_routedrv(map, rtedrv);
-    int old_time, time;
+	int old_time = 0;
+	int time = 0;
     while(1)
     {
     	time = millis();
@@ -149,7 +145,7 @@ int main()
         	old_time = time;
         	task_100_ms();
     	}
-		//bool status = rtedrv->checkDrive();
+		bool status = rtedrv->checkDrive();
 
     }
 

@@ -4,7 +4,9 @@
 
 /* global motor pid struct */
 pid_param_t motor_pid;
-
+e_vehicle_state e_driving_state;
+int uart;
+int direction;
 e_state setSpeed(signed char speed)
 {
 	if(speed > 100 || speed < -100) return E_NOT_OK;

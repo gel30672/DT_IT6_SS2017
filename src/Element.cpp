@@ -4,7 +4,7 @@
 
 #include "../include/Element.h"
 
-Element::Element() : _node(NULL), _priority(0) {}
+Element::Element() : _node(nullptr), _priority(0) {}
 
 Element::Element(Node *node, int priority) : _node(node), _priority(priority) {}
 

@@ -34,7 +34,7 @@
 #define DIRECTION_STOP 3
 
 // Device specific configuration
-#define FULLSPEED 2
+#define FULLSPEED 500
 #define BACKSPEED (-FULLSPEED)
 #define WHEEL_ANGLE(x) (x < 0 ? (-MAXWHEELLOCK) : MAXWHEELLOCK)
 
@@ -43,6 +43,6 @@
 //TODO THIS MAY NEED TO BE REMOVED BY REAL FUNCTION CALLS
 //TODO THIS IS JUST FOR LATER MERGE PURPOSE
 //This defines the needed changes or calls to functions in other modules
-#define GET_CURRENT_DRIVEN_DISTANCE distanceSinceStart
+#define GET_CURRENT_DRIVEN_DISTANCE 10
 
 #endif //ALGORITHMS_CPP_DEVICECONFIGURATION_H

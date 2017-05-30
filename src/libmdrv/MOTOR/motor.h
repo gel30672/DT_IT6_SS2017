@@ -14,14 +14,15 @@
 #include "../PROJECT_ADAPTER/project_adapter.h"
 
 typedef enum { RAMP, FORWARD, BACKWARDS, BRAKE } e_vehicle_state;
-e_vehicle_state e_driving_state;
+extern e_vehicle_state e_driving_state;
 
 extern pid_param_t motor_pid;
 
 //uart file descriptor
-int uart;
+extern int uart;
 
-int direction;
+extern int direction;
+
 
 e_state setSpeed(signed char speed);
 int motorInit();
