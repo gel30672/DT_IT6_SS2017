@@ -19,7 +19,7 @@ Map::Map() {
     }
 
     // init the localization
-    //locsrv = new LocDet(); //todo uncomment after merging
+    locsrv = new LocDet(); //todo uncomment after merging
 
     // If a test map should
     if(useTestMap) initTestMap("000010000011100010001001000011100000000011100010");

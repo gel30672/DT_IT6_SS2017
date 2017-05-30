@@ -4,12 +4,14 @@
 
 #include <errno.h>
 
+extern "C"{
+
 #include "../GPIO/gpio.h"
 #include "../PID_CONTROLLER/pid.h"
 #include "../STEERING/steering.h"
 #include "../SENSING/current_sensing.h"
 #include "../MOTOR/motor.h"
-
+}
 #include "../../../include/RouteDriver.h"
 #include "../../../include/Map.h"
 
@@ -128,14 +130,15 @@ void task_100_ms()
 }
 
 int init_routedrv(Map *map, RouteDriver *rtedrv){
-	rtedrv = new RouteDriver(map);
+	//rtedrv = new RouteDriver(map);
 }
 
-int main(void)
+int main()
 {
 	main_init();
-	RouteDriver *rtedrv;
+
 	Map *map = new Map();
+    RouteDriver *rtedrv = new RouteDriver(map);
 	init_routedrv(map, rtedrv);
     int old_time, time;
     while(1)
@@ -146,7 +149,7 @@ int main(void)
         	old_time = time;
         	task_100_ms();
     	}
-		bool status = rtedrv->checkDrive();
+		//bool status = rtedrv->checkDrive();
 
     }
 

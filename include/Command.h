@@ -8,9 +8,11 @@
 #include "Vector.h"
 #include "DeviceConfiguration.h"
 #include <math.h>
+
+extern "C"{
 #include "../src/libmdrv/MOTOR/motor.h"
 #include "../src/libmdrv/STEERING/steering.h"
-
+}
 class Command {
 
 private:
