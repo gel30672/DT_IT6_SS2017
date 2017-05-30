@@ -145,7 +145,8 @@ int main()
         	old_time = time;
         	task_100_ms();
     	}
-		bool status = rtedrv->checkDrive();
+		short status = rtedrv->checkDrive();
+		if(PRINT_ERROR_CODE) std::cout << "checkdrive(" << status << ")" << std::endl;
 
     }
 

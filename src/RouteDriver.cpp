@@ -10,7 +10,9 @@ double distanceSinceStart = 0;
 RouteDriver::RouteDriver(Map *map) : map(map){
 
     //initialize the route calculation
-    initRouterDriver();
+    short result = initRouterDriver();
+
+    if(PRINT_ERROR_CODE) std::cout << "initRouterDriver(" << result << ")" << std::endl;
 }
 
 RouteDriver::~RouteDriver() {
@@ -28,6 +30,8 @@ short RouteDriver::initRouteCalculation(short xDestination, short yDestination) 
 
     // calculate the route
     bool calcRes = routeCalculater->calculate();
+
+    if(PRINT_ERROR_CODE) std::cout << "initRouteCalculation(" << calcRes << ")" << std::endl;
 
     // check if the calculation went well
     if(calcRes != NO_PATH_FOUND_ERROR) return COULD_NOT_CALCULATE_ROUTE_ERROR;
@@ -49,6 +53,8 @@ short RouteDriver::initDriveCalculation(Position *last, Position *current) {
 
         // calculate the command for this drive
         int calcError = driveCalculater->calculate(lastPosition, destination);
+
+        if(PRINT_ERROR_CODE) std::cout << "initDriveCalculation(" << calcError << ")" << std::endl;
 
         // check calcRes if there's a error message
         if(calcError) return COULD_NOT_CALCULATE_DRIVECOMMAND_ERROR;
@@ -159,7 +165,10 @@ void RouteDriver::optimizeRoute() {
             if(routeCalculater->getRouteNodeCount() == 0) needSave = true;
 
             // That one is not in the line, save the predecessor
-            if(needSave) saveToDestination(node.getX(), node.getY());
+            if(needSave) {
+                saveToDestination(node.getX(), node.getY());
+                if(PRINT_ERROR_CODE) std::cout << "optimizedDestination(" << node.getX() << "/" << node.getY() << ")" << std::endl;
+            }
 
             // save as predecessor details
             predecessor->x = node.getX();
@@ -169,6 +178,8 @@ void RouteDriver::optimizeRoute() {
 }
 
 bool RouteDriver::currentCommandIsFinished() {
+
+    if(PRINT_ERROR_CODE) std::cout << "started command check" << std::endl;
 
     // define the result value
     bool checkResult = true;
@@ -193,11 +204,15 @@ bool RouteDriver::currentCommandIsFinished() {
         if(checkResult && (x_diff <= POSITION_PRECISION) && (y_diff <= POSITION_PRECISION)) checkResult = false;
     }
 
+    if(PRINT_ERROR_CODE) std::cout << "ended command check" << std::endl;
+
     // the current command is finished
     return checkResult;
 }
 
 bool RouteDriver::directionChangeIsNeeded() {
+
+    if(PRINT_ERROR_CODE) std::cout << "started direction check" << std::endl;
 
     // define the result value
     bool checkResult = false;
@@ -237,12 +252,16 @@ bool RouteDriver::directionChangeIsNeeded() {
         if(!direction->isOnLineTo(destination)) checkResult = true;
     }
 
+    if(PRINT_ERROR_CODE) std::cout << "ended direction check" << std::endl;
+
     // the direction change is not needed
     return checkResult;
 }
 
 
 short RouteDriver::checkDrive() {
+
+    if(PRINT_ERROR_CODE) std::cout << "start checkdrive" << std::endl;
 
     // check if we moved to another place already
     if(distanceSinceStart <= 10) return DROVEN_DISTANCE_IS_ZERO;
@@ -280,6 +299,8 @@ short RouteDriver::checkDrive() {
         driveCalculater->drivingCommands.top().execute();
         distanceSinceStart = 0;
     }
+
+    if(PRINT_ERROR_CODE) std::cout << "ended checkdrive" << std::endl;
 
     // we successfully checked the current command
     return SUCCESSFULL_CHECKED;

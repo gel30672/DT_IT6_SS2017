@@ -24,7 +24,6 @@
 
 // The droven distance for the configuration and the general distance
 #define INIT_CONFIG_DISTANCE 30
-#define DROVENDISTANCE 0 //this will later contain an method call
 
 // The device driving directions
 #define DIRECTION_BACKWARD -1
