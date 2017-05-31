@@ -271,13 +271,14 @@ bool RouteDriver::directionChangeIsNeeded() {
 
 short RouteDriver::checkDrive() {
 
-    if(PRINT_ERROR_CODE) std::cout << "start checkdrive" << std::endl;
-
     // check if we moved to another place already
     if(distanceSinceStart <= 10) return DROVEN_DISTANCE_IS_ZERO;
 
     // we need to check, if the driveCalculater is initialized
     if(driveCalculater == nullptr) return DRIVECALCULATER_NOT_INITIALIZED;
+
+    // Start the checkdrive with this debug information
+    if(PRINT_ERROR_CODE) std::cout << "perform checkdrive" << std::endl;
 
     // check if we got an command
     if(driveCalculater->drivingCommands.size() <= 0) {
@@ -310,7 +311,7 @@ short RouteDriver::checkDrive() {
         distanceSinceStart = 0;
     }
 
-    if(PRINT_ERROR_CODE) std::cout << "ended checkdrive" << std::endl;
+    if(PRINT_ERROR_CODE) std::cout << "success checkdrive - new command" << std::endl;
 
     // we successfully checked the current command
     return SUCCESS;
