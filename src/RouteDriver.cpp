@@ -29,7 +29,7 @@ short RouteDriver::initRouteCalculation(short xDestination, short yDestination) 
     routeCalculater = new RouteCalculation(map, xDestination, yDestination);
 
     // calculate the route
-    bool calcRes = routeCalculater->calculate();
+    short calcRes = routeCalculater->calculate();
 
     if(PRINT_ERROR_CODE) std::cout << "initRouteCalculation(" << calcRes << ")" << std::endl;
 

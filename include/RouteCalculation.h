@@ -36,7 +36,7 @@ public:
     RouteCalculation(Map *map, int xDestination, int yDestination);
     ~RouteCalculation();
 
-    bool calculate();
+    short calculate();
 
     Node popNodeFromRouteStack();
     short getRouteNodeCount();

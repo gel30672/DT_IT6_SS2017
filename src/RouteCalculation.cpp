@@ -26,7 +26,7 @@ Node RouteCalculation::popNodeFromRouteStack() {
     return n;
 }
 
-bool RouteCalculation::calculate() {
+short RouteCalculation::calculate() {
 
     if(_openlistPQ == nullptr) {
         _openlistPQ = new PriorityQueue();
@@ -51,7 +51,7 @@ bool RouteCalculation::calculate() {
                 _routeNodeCount++;
                 currentNode = currentNode->getPredessesor();
             }
-            return PATH_FOUND_SUCCESSFULLY;
+            return SUCCESS;
         }
 
         // no route found - continue work on finding a route!
