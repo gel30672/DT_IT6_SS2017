@@ -133,8 +133,11 @@ int main()
 {
 	main_init();
 
+	//Route Driver Initialization
 	Map *map = new Map();
     RouteDriver *rtedrv = new RouteDriver(map);
+	short lastErrorCode = 0;
+
 	int old_time = 0;
 	int time = 0;
     while(1)
@@ -146,7 +149,7 @@ int main()
         	task_100_ms();
     	}
 		short status = rtedrv->checkDrive();
-		if(PRINT_ERROR_CODE) std::cout << "checkdrive(" << status << ")" << std::endl;
+		if(PRINT_ERROR_CODE && status != lastErrorCode) std::cout << "checkdrive(" << status << ")" << std::endl;
 
     }
 

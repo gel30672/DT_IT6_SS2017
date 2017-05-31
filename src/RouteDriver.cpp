@@ -64,7 +64,7 @@ short RouteDriver::initDriveCalculation(Position *last, Position *current) {
     }
 
     // we successfully calculated the commands
-    return 0;
+    return SUCCESS;
 }
 
 short RouteDriver::initRouterDriver() {
@@ -72,13 +72,13 @@ short RouteDriver::initRouterDriver() {
     // get and save the current position as lastpositionknown before driving
     Position *current = map->getCarPosition();
 
-    if(PRINT_ERROR_CODE) std::cout << "start init drive for " << 1000*INIT_CONFIG_TIME << " seconds" << std::endl;
+    if(PRINT_ERROR_CODE) std::cout << "start init drive for around " << INIT_CONFIG_TIME << " seconds" << std::endl;
 
     // start driving the initialization way
     Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_FORWARD).execute();
 
     // now wait just a few seconds then stop the car again
-    sleep(1000*INIT_CONFIG_TIME);
+    sleep(10*INIT_CONFIG_TIME);
 
     // Stop the configuration drive
     Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_STOP).execute();
@@ -98,11 +98,11 @@ short RouteDriver::initRouterDriver() {
     short initResDrive = initDriveCalculation(map->getLastKnownPosition(), current);
 
     // check for errors
-    if(!initResRoute) return ERROR_WHILE_ROUTECALC_INIT;
-    if(!initResDrive) return ERROR_WHILE_DRIVECALC_INIT;
+    if(initResRoute != SUCCESS) return ERROR_WHILE_ROUTECALC_INIT;
+    if(initResDrive != SUCCESS) return ERROR_WHILE_DRIVECALC_INIT;
 
     // everything went well! go for it!
-    return 0;
+    return SUCCESS;
 }
 
 void RouteDriver::saveToDestination(short x, short y) {
@@ -313,5 +313,5 @@ short RouteDriver::checkDrive() {
     if(PRINT_ERROR_CODE) std::cout << "ended checkdrive" << std::endl;
 
     // we successfully checked the current command
-    return SUCCESSFULL_CHECKED;
+    return SUCCESS;
 }
