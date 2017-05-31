@@ -78,7 +78,7 @@ short RouteDriver::initRouterDriver() {
     Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_FORWARD).execute();
 
     // now wait just a few seconds then stop the car again
-    sleep(10*INIT_CONFIG_TIME);
+    sleep(INIT_CONFIG_TIME);
 
     // Stop the configuration drive
     Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_STOP).execute();

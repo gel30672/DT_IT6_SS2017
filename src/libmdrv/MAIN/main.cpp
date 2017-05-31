@@ -125,10 +125,6 @@ void task_100_ms()
 			e_driving_state, motor_pid.actual_setpoint, motor_pid.in, distanceSinceStart, motor_pid.old_err, shaft_rotations);
 }
 
-int init_routedrv(Map *map, RouteDriver *rtedrv){
-	//rtedrv = new RouteDriver(map);
-}
-
 int main()
 {
 	main_init();
@@ -149,7 +145,10 @@ int main()
         	task_100_ms();
     	}
 		short status = rtedrv->checkDrive();
-		if(PRINT_ERROR_CODE && status != lastErrorCode) std::cout << "checkdrive(" << status << ")" << std::endl;
+		if(PRINT_ERROR_CODE && status != lastErrorCode) {
+			std::cout << "checkdrive(" << status << ")" << std::endl;
+			lastErrorCode = status;
+		}
 
     }
 
