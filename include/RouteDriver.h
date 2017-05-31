@@ -23,6 +23,7 @@ private:
     Map* map;
     RouteCalculation* routeCalculater;
     DriveCalculation* driveCalculater;
+    Position driveDestination;
 
     std::vector<Position> destinations;
 
@@ -38,6 +39,9 @@ private:
     // Private check methods for the current command and movement
     bool currentCommandIsFinished();
     bool directionChangeIsNeeded();
+
+    // User-Interaction if the DeviceConfiguration define USE_CONSOLE_FOR_DESTINATION_INPUT is true
+    void askUserForDestination();
 
 
 public:

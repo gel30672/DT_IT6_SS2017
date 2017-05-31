@@ -83,13 +83,23 @@ short RouteDriver::initRouterDriver() {
     // Stop the configuration drive
     Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_STOP).execute();
 
-    if(PRINT_ERROR_CODE) std::cout << "init drive ended" << std::endl;
-
     // get the new position and save it as currentposition
     current = map->getCarPosition();
 
+    if(PRINT_ERROR_CODE) {
+        std::cout << "init drive ended" << std::endl;
+        std::cout << "###### Current Position is (" << current->x << "|" << current->y << ")" << std::endl;
+    }
+
+    // ADD-IN! Get the DESTINATION BY INPUT!
+    if(USE_CONSOLE_FOR_DESTINATION_INPUT) askUserForDestination();
+    else {
+        driveDestination.x = DESTINATION_X_COORDINATE;
+        driveDestination.y = DESTINATION_Y_COORDINATE;
+    }
+
     // initialize the route calculation
-    short initResRoute = initRouteCalculation(DESTINATION_X_COORDINATE, DESTINATION_Y_COORDINATE);
+    short initResRoute = initRouteCalculation(driveDestination.x, driveDestination.y);
 
     // optimize the current route to get just main nodes
     optimizeRoute();
@@ -315,4 +325,35 @@ short RouteDriver::checkDrive() {
 
     // we successfully checked the current command
     return SUCCESS;
+}
+
+void RouteDriver::askUserForDestination() {
+
+    // Create a CMD UI
+    std::cout << "\n\n########### ENTER THE DESTINATION ###########" << std::endl;
+    bool correctValue = false;
+    string confirmation = "";
+    while(!correctValue) {
+
+        std::cout << "Enter the X-Coordinate: ";
+        std::cin >> driveDestination.x;
+        std::cout << "The entered X-Coordinate is " << driveDestination.x << " right (y/n)? ";
+        std::cin >> confirmation;
+        if(confirmation == "y" || confirmation == "Y") correctValue = true;
+    }
+
+    correctValue = false;
+    while(!correctValue) {
+
+        std::cout << "Enter the Y-Coordinate: ";
+        std::cin >> driveDestination.y;
+        std::cout << "The entered Y-Coordinate is " << driveDestination.y << " right (y/n)? ";
+        std::cin >> confirmation;
+        if(confirmation == "y" || confirmation == "Y") correctValue = true;
+    }
+
+    std::cout << "########### THANK YOU FOR ENTERING A DESTINATION ###########" << std::endl;
+
+    std::cout << "########### The calculation to Position (" << driveDestination.x << "|" << driveDestination.y << ") will start now! ###########\n\n" << std::endl;
+
 }
