@@ -83,7 +83,7 @@ bool Vector::isOnLineTo(struct Position *p) {
 
     float angle = getAngleTo(tmpVector);
 
-    if(angle==0) return true;
+    if(angle<=POSITION_PRECISION) return true;
 
     return false;
 }

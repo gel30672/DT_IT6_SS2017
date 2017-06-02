@@ -10,6 +10,7 @@
 #include "Vector.h"
 #include "Command.h"
 #include <stack>
+#include "ErrorHandling.h"
 
 #define DIRECTION_CHANGE_NEEDED true
 #define DIRECTION_CHANGE_NOT_NEEDED false
@@ -23,7 +24,6 @@ private:
     Position destination;
     Vector* initVector;
 
-    void initCalculation();
     void calculateTurningPoint(Vector *currVec, short dir);
 
     short checkDestinationDirection();

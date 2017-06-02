@@ -5,9 +5,11 @@
 
 RouteCalculation::RouteCalculation(Map* map, int xDestination, int yDestinationNode) : _map(map) {
     _start = *map->getCarPositionNode();
-    _destination = *map->getNode(xDestination, yDestinationNode);
+    _destination = Node(xDestination, yDestinationNode);
     _openlistPQ = nullptr;
     _routeNodeCount = 0;
+    _closedlist = new int[MapColumnsCount*MapRowsCount];
+    for(int i = 0; i < MapColumnsCount*MapRowsCount; i++) _closedlist[i] = 0;
 }
 
 RouteCalculation::~RouteCalculation() {}
@@ -28,87 +30,98 @@ Node RouteCalculation::popNodeFromRouteStack() {
 
 short RouteCalculation::calculate() {
 
+    std::cout << "START ROUTE CALCULATION" << std::endl;
+
+    // check that the priority queue is initialized!
     if(_openlistPQ == nullptr) {
         _openlistPQ = new PriorityQueue();
     }
 
-    //initialize the open list - priorityQueue
+    // insert the start position to the open list
     _openlistPQ->insert(&_start, 0);
 
+    // define the current node
+    Node* currentNode;
+    Element* currentElement;
+    bool foundRoute = false;
+
+    // search for the destination
     while(!_openlistPQ->isEmpty()) {
 
-        //Print not the list while runtime
-        //_openlistPQ->print();
+        // Get the Node with lowest field value from the priority queue
+        currentElement = _openlistPQ->extractMin();
+        currentNode = currentElement->getNode();
 
-        Element* currentElement = _openlistPQ->extractMin();
-        Node *currentNode = currentElement->getNode();
-        // check if we found a route
+        // check if the currentNode is the target
         if(currentNode->equals(&_destination)) {
-
-            while(!currentNode->equals(&_start)) {
-                //std::cout << "Node=(" << currentNode->getX() << "|" << currentNode->getY() << ")" << std::endl;
-                _route.push(*currentNode);
-                _routeNodeCount++;
-                currentNode = currentNode->getPredessesor();
-            }
-            return SUCCESS;
+            foundRoute = true;
+            break;
         }
 
-        // no route found - continue work on finding a route!
-        _closedlist.push_back(currentNode);
+        // not the target, so now first let save the current node as a closed field
+        int closedListIndex = currentNode->getX()+(currentNode->getY()*MapColumnsCount);
+        _closedlist[closedListIndex] = 1;
 
+        // now check the neighbours
+        Node* neighbourList = new Node[8]; // we can have 8 neighbours
+        int neighboursCnt = _map->getNeighbours(neighbourList, currentNode->getX(), currentNode->getY());
+        for(int i = 0; i < neighboursCnt; i++) {
 
-        // Check the neighbours
-        Node* nodes = new Node[MapCellNeighbourCount];
-        _map->getNeighbours(nodes, currentNode->getX(), currentNode->getY());
-        for (int i = 0; i < MapCellNeighbourCount; i++) {
+            // Get one neighbour
+            Node* neighbour = &neighbourList[i];
 
-            Node* next = &nodes[i];
+            // check if the neighbour is already in the closed list - yes? continue with next neighbour
+            closedListIndex = neighbour->getX()+(neighbour->getY()*MapColumnsCount);
+            if(_closedlist[closedListIndex]) continue;
 
-            if(next->getX() < 0 || next->getY() < 0) {
-                continue;
-            }
-
-            // search for the point in the closed list
-            bool found = false;
-            for(Node* n : _closedlist) {
-                if (n->equals(next)) {
-                    found = true;
-                    break;
-                }
-            }
-            if(found) continue;
-
-            // calculate the possible new costs
+            // now we need to calculate the costs
             int costs = 0;
-            int destCosts = abs(_destination.getX()-next->getX()) + abs(_destination.getY()-next->getY());
-            if(next->getX() != currentNode->getX() && next->getY() != currentNode->getY()) {
-                // Diagonal Field
-                costs = DiagonalFieldCost * destCosts;
+            int shortestCosts = abs(_destination.getX()-neighbour->getX()) + abs(_destination.getY()-neighbour->getY());
+
+            // so calculate the cost factor for diagonal or straight lines
+            if(neighbour->getX() != currentNode->getX() && neighbour->getY() != currentNode->getY()) {
+                //diagonal
+                costs = shortestCosts * DiagonalFieldCost;
             } else {
-                // Straight Field
-                costs = StraightFieldCost * destCosts;
+                //straight
+                costs = shortestCosts * StraightFieldCost;
             }
+
+            // now add the current existing costs of the current node to the neighbour
             costs += currentNode->getCosts();
 
-            // check if we got the field already and if the costs are less or equal than the new costs
-            Element *e = _openlistPQ->search(next);
-            if(e != NULL) {
-                next = e->getNode();
+            // now find the neighbour in the open list (if it exists there)
+            Element *e = _openlistPQ->search(neighbour);
+
+            // check if we found the neighbour in the open list
+            if(e == nullptr) {
+
+                // did not found neighbour in the open list
+                neighbour->setCosts(costs);
+                neighbour->setPredessesor(currentNode);
+                _openlistPQ->insert(neighbour, costs);
+            } else {
+
+                // found the neighbour in the open list
+                neighbour = e->getNode();
+
+                // check if the new predessesor way is shorter - yes? then save the new predecessor and costs
+                if(costs < neighbour->getCosts()) {
+                    neighbour->setCosts(costs);
+                    neighbour->setPredessesor(currentNode);
+                }
             }
-
-            if(e != NULL && next->getCosts() <= costs) {
-                continue;
-            }
-
-            // save the field with its costs
-            next->setCosts(costs);
-            next->setPredessesor(currentNode);
-
-            // add the new node to the openlist;
-            _openlistPQ->insert(next, costs);
         }
     }
 
-    return NO_PATH_FOUND_ERROR;
+    // if we found a route then save the route in the route stack
+    if(foundRoute) {
+        while(currentNode->getPredessesor() != nullptr) {
+            _route.push(*currentNode);
+            currentNode = currentNode->getPredessesor();
+        }
+    }
+
+    // return the result - did we found a route?
+    return foundRoute ? 1 : -1;
 }

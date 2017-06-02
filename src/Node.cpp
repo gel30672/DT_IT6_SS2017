@@ -13,8 +13,8 @@ Node::Node(int x, int y) : _x(x), _y(y), _costs(0) {
 }
 
 Node::~Node() {
-    //delete _predessesor;
-    //_predessesor = nullptr;
+    delete _predessesor;
+    _predessesor = nullptr;
 }
 
 bool operator<(const Node& lmp, const Node& hmp) {

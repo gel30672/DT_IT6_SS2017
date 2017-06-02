@@ -8,6 +8,8 @@
 #include "Vector.h"
 #include "DeviceConfiguration.h"
 #include <math.h>
+#include <iostream>
+#include "ErrorHandling.h"
 
 
 extern "C" {

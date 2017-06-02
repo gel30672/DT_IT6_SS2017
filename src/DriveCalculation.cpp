@@ -10,8 +10,8 @@ DriveCalculation::DriveCalculation(Position* initStart, Position* initEnd) {
     current = *initEnd;
     lastPositionKnown = *initStart;
 
-    // now initialize the whole calculation
-    initCalculation();
+    // calculate the direction (the vector) we've droven
+    initVector = new Vector(current, lastPositionKnown);
 }
 
 DriveCalculation::~DriveCalculation() {
@@ -19,16 +19,6 @@ DriveCalculation::~DriveCalculation() {
     delete &lastPositionKnown;
     delete &destination;
     delete &circleCore;
-}
-
-void DriveCalculation::initCalculation() {
-
-    // Init the car and direction calculation
-    Command initCMD = Command(INIT_CONFIG_DISTANCE, nullptr, nullptr, DIRECTION_FORWARD);
-    initCMD.execute();
-
-    // calculate the direction (the vector) we've droven
-    initVector = new Vector(current, lastPositionKnown);
 }
 
 short DriveCalculation::calculate(Position *start, Position *end) {
@@ -40,7 +30,6 @@ short DriveCalculation::calculate(Position *start, Position *end) {
     Position* endOfTurning = nullptr;
 
     // calculate the length of the way
-    double lengthTurning;
     double lengthStraight;
 
     // generate the first command for turning the car
@@ -55,23 +44,38 @@ short DriveCalculation::calculate(Position *start, Position *end) {
         // get the direction
         short dir = initVector->getSideOf(destVector);
 
-        // now calculate the turning point for drive changing
+        // now calculate the turning middle point for drive changing
         calculateTurningPoint(destVector, dir);
 
-        // get the degrees for the turn
-        double degrees = initVector->getAngleTo(destVector)*0.7;
-        // TODO Check if we can fix that by a correct calculation
-        // TODO 0.8 is a factor which could be used to get the percentage of the degree the car needs to drive, to get in the correct direction
+        // get the length from turning middle point to the destination
+        Vector* vectorMD = new Vector(destination, circleCore);
+
+        // arccos (Ankathete / Hypothenuse) calculates the degree for the turning end point
+        double degreeChange = acos(CIRCLERADIUS/vectorMD->getLength());
+
+        // calculate the cross point of the vector MD and the turning circle
+        double vFactor = vectorMD->getLength()/CIRCLERADIUS;
+        Position turningEnd;
+        turningEnd.x = destination.x/vFactor;
+        turningEnd.y = destination.y/vFactor;
+        Vector* vectorMTu = new Vector(turningEnd, circleCore);
+
+        // Get the first tangent point
+        if(dir == DIRECTION_RIGHT) {
+            vectorMTu->rotate(-degreeChange);
+        } else if(dir == DIRECTION_LEFT) {
+            vectorMTu->rotate(degreeChange);
+        }
+
+        // Get the turning end point
+        endOfTurning = vectorMTu->getHead();
+
+        // Get the length of the track
+        Vector* vectorMCar = new Vector(current, circleCore);
+        double degree = vectorMCar->getAngleTo(vectorMTu);
 
         // calculate the length of the way
-        short lengthTurning = CALC_DISTANCE_BY_ANGLE(degrees);
-
-        // calculate the endofturning point
-        Vector *turningVec = new Vector(*start, circleCore);
-        turningVec->rotate(degrees);
-
-        // Now get the endofturning
-        endOfTurning = turningVec->getHead();
+        short lengthTurning = CALC_DISTANCE_BY_ANGLE(degree);
 
         // generate the first command for turning the car
         cmdTurning = new Command(lengthTurning, start, endOfTurning, dir);
@@ -90,7 +94,7 @@ short DriveCalculation::calculate(Position *start, Position *end) {
     if(cmdStraight != nullptr) drivingCommands.push(*cmdStraight);
     if(cmdTurning != nullptr) drivingCommands.push(*cmdTurning);
 
-    return 0;
+    return SUCCESS;
 }
 
 void DriveCalculation::calculateTurningPoint(Vector *currVec, short dir) {

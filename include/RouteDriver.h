@@ -24,13 +24,16 @@ private:
     RouteCalculation* routeCalculater;
     DriveCalculation* driveCalculater;
     Position driveDestination;
+    Position* current;
+    bool alreadyInitialized;
 
     std::vector<Position> destinations;
 
-    // This initializes the RouteDriver - will be called by the Constructor
+    // This initializes the RouteDriver
+    short startInitDrive();
+    short endInitDrive();
     short initRouteCalculation(short xDestination, short yDestination);
     short initDriveCalculation(Position *last, Position *current);
-    short initRouterDriver();
 
     // This optimizes the calculated route by removing destinations which are on the same track
     void optimizeRoute();
@@ -47,6 +50,8 @@ private:
 public:
     RouteDriver(Map* map);
     ~RouteDriver();
+
+    short init();
 
     // Check the Route / Drive information
     // If a new command is needed there are 2 options available

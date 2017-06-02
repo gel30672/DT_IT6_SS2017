@@ -1,7 +1,6 @@
 //
 // Created by Andreas Zinkl on 25.04.17.
 //
-#include <iostream>
 #include "../include/Map.h"
 
 
@@ -10,20 +9,23 @@ Map::Map() {
 }
 
 void Map::init() {
+
     // create the map on the size
+
     _size = (MapColumnsCount*MapRowsCount)/MapBitsInRow;
     _size += ((MapColumnsCount*MapRowsCount)%MapBitsInRow > 0) ? 1 : 0;
     nodelist = new unsigned short[_size];
-    currentPosition.x = 0;
-    currentPosition.y = 0;
+    std::cout << "MAP: size=" << _size << std::endl;
+    std::cout << "MAX X = " << MapColumnsCount << std::endl;
+    std::cout << "MAX Y = " << MapRowsCount << std::endl;
 
     // set every field to 0
     for(int i = 0; i < _size; i++) {
         nodelist[i] = 0;
     }
 
-    // init the localization
-    locsrv = new LocDet(); //todo uncomment after merging
+    // init the localization sensor
+    locsrv = new LocDet();
 
     // If a test map should
     if(useTestMap) initTestMap("000010000011100010001001000011100000000011100010");
@@ -138,7 +140,9 @@ bool Map::isFree(short x, short y) {
     return !(bool)isFree; // if not 0 then free.. if 1 then obstacle
 }
 
-void Map::getNeighbours(Node* nodelist, short x, short y) {
+short Map::getNeighbours(Node* nodelist, short x, short y) {
+
+    std::cout << "get neighbours from (" << x << "|" << y << ")" << std::endl;
 
     // define the neighbours list index
     int index = 0;
@@ -147,18 +151,25 @@ void Map::getNeighbours(Node* nodelist, short x, short y) {
     for (int i = -1; i <= 1; i++) {
 
         for (int j = -1; j <= 1; j++) {
-            int m = x+i;
-            int n = y+j;
 
-            if(i == 0 && j == 0) {
+            int new_x = x+i;
+            int new_y = y+j;
+
+            if(new_x == x && new_y == y) {
                 continue;
             }
 
-            if(isFree(m,n)) nodelist[index] = Node(m,n); // field is free, save the node
-            else nodelist[index] = Node(-1,-1); // field is not free, save a error node
-            index++;
+            if(isFree(new_x, new_y)) {
+                //std::cout << "neighbour " << index << " = (" << new_x << "|" << new_y << ")" << std::endl;
+                nodelist[index] = Node(new_x, new_y); // field is free, save the node
+                index++;
+            }
         }
     }
+
+    std::cout << std::endl;
+
+    return index;
 }
 
 int Map::updateField(short x, short y, bool isObstacle) {
@@ -166,7 +177,7 @@ int Map::updateField(short x, short y, bool isObstacle) {
     int pos = x+y*MapEnvWidth_cm;
 
     // check if the field is in the map or not!
-    if(pos < 0 || pos > _size) return INDEX_OUT_OF_MAP_ERROR;
+    if(pos < 0 || pos > _size) return -1;
 
     // calculate the array index from the bit position
     short cntIndex = pos/32;
@@ -189,7 +200,7 @@ int Map::updateField(short x, short y, bool isObstacle) {
     }
 
     // Everything went through successfully!
-    return 0;
+    return 1;
 }
 
 Position* Map::getLastKnownPosition() {
@@ -206,14 +217,8 @@ Position* Map::getCarPosition() {
     locsrv->get_position(&currentPosition);
 
     // change the coordinates to the scale
-    float x_new = currentPosition.x;
-    float y_new = currentPosition.y;
-
-    x_new = x_new/10; //convert to mm
-    y_new = y_new/10;
-
-    currentPosition.x = x_new;
-    currentPosition.y = y_new;
+    currentPosition.x = currentPosition.x/(10*MapRasterWidth_cm); //convert to cm coordinates
+    currentPosition.y = currentPosition.y/(10*MapRasterWidth_cm);
 
     // return the current position
     return &currentPosition;

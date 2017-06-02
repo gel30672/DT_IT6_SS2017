@@ -2,10 +2,20 @@
 // Created by Andreas Zinkl on 12.05.17.
 //
 
+#include <unistd.h>
 #include "../include/Command.h"
 
 Command::Command(double distance, Position* start, Position* destination, short dir)
-        : _distance(distance), _start(start), _destination(destination), _direction(dir), _active(false) {}
+        : _distance(distance), _start(start), _destination(destination), _direction(dir), _active(false) {
+
+    if(PRINT_ERROR_CODE) {
+        std::cout << std::endl;
+        std::cout << "## NEW COMMAND CREATED ##" << std::endl;
+        std::cout << "## Direction(" << _direction << ") ## Distance(" << _distance << ") ## " << std::endl;
+        if(start != nullptr && destination != nullptr) std::cout << "## Start(" << start->x << "|" << start->y << ") ## End(" << destination->x << "|" << destination->y << ") ##" << std::endl;
+        std::cout << std::endl;
+    }
+}
 
 Command::~Command() {
     // delete the positions if necessary
@@ -18,10 +28,12 @@ void Command::execute() {
     switch (_direction) {
 
         case DIRECTION_LEFT:
-            SteerDegrees(WHEEL_ANGLE(_direction));
+            std::cout << "### LEFT DRIVING (" << LEFT_WHEEL_ANGLE << ") ###" << std::endl;
+            SteerDegrees(LEFT_WHEEL_ANGLE);
             break;
         case DIRECTION_RIGHT:
-            SteerDegrees(WHEEL_ANGLE(_direction));
+            std::cout << "### RIGHT DRIVING (" << RIGHT_WHEEL_ANGLE << ") ###" << std::endl;
+            SteerDegrees(RIGHT_WHEEL_ANGLE);
             break;
 
         default:
@@ -29,10 +41,14 @@ void Command::execute() {
     }
 
     // Need to call the motor to start driving
-    if(_direction == DIRECTION_STOP) {
-        MotorMoveRpm(0);
-    } else {
+    if(_direction == DIRECTION_FORWARD
+       || _direction == DIRECTION_LEFT
+       || _direction == DIRECTION_RIGHT) {
         MotorMoveRpm(FULLSPEED);
+        std::cout << "Speed " << FULLSPEED << " sent" << std::endl;
+    } else {
+        MotorMoveRpm(0);
+        std::cout << "We need to slow down - Speed 0 sent" << std::endl;
     }
 
     // We need to say, this top command is active

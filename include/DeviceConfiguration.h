@@ -8,9 +8,9 @@
 #include <math.h>
 
 // Define the Destination coordinates
-#define DESTINATION_X_COORDINATE 2
-#define DESTINATION_Y_COORDINATE 0
-#define USE_CONSOLE_FOR_DESTINATION_INPUT true
+#define DESTINATION_X_COORDINATE 5
+#define DESTINATION_Y_COORDINATE 20
+#define USE_CONSOLE_FOR_DESTINATION_INPUT false
 
 // The wheelbase of the vehicle is 27.5 cm
 #define WHEELBASE 27.5
@@ -37,7 +37,8 @@
 // Device specific configuration
 #define FULLSPEED 500
 #define BACKSPEED (-FULLSPEED)
-#define WHEEL_ANGLE(x) (x < 0 ? (-MAXWHEELLOCK) : MAXWHEELLOCK)
+#define LEFT_WHEEL_ANGLE -20
+#define RIGHT_WHEEL_ANGLE 20
 
 
 

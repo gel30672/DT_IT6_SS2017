@@ -14,6 +14,7 @@
 #include "Map.h"
 #include <stdlib.h>
 #include <stack>
+#include <iostream>
 
 using namespace std;
 
@@ -29,7 +30,8 @@ private:
     short _routeNodeCount;
 
     PriorityQueue* _openlistPQ;
-    vector<Node *> _closedlist;
+    //vector<Node *> _closedlist;
+    int* _closedlist;
 
 
 public:

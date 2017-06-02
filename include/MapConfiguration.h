@@ -6,12 +6,12 @@
 #define DT2017_MAPCONFIGURATION_H
 
 // This defines the position correctness (+/-)
-#define POSITION_PRECISION 1
+#define POSITION_PRECISION 3
 
 // Physical Dimensions of the Map
 #define MapRasterWidth_cm 15
-#define MapEnvWidth_cm 120
-#define MapEnvHeight_cm 75
+#define MapEnvWidth_cm 300
+#define MapEnvHeight_cm 501
 
 // Bit Size of a short data type
 #define MapBitsInRow 16

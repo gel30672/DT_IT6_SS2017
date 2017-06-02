@@ -7,13 +7,7 @@
 
 double distanceSinceStart = 0;
 
-RouteDriver::RouteDriver(Map *map) : map(map){
-
-    //initialize the route calculation
-    short result = initRouterDriver();
-
-    if(PRINT_ERROR_CODE) std::cout << "initRouterDriver(" << result << ")" << std::endl;
-}
+RouteDriver::RouteDriver(Map *map) : map(map), alreadyInitialized(false) { }
 
 RouteDriver::~RouteDriver() {
 
@@ -31,10 +25,10 @@ short RouteDriver::initRouteCalculation(short xDestination, short yDestination) 
     // calculate the route
     short calcRes = routeCalculater->calculate();
 
-    if(PRINT_ERROR_CODE) std::cout << "initRouteCalculation(" << calcRes << ")" << std::endl;
+    if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: initRouteCalculation(" << calcRes << ") to destination(" << xDestination << "|" << yDestination << ")" << std::endl;
 
     // check if the calculation went well
-    if(calcRes != NO_PATH_FOUND_ERROR) return COULD_NOT_CALCULATE_ROUTE_ERROR;
+    if(calcRes != SUCCESS) return COULD_NOT_CALCULATE_ROUTE_ERROR;
 
     return calcRes;
 }
@@ -54,10 +48,10 @@ short RouteDriver::initDriveCalculation(Position *last, Position *current) {
         // calculate the command for this drive
         int calcError = driveCalculater->calculate(lastPosition, destination);
 
-        if(PRINT_ERROR_CODE) std::cout << "initDriveCalculation(" << calcError << ")" << std::endl;
+        if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: calculateDrive(" << calcError << ")" << std::endl;
 
         // check calcRes if there's a error message
-        if(calcError) return COULD_NOT_CALCULATE_DRIVECOMMAND_ERROR;
+        if(calcError != SUCCESS) return COULD_NOT_CALCULATE_DRIVECOMMAND_ERROR;
 
         // save the destination as the lastPosition for the next calculation
         lastPosition = destination;
@@ -67,29 +61,49 @@ short RouteDriver::initDriveCalculation(Position *last, Position *current) {
     return SUCCESS;
 }
 
-short RouteDriver::initRouterDriver() {
+short RouteDriver::startInitDrive() {
 
-    // get and save the current position as lastpositionknown before driving
-    Position *current = map->getCarPosition();
+    if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: start init drive for around " << INIT_CONFIG_TIME << " seconds" << std::endl;
 
-    if(PRINT_ERROR_CODE) std::cout << "start init drive for around " << INIT_CONFIG_TIME << " seconds" << std::endl;
+    current = map->getCarPosition();
 
     // start driving the initialization way
     Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_FORWARD).execute();
 
-    // now wait just a few seconds then stop the car again
-    sleep(INIT_CONFIG_TIME);
+    return 0;
+}
+
+short RouteDriver::endInitDrive() {
 
     // Stop the configuration drive
     Command(INIT_CONFIG_DISTANCE, current, nullptr, DIRECTION_STOP).execute();
 
-    // get the new position and save it as currentposition
     current = map->getCarPosition();
 
     if(PRINT_ERROR_CODE) {
-        std::cout << "init drive ended" << std::endl;
+        std::cout << "ROUTEDRIVER: init drive ended" << std::endl;
         std::cout << "###### Current Position is (" << current->x << "|" << current->y << ")" << std::endl;
     }
+    sleep(10);
+    return 0;
+}
+
+short RouteDriver::init() {
+
+    // First drive the init track
+    startInitDrive();
+
+    // wait till we got the
+    while(distanceSinceStart < INIT_CONFIG_DISTANCE) {
+        if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: DROVEN INIT DISTANCE (cm) = " << distanceSinceStart << std::endl;
+        sleep(1); // sleep a second
+    }
+
+    // Okay we did the initialization drive
+    endInitDrive();
+
+    // Now we need to initialize the route
+    if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: STARTED ROUTE DRIVER INIT" << std::endl;
 
     // ADD-IN! Get the DESTINATION BY INPUT!
     if(USE_CONSOLE_FOR_DESTINATION_INPUT) askUserForDestination();
@@ -110,6 +124,10 @@ short RouteDriver::initRouterDriver() {
     // check for errors
     if(initResRoute != SUCCESS) return ERROR_WHILE_ROUTECALC_INIT;
     if(initResDrive != SUCCESS) return ERROR_WHILE_DRIVECALC_INIT;
+
+    alreadyInitialized = true;
+
+    if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: SUCCESS" << std::endl;
 
     // everything went well! go for it!
     return SUCCESS;
@@ -187,7 +205,6 @@ void RouteDriver::optimizeRoute() {
             // That one is not in the line, save the predecessor
             if(needSave) {
                 saveToDestination(node.getX(), node.getY());
-                if(PRINT_ERROR_CODE) std::cout << "optimizedDestination(" << node.getX() << "/" << node.getY() << ")" << std::endl;
             }
 
             // save as predecessor details
@@ -199,16 +216,13 @@ void RouteDriver::optimizeRoute() {
 
 bool RouteDriver::currentCommandIsFinished() {
 
-    if(PRINT_ERROR_CODE) std::cout << "started command check" << std::endl;
-
-    // define the result value
-    bool checkResult = true;
+    //if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: started command check" << std::endl;
 
     // first get the current command
     Command currentCMD = driveCalculater->drivingCommands.top();
 
     // check if we already did move the whole way
-    if(checkResult && distanceSinceStart < currentCMD.getDistance()) checkResult = false;
+    if(distanceSinceStart >= currentCMD.getDistance()) return true;
 
     // check if we are near by the destination
     Position* destinationPos = currentCMD.getDestinationPosition();
@@ -220,22 +234,27 @@ bool RouteDriver::currentCommandIsFinished() {
         short x_diff = quad(destinationPos->x) - quad(uwbPos->x);
         short y_diff = quad(destinationPos->y) - quad(uwbPos->y);
 
+        if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: calcPosDiff(" << x_diff << "|" << y_diff << ")" << std::endl;
+
         // check if the current position is nearby our calculated destination
-        if(checkResult && (x_diff <= POSITION_PRECISION) && (y_diff <= POSITION_PRECISION)) checkResult = false;
+        if((x_diff <= POSITION_PRECISION) && (y_diff <= POSITION_PRECISION)) return true;
     }
 
-    if(PRINT_ERROR_CODE) std::cout << "ended command check" << std::endl;
+    //if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: ended command check" << std::endl;
 
     // the current command is finished
-    return checkResult;
+    return false;
 }
 
 bool RouteDriver::directionChangeIsNeeded() {
 
-    if(PRINT_ERROR_CODE) std::cout << "started direction check" << std::endl;
+    //if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: started direction check" << std::endl;
 
     // define the result value
     bool checkResult = false;
+
+    // check if we have a command left
+    if(driveCalculater->drivingCommands.size() <= 0) return NO_DRIVING_COMMANDS_LEFT;
 
     // get the current command
     Command currentCMD = driveCalculater->drivingCommands.top();
@@ -272,7 +291,7 @@ bool RouteDriver::directionChangeIsNeeded() {
         if(!direction->isOnLineTo(destination)) checkResult = true;
     }
 
-    if(PRINT_ERROR_CODE) std::cout << "ended direction check" << std::endl;
+    //if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: ended direction check" << std::endl;
 
     // the direction change is not needed
     return checkResult;
@@ -281,14 +300,22 @@ bool RouteDriver::directionChangeIsNeeded() {
 
 short RouteDriver::checkDrive() {
 
+    // check if we are initialized
+    if(!alreadyInitialized) {
+        return -1;
+    }
+
     // check if we moved to another place already
-    if(distanceSinceStart <= 10) return DROVEN_DISTANCE_IS_ZERO;
+    if(distanceSinceStart <= 0) return DROVEN_DISTANCE_IS_ZERO;
+
+    // How far did we already drive since the start pos?
+    if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: distanceSinceStart(" << distanceSinceStart << ")" << std::endl;
 
     // we need to check, if the driveCalculater is initialized
     if(driveCalculater == nullptr) return DRIVECALCULATER_NOT_INITIALIZED;
 
     // Start the checkdrive with this debug information
-    if(PRINT_ERROR_CODE) std::cout << "perform checkdrive" << std::endl;
+    //if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: perform checkdrive" << std::endl;
 
     // check if we got an command
     if(driveCalculater->drivingCommands.size() <= 0) {
@@ -296,13 +323,33 @@ short RouteDriver::checkDrive() {
         return NO_DRIVING_COMMANDS_LEFT;
     }
 
+    // check if we are at the destination
+    Position* currentPosition = map->getCarPosition();
+    short x_enddiff = currentPosition->x - driveDestination.x;
+    short y_enddiff = currentPosition->y - driveDestination.y;
+    if(x_enddiff <= POSITION_PRECISION && y_enddiff <= POSITION_PRECISION) {
+        Command(0, nullptr, nullptr, DIRECTION_STOP).execute(); // Execute the Stop command!
+        std::cout << ">>>>> WE ARE AT THE DESTINATION <<<<<" << std::endl;
+        while(driveCalculater->drivingCommands.size() > 0) driveCalculater->drivingCommands.pop(); //delete all commands
+        return SUCCESS;
+    }
+
     // check if we can delete the current command
     if(currentCommandIsFinished()) {
         driveCalculater->drivingCommands.pop();
+        driveCalculater->drivingCommands.top().execute();
+        distanceSinceStart = 0;
+    }
+
+    // check if we still have an new command
+    if(driveCalculater->drivingCommands.size() <= 0) {
+        Command(0, nullptr, nullptr, DIRECTION_STOP).execute(); // Execute the Stop command!
+        return NO_DRIVING_COMMANDS_LEFT;
     }
 
     // check if we are still on our way to the destination and correct the movement if necessary
     if(directionChangeIsNeeded()) {
+
         Position* dest = driveCalculater->drivingCommands.top().getDestinationPosition();
         Position* current = map->getCarPosition();
         if(dest != nullptr) {
@@ -317,11 +364,12 @@ short RouteDriver::checkDrive() {
 
     // check if the current command is active, if not, activate the command
     if(!driveCalculater->drivingCommands.top().isActive()) {
+        if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: execute the current command for the first time" << std::endl;
         driveCalculater->drivingCommands.top().execute();
         distanceSinceStart = 0;
     }
 
-    if(PRINT_ERROR_CODE) std::cout << "success checkdrive - new command" << std::endl;
+    //if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: success checkdrive" << std::endl;
 
     // we successfully checked the current command
     return SUCCESS;
