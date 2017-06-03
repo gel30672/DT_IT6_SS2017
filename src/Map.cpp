@@ -11,10 +11,12 @@ Map::Map() {
 void Map::init() {
 
     // create the map on the size
-
     _size = (MapColumnsCount*MapRowsCount)/MapBitsInRow;
-    _size += ((MapColumnsCount*MapRowsCount)%MapBitsInRow > 0) ? 1 : 0;
+    _size += ((MapColumnsCount*MapRowsCount)%MapBitsInRow != 0) ? 1 : 0;
     nodelist = new unsigned short[_size];
+    routeTrack = new unsigned short[_size];
+
+    // Just print out the information about the map
     std::cout << "MAP: size=" << _size << std::endl;
     std::cout << "MAX X = " << MapColumnsCount << std::endl;
     std::cout << "MAX Y = " << MapRowsCount << std::endl;
@@ -22,6 +24,7 @@ void Map::init() {
     // set every field to 0
     for(int i = 0; i < _size; i++) {
         nodelist[i] = 0;
+        routeTrack[i] = 0;
     }
 
     // init the localization sensor
@@ -172,7 +175,8 @@ short Map::getNeighbours(Node* nodelist, short x, short y) {
     return index;
 }
 
-int Map::updateField(short x, short y, bool isObstacle) {
+short Map::updateField(short x, short y, bool isObstacle, unsigned short* map) {
+
     // calculate the bit position
     int pos = x+y*MapEnvWidth_cm;
 
@@ -189,18 +193,37 @@ int Map::updateField(short x, short y, bool isObstacle) {
     if(isObstacle) {
 
         // save the new obstacle in the map
-        nodelist[cntIndex] |= obstacle;
+        map[cntIndex] |= obstacle;
     } else {
 
         // invert the map
         obstacle = ~obstacle;
 
         // save the new free field in the map
-        nodelist[cntIndex] = nodelist[cntIndex] && obstacle;
+        map[cntIndex] = map[cntIndex] && obstacle;
     }
 
     // Everything went through successfully!
     return 1;
+}
+
+short Map::saveRouteInMap(vector<Node> route) {
+
+    // first clean the current route out of the map
+    for (int i = 0; i < _size; i++) {
+        routeTrack[i] = 0;
+    }
+
+    // now save the route
+    for (int i = 0; i < route.size(); i++) {
+        updateField(route[i].getX(), route[i].getY(), true, routeTrack);
+    }
+}
+
+short Map::updateField(short x, short y, bool isObstacle) {
+
+    // Everything went through successfully if not we get an error!
+    return updateField(x, y, isObstacle, nodelist);
 }
 
 Position* Map::getLastKnownPosition() {
@@ -231,6 +254,32 @@ Node* Map::getCarPositionNode() {
     getCarPosition();
 
     return new Node(currentPosition.x, currentPosition.y);
+}
+
+bool Map::isRouteAvailable() {
+
+    // now check if the route is still available or if we need a new route
+    bool result = true;
+
+    // check the route and map
+    for(int i = 0; i < _size; i++) {
+
+        // get the values
+        short map = nodelist[i];
+        short track = routeTrack[i];
+
+        // compare the track and map
+        short res = map & track;
+
+        // now evaluate the result
+        if(res != 0) {
+            result = false;
+            break;
+        }
+    }
+
+    // return the result value
+    return result;
 }
 
 void Map::print() { //todo need to print it properly

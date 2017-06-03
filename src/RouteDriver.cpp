@@ -96,7 +96,6 @@ short RouteDriver::init() {
     // wait till we got the
     while(distanceSinceStart < INIT_CONFIG_DISTANCE) {
         if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: DROVEN INIT DISTANCE (cm) = " << distanceSinceStart << std::endl;
-        sleep(1); // sleep a second
     }
 
     // Okay we did the initialization drive
@@ -313,6 +312,13 @@ short RouteDriver::checkDrive() {
 
     // we need to check, if the driveCalculater is initialized
     if(driveCalculater == nullptr) return DRIVECALCULATER_NOT_INITIALIZED;
+
+    // now check if we may need a new route
+    if(!map->isRouteAvailable()) {
+        Command(0, nullptr, nullptr, DIRECTION_STOP).execute(); // Execute the Stop command!
+        init(); // init the whole route driving again
+        return ROUTE_OBSTACLE_CROSSING;
+    }
 
     // Start the checkdrive with this debug information
     //if(PRINT_ERROR_CODE) std::cout << "ROUTEDRIVER: perform checkdrive" << std::endl;

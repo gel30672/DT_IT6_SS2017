@@ -116,10 +116,17 @@ short RouteCalculation::calculate() {
 
     // if we found a route then save the route in the route stack
     if(foundRoute) {
+
+        // save the route
+        vector<Node> routeTrack;
         while(currentNode->getPredessesor() != nullptr) {
             _route.push(*currentNode);
+            routeTrack.push_back(*currentNode);
             currentNode = currentNode->getPredessesor();
         }
+
+        // save the route in the map
+        if(routeTrack.size() > 0) _map->saveRouteInMap(routeTrack);
     }
 
     // return the result - did we found a route?

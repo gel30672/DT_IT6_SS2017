@@ -11,6 +11,7 @@
 #include "LocDet.h"
 #include <iostream>
 #include <unistd.h>
+#include <vector>
 
 /*
  * The map will be saved this way:
@@ -37,13 +38,17 @@ public:
     Node* getCarPositionNode();
 
     short getNeighbours(Node* nodelist, short x, short y);
-    int updateField(short x, short y, bool isObstacle);
+    short updateField(short x, short y, bool isObstacle);
+    short saveRouteInMap(vector<Node> route);
+    bool isRouteAvailable();
 
 
 private:
     unsigned short* nodelist;
+    unsigned short* routeTrack;
     short _size;
     bool isFree(short x, short y);
+    short updateField(short x, short y, bool isObstacle, unsigned short* map);
 
     struct Position currentPosition;
     struct Position lastKnownPosition;
