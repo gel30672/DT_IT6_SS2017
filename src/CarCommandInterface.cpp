@@ -26,7 +26,7 @@ bool CarCommandInterface::isCurrentDriveFinished() {
 
     } else {
 
-        if(current->getDirection() == DIRECTION_BACKWARD ||current->getDirection() == DIRECTION_FORWARD) {
+        if(current->getDirection() == DIRECTION_FORWARD) {
             result = true;
 
         } else if(distanceSinceStart >= current->getDistance()) {

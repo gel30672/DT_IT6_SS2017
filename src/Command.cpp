@@ -82,7 +82,7 @@ bool Command::isCommandWithBackdrive() {
 }
 
 bool Command::isFinished() {
-    return distanceSinceStart >= _distance ? true : false;
+    return distanceSinceStart >= _distance;
 }
 
 Position* Command::getDestination() {
