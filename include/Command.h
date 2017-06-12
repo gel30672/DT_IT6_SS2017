@@ -19,22 +19,33 @@ extern "C" {
 class Command {
 
 private:
-    double _distance;
-    Position* _start;
     Position* _destination;
+    double _distance;
     short _direction;
     bool _active;
+    short _steeringAngle;
+    bool _simpleBackDrive;
+    bool _finished;
 
 public:
-    Command(double distance, Position* start, Position* destination, short dir);
+    Command(double distance, short dir, Position *destination);
+    Command(double distance, short dir, Position *destination, short steeringAngle);
+    Command(double distance, short dir, Position *destination, short steeringAngle, bool withSimpleBackDrive);
     ~Command();
 
+    // Set Methods
+    short deactivate();
     void execute();
+    short markAsFinished();
+    void setBackDrive(bool backDrive);
+
+    // Get Methods
     bool isActive();
+    bool isFinished();
     double getDistance();
-    Position* getStartPosition();
-    Position* getDestinationPosition();
-    Position* getPredictedPositionBy(double distance);
+    short getDirection();
+    Position* getDestination();
+    bool isCommandWithBackdrive();
 };
 
 #endif //DT2017_COMMAND_H

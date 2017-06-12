@@ -5,22 +5,31 @@
 #include <unistd.h>
 #include "../include/Command.h"
 
-Command::Command(double distance, Position* start, Position* destination, short dir)
-        : _distance(distance), _start(start), _destination(destination), _direction(dir), _active(false) {
+double distanceSinceStart = 0.0;
 
-    if(PRINT_ERROR_CODE) {
+Command::Command(double distance, short dir, Position *destination)
+        : _distance(distance), _direction(dir), _destination(destination), _active(false), _steeringAngle(0), _simpleBackDrive(false) {
+
+    /*if(PRINT_ERROR_CODE) {
         std::cout << std::endl;
         std::cout << "## NEW COMMAND CREATED ##" << std::endl;
         std::cout << "## Direction(" << _direction << ") ## Distance(" << _distance << ") ## " << std::endl;
         if(start != nullptr && destination != nullptr) std::cout << "## Start(" << start->x << "|" << start->y << ") ## End(" << destination->x << "|" << destination->y << ") ##" << std::endl;
         std::cout << std::endl;
-    }
+    }*/
 }
 
-Command::~Command() {
-    // delete the positions if necessary
-    //delete _destination;
+Command::Command(double distance,short dir, Position *destination, short steeringAngle)
+        : _distance(distance), _direction(dir), _destination(destination), _active(false), _steeringAngle(steeringAngle), _simpleBackDrive(false) {
+
 }
+
+Command::Command(double distance, short dir, Position *destination, short steeringAngle, bool withSimpleBackDrive)
+        : _distance(distance), _direction(dir), _destination(destination), _active(false), _steeringAngle(steeringAngle), _simpleBackDrive(withSimpleBackDrive) {
+
+}
+
+Command::~Command() {}
 
 void Command::execute() {
 
@@ -41,100 +50,50 @@ void Command::execute() {
     }
 
     // Need to call the motor to start driving
-    if(_direction == DIRECTION_FORWARD
-       || _direction == DIRECTION_LEFT
-       || _direction == DIRECTION_RIGHT) {
+    if(_direction == DIRECTION_FORWARD) {
         MotorMoveRpm(FULLSPEED);
-        std::cout << "Speed " << FULLSPEED << " sent" << std::endl;
+    } else if(_direction == DIRECTION_LEFT
+            || _direction == DIRECTION_RIGHT) {
+        MotorMoveRpm(FULLSPEED);
+    } else if(_direction == DIRECTION_BACKWARD) {
+        MotorMoveRpm((-1)*FULLSPEED);
     } else {
         MotorMoveRpm(0);
-        std::cout << "We need to slow down - Speed 0 sent" << std::endl;
     }
 
     // We need to say, this top command is active
     _active = true;
 }
 
+short Command::getDirection() {
+    return _direction;
+}
+
 bool Command::isActive() {
     return _active;
 }
 
-Position* Command::getStartPosition() {
-    return _start;
+double Command::getDistance() {
+    return _distance;
 }
 
-Position* Command::getDestinationPosition() {
+bool Command::isCommandWithBackdrive() {
+    return _simpleBackDrive;
+}
+
+bool Command::isFinished() {
+    return distanceSinceStart >= _distance ? true : false;
+}
+
+Position* Command::getDestination() {
     return _destination;
 }
 
-Position* Command::getPredictedPositionBy(double distance) {
-
-    //Define the result value with error coordinates
-    Position* predictedPos = new struct Position;
-    predictedPos->x = -1;
-    predictedPos->y = -1;
-
-    //check if we need to calculate the length of a straight vector
-    if(_direction == DIRECTION_FORWARD || _direction == DIRECTION_BACKWARD) {
-
-        // Get the current distance
-        double percentage = ((100/_distance)*distance)/100;
-
-        // calculate the vecotr
-        Vector* vec = new Vector(*_destination, *_start);
-
-        // get difference
-        short xdiff = vec->getX()*percentage;
-        short ydiff = vec->getY()*percentage;
-
-        // Save the new coordinates
-        predictedPos->x = _destination->x-xdiff;
-        predictedPos->y = _destination->y-ydiff;
-    }
-
-    //check if we need to calculate the position after driving the turnaround circle
-    if(_direction == DIRECTION_LEFT ||_direction == DIRECTION_RIGHT) {
-
-        // Calculate the droven Angle
-        double angle = CALC_DROVEN_ANGLE_BY_LENGTH(_distance);
-
-        // Now we need the circle center
-        // 1) First calculate the vector: start -> destination
-        Vector *startDest;
-        // check the direction to get the correct vector
-        if(_direction == DIRECTION_LEFT) {
-            startDest = new Vector(*_destination, *_start);
-        } else {
-            startDest = new Vector(*_start, *_destination);
-        }
-
-        // 2) Rotate the Max and now we got the Vector to the circle center
-        startDest->rotate(angle);
-
-        // 3) Change direction for the vector: circleCenter -> start
-        startDest->changeDirection();
-
-        // Now we need to calculate the predicted current position
-        // 1) calculate the droven angle
-        angle = CALC_DROVEN_ANGLE_BY_LENGTH(distance);
-
-        // 2) now we need to calculate the vector to the predicted position
-        startDest->rotate(angle);
-
-        // 3) now we need just use the head as the predicted position
-        if(_direction == DIRECTION_LEFT) {
-            predictedPos->x = startDest->getHead()->x;
-            predictedPos->y = startDest->getHead()->y;
-        } else {
-            predictedPos->x = startDest->getFoot()->x;
-            predictedPos->y = startDest->getFoot()->y;
-        }
-    }
-
-    // Return the predicted position
-    return predictedPos;
+short Command::markAsFinished() {
+    _finished = true;
+    return SUCCESS;
 }
 
-double Command::getDistance() {
-    return _distance;
+short Command::deactivate() {
+    _active = false;
 }

@@ -3,9 +3,7 @@
 //
 #include "../include/RouteCalculation.h"
 
-RouteCalculation::RouteCalculation(Map* map, int xDestination, int yDestinationNode) : _map(map) {
-    _start = *map->getCarPositionNode();
-    _destination = Node(xDestination, yDestinationNode);
+RouteCalculation::RouteCalculation() {
     _openlistPQ = nullptr;
     _routeNodeCount = 0;
     _closedlist = new int[MapColumnsCount*MapRowsCount];
@@ -28,8 +26,14 @@ Node RouteCalculation::popNodeFromRouteStack() {
     return n;
 }
 
-short RouteCalculation::calculate() {
+short RouteCalculation::calculate(Map *map, Position* start, Position* destination) {
 
+    // save the initial values
+    _map = map;
+    _start = Node(start->x, start->y);
+    _destination = Node(destination->x, destination->y);
+
+    // start the calculation
     std::cout << "START ROUTE CALCULATION" << std::endl;
 
     // check that the priority queue is initialized!
@@ -123,6 +127,7 @@ short RouteCalculation::calculate() {
             _route.push(*currentNode);
             routeTrack.push_back(*currentNode);
             currentNode = currentNode->getPredessesor();
+            _routeNodeCount++;
         }
 
         // save the route in the map
@@ -131,4 +136,86 @@ short RouteCalculation::calculate() {
 
     // return the result - did we found a route?
     return foundRoute ? 1 : -1;
+}
+
+short RouteCalculation::optimizeRouteDestinations() {
+
+    // Now start optimizing the route by going through the whole route
+    Position* predecessor = nullptr;
+    while(getRouteNodeCount() > 0) {
+
+        // Get the top node from the route stack
+        Node node = popNodeFromRouteStack();
+
+        // check if it is the first node
+        if(_destinations.size() == 0) {
+
+            // always save the first node
+            saveToDestination(node.getX(), node.getY());
+        } else {
+
+            // not the first destination
+            bool needSave = false;
+            bool lastWasDiagonal = false;
+
+            // check if we can save the destination
+            short indexPredecessor = _destinations.size()-1;
+            if(predecessor == nullptr) {
+                Position pre;
+                pre.x = _destinations[indexPredecessor].x;
+                pre.y = _destinations[indexPredecessor].y;
+                predecessor = &pre;
+            }
+
+            // Check if the old and new one are on the same diagonal line
+            if((quad(node.getX()+1) == quad(predecessor->x) && quad(node.getY()+1) == quad(predecessor->y))
+               || (quad(node.getX()-1) == quad(predecessor->x) && quad(node.getY()-1) == quad(predecessor->y))){
+
+                lastWasDiagonal = true;
+                needSave = true;
+            }
+
+            // Check if the positions are on the same horizontal line
+            if(node.getY() == predecessor->y
+               && (node.getX()+1 == predecessor->x || node.getX()-1 == predecessor->x)
+               && lastWasDiagonal) {
+
+                lastWasDiagonal = false;
+                needSave = true;
+            }
+
+            // Check if the position is on the same vertical line
+            if((node.getX() == predecessor->x
+                && (node.getY()+1 == predecessor->y || node.getY()-1 == predecessor->y))
+               && lastWasDiagonal) {
+
+                lastWasDiagonal = false;
+                needSave = true;
+            }
+
+            // Check if it is the last position
+            if(getRouteNodeCount() == 0) needSave = true;
+
+            // That one is not in the line, save the predecessor
+            if(needSave) {
+                saveToDestination(node.getX(), node.getY());
+            }
+
+            // save as predecessor details
+            predecessor->x = node.getX();
+            predecessor->y = node.getY();
+        }
+    }
+}
+
+void RouteCalculation::saveToDestination(short x, short y) {
+
+    // transform node to position
+    Position pos;
+    pos.x = x;
+    pos.y = y;
+
+    // save the position
+    _destinations.push_back(pos);
+    std::cout << "saved node " << x << "|" << y << std::endl;
 }

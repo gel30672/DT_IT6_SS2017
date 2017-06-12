@@ -27,9 +27,6 @@ void Map::init() {
         routeTrack[i] = 0;
     }
 
-    // init the localization sensor
-    locsrv = new LocDet();
-
     // If a test map should
     if(useTestMap) initTestMap("000010000011100010001001000011100000000011100010");
 
@@ -145,7 +142,7 @@ bool Map::isFree(short x, short y) {
 
 short Map::getNeighbours(Node* nodelist, short x, short y) {
 
-    std::cout << "get neighbours from (" << x << "|" << y << ")" << std::endl;
+    //std::cout << "get neighbours from (" << x << "|" << y << ")" << std::endl;
 
     // define the neighbours list index
     int index = 0;
@@ -226,37 +223,15 @@ short Map::updateField(short x, short y, bool isObstacle) {
     return updateField(x, y, isObstacle, nodelist);
 }
 
-Position* Map::getLastKnownPosition() {
-    return &lastKnownPosition;
-}
+/*bool Map::isObstacleInFront(Vector* currentDrive) {
+    bool result = false;
 
-// returns the car position given from the localization
-Position* Map::getCarPosition() {
+    // todo we need to implement the logic here!
 
-    // first save the old position
-    lastKnownPosition = currentPosition;
+    return result;
+}*/
 
-    // call the uwb sensor for localization
-    locsrv->get_position(&currentPosition);
-
-    // change the coordinates to the scale
-    currentPosition.x = currentPosition.x/(10*MapRasterWidth_cm); //convert to cm coordinates
-    currentPosition.y = currentPosition.y/(10*MapRasterWidth_cm);
-
-    // return the current position
-    return &currentPosition;
-}
-
-// returns the car position given from the localization
-Node* Map::getCarPositionNode() {
-
-    // Update the Car Position
-    getCarPosition();
-
-    return new Node(currentPosition.x, currentPosition.y);
-}
-
-bool Map::isRouteAvailable() {
+bool Map::isObstacleInRoute() {
 
     // now check if the route is still available or if we need a new route
     bool result = true;

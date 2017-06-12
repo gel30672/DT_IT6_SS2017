@@ -2,6 +2,7 @@
 // Created by Andreas Zinkl on 11.05.17.
 //
 
+#include <iostream>
 #include "../include/Vector.h"
 
 Vector::Vector(Position head, Position foot) : head(head), foot(foot) { }
@@ -76,10 +77,10 @@ short Vector::getSideOf(Vector* v) {
 bool Vector::isOnLineTo(struct Position *p) {
 
     // Generate the vector from this foot part to the destination
-    struct Position pFoot;
-    pFoot.x = foot.x;
-    pFoot.y = pFoot.y;
-    Vector* tmpVector = new Vector(*p, pFoot);
+    //struct Position pFoot;
+    //pFoot.x = foot.x;
+    //pFoot.y = foot.y;
+    Vector* tmpVector = new Vector(*p, foot);
 
     float angle = getAngleTo(tmpVector);
 

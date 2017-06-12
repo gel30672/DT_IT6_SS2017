@@ -30,18 +30,21 @@ private:
     short _routeNodeCount;
 
     PriorityQueue* _openlistPQ;
-    //vector<Node *> _closedlist;
     int* _closedlist;
 
-
-public:
-    RouteCalculation(Map *map, int xDestination, int yDestination);
-    ~RouteCalculation();
-
-    short calculate();
-
+    // Methods for optimization
     Node popNodeFromRouteStack();
     short getRouteNodeCount();
+    void saveToDestination(short x, short y);
+
+public:
+    RouteCalculation();
+    ~RouteCalculation();
+
+    std::vector<Position> _destinations; //todo only quick and dirty solution
+
+    short calculate(Map *map, Position* start, Position* destination);
+    short optimizeRouteDestinations();
 };
 
 
