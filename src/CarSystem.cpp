@@ -10,6 +10,7 @@ CarSystem::CarSystem() {
     _map = nullptr;
     _car = nullptr;
     _routeCalc = nullptr;
+    _laser = nullptr;
     _reachedDestinationsIndex = 0;
     _carFinishedDestination = true;
 }
@@ -31,6 +32,7 @@ short CarSystem::initialize() {
     std::cout << "init car" << std::endl;
     short carRes = initCar();
     std::cout << "init route" << std::endl;
+    short LaserRes = initLaserSensor();
     short routeRes = initRouteCalculation();
     std::cout << "end inits" << std::endl;
 
@@ -51,6 +53,11 @@ short CarSystem::initialize() {
     calculateRoute();
 
     return SUCCESS;
+}
+
+void CarSystem::checkSensor()
+{
+    _laser->doLaserScanAndMapUpdate();
 }
 
 Position* CarSystem::getCurrentDestination() {
@@ -156,6 +163,15 @@ short CarSystem::initRouteCalculation() {
     // check if we already have a routecalcluation
     if(_routeCalc == nullptr) {
         _routeCalc = new RouteCalculation();
+    }
+    return SUCCESS;
+}
+
+short CarSystem::initLaserSensor(){
+
+    // check if we already have a laser object
+    if(_laser == nullptr) {
+        _laser = new LaserSensor(_map,_car);
     }
     return SUCCESS;
 }

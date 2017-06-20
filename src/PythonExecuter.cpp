@@ -4,15 +4,14 @@
 //Code adapted from https://docs.python.org/2/extending/embedding.html
 //© Copyright 1990-2017, Python Software Foundation.
 
-/*
-
 #include "../include/PythonExecuter.h"
 #include <python2.7/Python.h>
 
 PythonExecuter::PythonExecuter() {}
 PythonExecuter::~PythonExecuter() {}
 
-long PythonExecuter::execute(int argc, char *argv[]) {
+
+long PythonExecuter::executeWithCharPointer(int argc, char *argv[], char* buf[]) {
 
     PyObject *pName, *pModule, *pDict, *pFunc;
     PyObject *pArgs, *pValue;
@@ -25,14 +24,14 @@ long PythonExecuter::execute(int argc, char *argv[]) {
 
     Py_Initialize();
     pName = PyString_FromString(argv[1]);
-    //Error checking of pName left out
+    /* Error checking of pName left out */
 
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
     if (pModule != NULL) {
         pFunc = PyObject_GetAttrString(pModule, argv[2]);
-        // pFunc is a new reference
+        /* pFunc is a new reference */
 
         if (pFunc && PyCallable_Check(pFunc)) {
             pArgs = PyTuple_New(argc - 3);
@@ -44,15 +43,19 @@ long PythonExecuter::execute(int argc, char *argv[]) {
                     fprintf(stderr, "Cannot convert argument\n");
                     return 1;
                 }
-                // pValue reference stolen here:
+                /* pValue reference stolen here: */
                 PyTuple_SetItem(pArgs, i, pValue);
             }
 
             pValue = PyObject_CallObject(pFunc, pArgs);
             Py_DECREF(pArgs);
             if (pValue != NULL) {
-                printf("Result of call: %ld\n", PyInt_AsLong(pValue));
-                Py_DECREF(pValue);
+                //printf("Result of call: %s\n", PyString_AsString(pValue));
+            	if(argv[0] = "1")
+            	{
+            		*buf = PyString_AsString(pValue);
+            	}
+		Py_DECREF(pValue);
             }
             else {
                 Py_DECREF(pFunc);
@@ -75,8 +78,9 @@ long PythonExecuter::execute(int argc, char *argv[]) {
         fprintf(stderr, "Failed to load \"%s\"\n", argv[1]);
         return 1;
     }
+    //printf("vor finalize\n");
     Py_Finalize();
+    //printf("py finalize fertig\n");
     return 0;
 }
 
- */

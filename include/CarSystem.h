@@ -9,6 +9,7 @@
 #include "RouteCalculation.h"
 #include "Car.h"
 #include "ErrorHandling.h"
+#include "LaserSensor.h"
 #include <iostream>
 #include <pthread.h>
 
@@ -25,6 +26,7 @@ public:
     short run();
     short finishedCurrentDestination();
     Position* getCurrentDestination();
+    void checkSensor();
 
 
 private:
@@ -32,6 +34,7 @@ private:
     // Contents
     Map* _map;
     Car* _car;
+    LaserSensor* _laser;
     RouteCalculation* _routeCalc;
 
     // Routing Content
@@ -42,6 +45,7 @@ private:
     // System initializations
     short initMap();
     short initCar();
+    short initLaserSensor();
     short initRouteCalculation();
 
     // System Tasks

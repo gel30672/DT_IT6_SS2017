@@ -10,7 +10,8 @@ class PythonExecuter {
 public:
     PythonExecuter();
     ~PythonExecuter();
-    long execute(int argc, char** argv);
+    long executeWithCharPointer(int argc, char** argv, char** buf);
+
 private:
 
 };
