@@ -2,6 +2,7 @@
 // Created by Andreas Zinkl on 08.06.17.
 //
 
+#include <unistd.h>
 #include "../include/Car.h"
 
 // CONSTRUCTOR
@@ -13,12 +14,46 @@ Car::Car() {
 }
 
 Car::~Car() {
-    delete &_currentPosition;
-    delete _currentDirection;
+    //delete &_currentPosition;
+    //delete _currentDirection;
 }
 
 
 // PUBLIC FUNCTIONS
+
+short Car::go2(Position* dest) {
+
+    // check if we reached the dest and return with YES!!
+    _currentDestination = dest;
+
+    // Look for the current direction and the destination direction
+    Vector* currentDirection = getCurrentDirection();
+    Vector* destinationDirection = new Vector(*dest, *getCurrentPosition());
+
+    std::cout << "DIRECTIONVECTOR = " << currentDirection->getX() << " | " << currentDirection->getY() << std::endl;
+
+    // calculate the angle between
+    short side = currentDirection->getSideOf(destinationDirection);
+    float angle = 0.0;
+    if(side == DIRECTION_LEFT) {
+        angle = currentDirection->getAngleTo(destinationDirection);
+    } else {
+        angle = destinationDirection->getAngleTo(currentDirection);
+    }
+    std::cout << "ANGLE is " << angle << std::endl;
+
+    // check what to do.. straight or turnaround
+    if(angle <= 20) {
+        std::cout << "STRAIGHT!!!" << std::endl;
+        straightDrive(angle, side, destinationDirection);
+    } else {
+        std::cout << "TURNAROUND!!!" << std::endl;
+        orientationTurn(side, destinationDirection);
+        go2(dest); // just 1 time recursive -> next time we need to drive less then 20 degrees
+    }
+
+    return SUCCESS;
+}
 
 void* Car::driveTo(Position *destination) {
 
@@ -30,17 +65,19 @@ void* Car::driveTo(Position *destination) {
         // we need to check if we reached the destination
         if(didReachDestination()) {
             _reachedDestination = true;
-            continue; // finished the drive!!
+            break; // finished the drive!!
         }
 
         // check if we got a running command
-        if(!_cmdInterface->isCurrentDriveFinished()) continue;
+        if(!_cmdInterface->isCurrentDriveFinished()) break;
 
         // Check if we are already in the correct orientation
         bool isStraightDrive = getCurrentDirection()->isOnLineTo(_currentDestination);
 
         // calculate the direct distance to the destination
         Vector* directDist = new Vector(*_currentDestination, *getCurrentPosition());
+
+        std::cout << "CAR: CALC DRIVE.. " << std::endl;
 
         // if a turn is needed, then process a turn
         if(!isStraightDrive) {
@@ -109,6 +146,8 @@ void* Car::driveTo(Position *destination) {
 
         } else {
 
+            std::cout << ">>>> DRIVE STRAIGHT" << std::endl;
+
             // no turn needed, check if we have a straight drive and if not, create one and execute that one
             _cmdInterface->sendForwardDrive(directDist->getLength(), _currentDestination);
         }
@@ -116,6 +155,10 @@ void* Car::driveTo(Position *destination) {
 
     // before we leave, update the droven distance for new commands
     resetDrovenDistance();
+}
+
+void Car::tellCarToStop() {
+    _cmdInterface->sendStopCommand();
 }
 
 Position* Car::getLastKnownPosition() {
@@ -132,6 +175,7 @@ Position* Car::getCurrentPosition() {
 }
 
 Vector* Car::getCurrentDirection() {
+    updateCurrentPosition();
     return _currentDirection;
 }
 
@@ -150,12 +194,20 @@ short Car::init() {
 
     // Turn on the localization
     _localization = new LocDet();
+    std::cout << "Initialized LocDet" << std::endl;
 
     // Turn on the command interface
     _cmdInterface = new CarCommandInterface();
 
+    // set current positions to -1
+    _lastKnownPosition.x = -1;
+    _lastKnownPosition.y = -1;
+    _currentPosition.x = -1;
+    _currentPosition.y = -1;
+
     // now we need to do a init drive
     updateCurrentPosition();
+    std::cout << "updated position" << std::endl;
     initDrive();
     updateCurrentPosition();
 
@@ -167,8 +219,9 @@ short Car::init() {
 
 short Car::initDrive() {
 
+    std::cout << "init drive!!!" << std::endl;
     // start driving the initialization way
-    Command(INIT_CONFIG_DISTANCE, DIRECTION_FORWARD, nullptr).execute();
+    _cmdInterface->sendForwardDrive(INIT_CONFIG_DISTANCE, nullptr);
 
     // wait till we got the
     while(distanceSinceStart < INIT_CONFIG_DISTANCE) {
@@ -176,7 +229,7 @@ short Car::initDrive() {
     }
 
     // Okay we did the initialization drive
-    Command(INIT_CONFIG_DISTANCE, DIRECTION_STOP, nullptr).execute();
+    _cmdInterface->sendStopCommand();
 
     distanceSinceStart = 0;
 }
@@ -190,20 +243,38 @@ short Car::updateCurrentPosition() {
     // save the old position if the new position changed
     Position tempCurrent = _currentPosition;
 
-    // update the current position
-    _localization->get_position(&_currentPosition);
+    // receive current position from uwb
+    Position uwbPosition;
+    _localization->get_position(&uwbPosition);
+    std::cout << "got position from uwb sensor" << std::endl;
 
     // we need to convert the given position values into our map values (mm -> cm -> 15cm raster)
-    _currentPosition.x = _currentPosition.x/(10*MapRasterWidth_cm);
-    _currentPosition.y = _currentPosition.y/(10*MapRasterWidth_cm);
+    float currX = ((float)uwbPosition.x)/(10*MapRasterWidth_cm/UWBMapRasterPrecision);
+    float currY = ((float)uwbPosition.y)/(10*MapRasterWidth_cm/UWBMapRasterPrecision);
+
+    //std::cout << ">>> UWB POSITION X=" << currX << " | Y= " << currY << std::endl;
+
+    _currentPosition.x = ceil(currX/UWBMapRasterPrecision);
+    _currentPosition.y = ceil(currY/UWBMapRasterPrecision);
 
     // only save the last current position, if the new current position has changed regarding the last current position
-    if(_currentPosition.x != tempCurrent.x
+    if( _currentPosition.x != tempCurrent.x
             && _currentPosition.y != tempCurrent.y) {
+        _lastKnownPosition = tempCurrent;
+    } else if(_lastKnownPosition.x == -1 && _lastKnownPosition.y == -1) {
         _lastKnownPosition = tempCurrent;
     }
 
+    std::cout << ">>> CURRENT POSITION = (" << _currentPosition.x << " | " << _currentPosition.y << ")";
+    if(_currentDestination != nullptr) {
+        std::cout << " //// CURRENT DESTINATION = (" << _currentDestination->x << " | " << _currentDestination->y << ")" << std::endl;
+    } else {
+        std::cout << std::endl;
+    }
+
     // now we need to update the direction
+    //std::cout << "current pos = " << _currentPosition.x << "," << _currentPosition.y << std::endl;
+    //std::cout << "last pos = " << _lastKnownPosition.x << "," << _lastKnownPosition.y << std::endl;
     _currentDirection = new Vector(_currentPosition, _lastKnownPosition);
 }
 
@@ -213,8 +284,13 @@ short Car::resetDrovenDistance() {
 
 bool Car::didReachDestination() {
 
+    std::cout << "did reach check" << std::endl;
+
+    updateCurrentPosition();
+
     short x = 0;
     short y = 0;
+
     if(_currentPosition.x > _currentDestination->x) {
         x = _currentPosition.x - _currentDestination->x;
     } else {
@@ -232,4 +308,95 @@ bool Car::didReachDestination() {
     }
 
     return false;
+}
+
+void Car::straightDrive(float angle, short side, Vector* destVector) {
+
+    // need to tasks here..
+    // task 1 = drive to the destination
+    // task 2 = correct the drive by setting a angle
+    double lastSavedDistance = distanceSinceStart = 0;
+    short directionCheckCnt = 1;
+
+    // just drive forward
+    SteerDegrees(STRAIGHT_WHEEL_ANGLE);
+    _cmdInterface->sendForwardDrive(destVector->getLength(), destVector->getHead());
+
+    // drive
+    std::cout << "DRIVE STRAIGHT " << destVector->getLength() << " cm" << std::endl;
+    while(!didReachDestination() && distanceSinceStart < destVector->getLength()) {
+
+        std::cout << "staright with angle " << angle << std::endl;
+
+        // we need to configure steering if necessary
+        if (angle == 0.0) {
+            SteerDegrees(STRAIGHT_WHEEL_ANGLE);
+        } else if(side == DIRECTION_LEFT) {
+            SteerDegrees(-1*angle/2+STRAIGHT_WHEEL_ANGLE);
+            std::cout << "LEFT" << std::endl;
+        } else if(side == DIRECTION_RIGHT) {
+            SteerDegrees(angle/2+STRAIGHT_WHEEL_ANGLE);
+            std::cout << "RIGHT" << std::endl;
+        }
+
+        // now we need to check, if the steering drove is done
+        if(distanceSinceStart-lastSavedDistance > WHEELBASE) {
+
+            // reset steering
+            std::cout << "resets" << std::endl;
+            angle = 0.0;
+            lastSavedDistance = 0;
+        }
+
+        // may check for angle correctness - only check every 10th try
+        if(directionCheckCnt%2==0) {
+            updateCurrentPosition();
+            destVector->setFoot(&_currentPosition);
+            short crSide = getCurrentDirection()->getSideOf(destVector);
+            if (crSide == DIRECTION_LEFT) {
+                angle = getCurrentDirection()->getAngleTo(destVector);
+            } else {
+                angle = destVector->getAngleTo(getCurrentDirection());
+            }
+
+            if(angle <= 5) {
+                angle = 0.0;
+            }
+        }
+    }
+    std::cout << "finished straight" << std::endl;
+    _cmdInterface->sendStopCommand();
+}
+
+void Car::orientationTurn(short side, Vector* destVector) {
+
+    // calculate the angle
+    double destAngle = getCurrentDirection()->getAngleTo(destVector);
+
+    // we need just to change to the correct orientation
+    double fullTurnDistance = CALC_DISTANCE_BY_ANGLE(destAngle/2);
+
+    // now change the orientation - first step forward drive
+    distanceSinceStart = 0;
+    std::cout << "start turnaround forward" << std::endl;
+    _cmdInterface->sendTurnAroundDrive(fullTurnDistance, destVector->getHead(), side);
+    std::cout << "sent turnaround forward" << std::endl;
+    while(distanceSinceStart <= fullTurnDistance) {
+        // do nothing
+        std::cout << "wait" << std::endl;
+    }
+
+    distanceSinceStart = 0;
+    std::cout << "start turnaround forward" << std::endl;
+    _cmdInterface->sendBackwardDrive(fullTurnDistance, destVector->getHead(), side);
+    while(distanceSinceStart <= fullTurnDistance) {
+        // do nothing
+        std::cout << "wait" << std::endl;
+    }
+
+    std::cout << "finished turn" << std::endl;
+    _cmdInterface->sendStopCommand();
+
+    //update currentposition
+    updateCurrentPosition();
 }

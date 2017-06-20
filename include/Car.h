@@ -23,21 +23,24 @@ public:
     // Constructor
     Car();
     ~Car();
+    Position _currentPosition;
 
     // Run-Methods
     void *driveTo(Position* destination);
+    short go2(Position* dest);
+    void tellCarToStop();
 
     // Get-Methods
     Position* getLastKnownPosition();
     Position* getCurrentPosition();
     Vector* getCurrentDirection();
+    bool didReachDestination();
     double getDrovenDistance();
     short getCurrentCarState();
 
 private:
 
     // Content
-    Position _currentPosition;
     Position _lastKnownPosition;
     Position* _currentDestination;
     Vector* _currentDirection;
@@ -53,7 +56,8 @@ private:
     short updateCurrentPosition();
     short updateCarState(short state);
     short resetDrovenDistance();
-    bool didReachDestination();
+    void straightDrive(float angle, short side, Vector* destVector);
+    void orientationTurn(short side, Vector* destVector);
 };
 
 

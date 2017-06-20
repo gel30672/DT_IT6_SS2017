@@ -55,12 +55,23 @@ short CarCommandInterface::sendForwardDrive(double length, Position *destination
     return SUCCESS;
 }
 
-short CarCommandInterface::sendBackwardDrive(double length, Position *destination) {
+short CarCommandInterface::sendBackwardDrive(double length, Position *destination, int side) {
 
-    current = new Command(length, DIRECTION_BACKWARD, destination);
+    if(side == DIRECTION_LEFT) {
+        current = new Command(length, DIRECTION_BWD_RIGHT, destination, MAXWHEELLOCK);
+    } else if(side == DIRECTION_RIGHT){
+        current = new Command(length, DIRECTION_BWD_LEFT, destination, MAXWHEELLOCK);
+    } else {
+        current = new Command(length, DIRECTION_BACKWARD, destination, MAXWHEELLOCK);
+    }
     current->execute();
 
     return SUCCESS;
+}
+
+short CarCommandInterface::sendBackwardDrive(double length, Position *destination) {
+
+    return sendBackwardDrive(length, destination, DIRECTION_BACKWARD);;
 }
 
 short CarCommandInterface::sendTurnAroundDrive(double length, Position *destination, short direction) {

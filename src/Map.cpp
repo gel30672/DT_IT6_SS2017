@@ -16,19 +16,19 @@ void Map::init() {
     nodelist = new unsigned short[_size];
     routeTrack = new unsigned short[_size];
 
-    // Just print out the information about the map
-    std::cout << "MAP: size=" << _size << std::endl;
-    std::cout << "MAX X = " << MapColumnsCount << std::endl;
-    std::cout << "MAX Y = " << MapRowsCount << std::endl;
-
     // set every field to 0
     for(int i = 0; i < _size; i++) {
         nodelist[i] = 0;
         routeTrack[i] = 0;
     }
 
+    // Just print out the information about the map
+    std::cout << "MAP: size=" << _size << std::endl;
+    std::cout << "MAX X = " << MapColumnsCount << std::endl;
+    std::cout << "MAX Y = " << MapRowsCount << std::endl;
+
     // If a test map should
-    if(useTestMap) initTestMap("000010000011100010001001000011100000000011100010");
+    if(useTestMap) initTestMap((char*)"000010000011100010001001000011100000000011100010");
 
 }
 
@@ -205,6 +205,8 @@ short Map::updateField(short x, short y, bool isObstacle, unsigned short* map) {
 }
 
 short Map::saveRouteInMap(vector<Node> route) {
+
+    std::cout << "MAP: SAVING ROUTE IN MAP" << std::endl;
 
     // first clean the current route out of the map
     for (int i = 0; i < _size; i++) {

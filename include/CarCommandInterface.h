@@ -20,6 +20,7 @@ public:
     // Execution Methods
     short sendForwardDrive(double length, Position* destination);
     short sendBackwardDrive(double length, Position* destination);
+    short sendBackwardDrive(double length, Position *destination, int side);
     short sendTurnAroundDrive(double length, Position* destination, short direction);
     short sendTurnAroundAndBackDrive(double length, Position* destination, short direction);
     short sendStopCommand();

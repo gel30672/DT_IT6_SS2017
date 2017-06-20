@@ -17,8 +17,8 @@ CarCommandTestInterface::CarCommandTestInterface() {
 }
 
 CarCommandTestInterface::~CarCommandTestInterface() {
-    delete _cmdInterface;
-    _cmdInterface = nullptr;
+    //delete _cmdInterface;
+    //_cmdInterface = nullptr;
 }
 
 void CarCommandTestInterface::runTest() {
@@ -71,7 +71,7 @@ void CarCommandTestInterface::startRemoteControl() {
             if(c == 'f' || c == 'F') _cmdInterface->sendStopCommand();
 
             if(remote_direction != remote_directionold) {
-                SteerDegrees(direction);
+                SteerDegrees(remote_direction);
             }
         }
         else if( res < 0 )

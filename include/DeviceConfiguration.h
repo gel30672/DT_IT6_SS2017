@@ -24,8 +24,9 @@
 #define CALC_DROVEN_ANGLE_BY_LENGTH(x) ((x*360)/(2*M_PI*CIRCLERADIUS))
 
 // The droven distance for the configuration and the general distance
-#define INIT_CONFIG_DISTANCE 20
+#define INIT_CONFIG_DISTANCE 30
 #define INIT_CONFIG_TIME 5
+#define ORIENTATION_TURN_ANGLE 45
 
 // The device driving directions
 #define DIRECTION_BACKWARD -1
@@ -33,12 +34,15 @@
 #define DIRECTION_LEFT 1
 #define DIRECTION_RIGHT 2
 #define DIRECTION_STOP 3
+#define DIRECTION_BWD_RIGHT 4
+#define DIRECTION_BWD_LEFT 5
 
 // Device specific configuration
-#define FULLSPEED 700
+#define FULLSPEED 900
 #define BACKSPEED (-FULLSPEED)
 #define LEFT_WHEEL_ANGLE -20
 #define RIGHT_WHEEL_ANGLE 20
+#define STRAIGHT_WHEEL_ANGLE -1.5
 
 
 

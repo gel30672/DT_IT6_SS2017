@@ -10,10 +10,10 @@
 
 
 LocDet::LocDet() {
-    Anchor_B.x = 3207;
+    Anchor_B.x = 3094;
     Anchor_B.y = 0000;
-    Anchor_C.x = 309;
-    Anchor_C.y = 5002;
+    Anchor_C.x = 0000;
+    Anchor_C.y = 4713;
 }
 
 LocDet::~LocDet() {
@@ -102,7 +102,7 @@ int LocDet::execute() {
     ReadDataFromSerial *Reader = new ReadDataFromSerial();
     input inp;
     do{
-        ERROR = Reader->GetData(&inp,1,MR);
+        ERROR = Reader->GetData(&inp,3,MR);
         if(!inp.A || !inp.B || !inp.C){
             ERROR = !OK;
         }

@@ -65,6 +65,7 @@ int ReadDataFromSerial::GetData(input *Buffer, int MeanAmount, short Typ)
     {
         if(AnchorDataOverall[i] > 0)
         {
+            //std::cout << "All : " << AnchorDataOverall[i] << " / " << runs << std::endl;
             AnchorDataOverall[i] /= runs;
         }
         else

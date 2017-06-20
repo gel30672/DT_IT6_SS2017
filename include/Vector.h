@@ -37,6 +37,10 @@ public:
     short rotate(float degrees);
     bool isOnLineTo(struct Position* p);
     void changeDirection();
+    void setFoot(Position* foot);
+
+    // only a test function
+    void testFunctionality();
 };
 
 

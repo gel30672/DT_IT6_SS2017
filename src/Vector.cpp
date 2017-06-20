@@ -5,7 +5,7 @@
 #include <iostream>
 #include "../include/Vector.h"
 
-Vector::Vector(Position head, Position foot) : head(head), foot(foot) { }
+Vector::Vector(Position head, Position foot) : head(head), foot(foot) {}
 
 Vector::~Vector() {
     //delete &head;
@@ -13,11 +13,11 @@ Vector::~Vector() {
 }
 
 short Vector::getX() {
-    return head.x-foot.x;
+    return (head.x-foot.x) * MapRasterWidth_cm;
 }
 
 short Vector::getY() {
-    return head.y-foot.y;
+    return (head.y-foot.y) * MapRasterWidth_cm;
 }
 
 Position* Vector::getHead() {
@@ -26,6 +26,10 @@ Position* Vector::getHead() {
 
 Position* Vector::getFoot() {
     return &foot;
+}
+
+void Vector::setFoot(Position* foot) {
+    foot = foot;
 }
 
 float Vector::getAngleTo(Vector* v) {
@@ -38,10 +42,18 @@ float Vector::getAngleTo(Vector* v) {
      * cos(a) = u*v / |u|*|v|
      * a = arccos(u*v / |u|*|v|)
      */
-    float dot = getX()*v->getY()+getY()*v->getX();
-    float det = sqrtf(quad(getX())+quad(getY())) * sqrtf(quad(v->getX())+quad(v->getY()));
+    float dot = getX()*v->getX()+getY()*v->getY();
+    float det = sqrt(quad(getX())+quad(getY())) * sqrt(quad(v->getX())+quad(v->getY()));
 
-    if(dot/det == 0) return 0;
+    if(dot/det == 0) {
+
+        // We need to check if the angle is 90 degrees!
+        short side = getSideOf(v);
+        if(side == DIRECTION_LEFT || side == DIRECTION_RIGHT) return 90;
+
+        // no it is on the straight line!
+        return 0;
+    }
 
     float alpha = acosf(dot/det);
     alpha = RADTODEG(alpha);
@@ -66,7 +78,7 @@ short Vector::getSideOf(Vector* v) {
      *
      * the z coordinate of the cross product of both vectors is where it lies. (a1*b2-a2*b1)
      * - positive means it is to the left side
-     * - negative means it is to thre right side
+     * - negative means it is to the right side
      */
     short position = getX()*v->getY() - getY()*v->getX();
 

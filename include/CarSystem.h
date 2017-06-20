@@ -46,8 +46,7 @@ private:
 
     // System Tasks
     short calculateRoute();
-    static void *sendDriveCommandToCar(void *position);
-    void *tellCarToDrive(void *position);
+    void tellCarToDrive(Position *position);
 
     // I/O methods
     void askUserForDefinedDestination();

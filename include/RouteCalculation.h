@@ -41,7 +41,7 @@ public:
     RouteCalculation();
     ~RouteCalculation();
 
-    std::vector<Position> _destinations; //todo only quick and dirty solution
+    std::vector<Position *> _destinations; //todo only quick and dirty solution
 
     short calculate(Map *map, Position* start, Position* destination);
     short optimizeRouteDestinations();

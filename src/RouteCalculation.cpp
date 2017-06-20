@@ -123,23 +123,25 @@ short RouteCalculation::calculate(Map *map, Position* start, Position* destinati
 
         // save the route
         vector<Node> routeTrack;
-        while(currentNode->getPredessesor() != nullptr) {
+        while(currentNode != nullptr) {
             _route.push(*currentNode);
-            routeTrack.push_back(*currentNode);
+            //routeTrack.push_back(*currentNode);
             currentNode = currentNode->getPredessesor();
             _routeNodeCount++;
         }
 
         // save the route in the map
-        if(routeTrack.size() > 0) _map->saveRouteInMap(routeTrack);
+        //if(routeTrack.size() > 0) _map->saveRouteInMap(routeTrack);
     }
+
+    std::cout << "FOUND ROUTE = " << foundRoute << std::endl;
 
     // return the result - did we found a route?
     return foundRoute ? 1 : -1;
 }
 
 short RouteCalculation::optimizeRouteDestinations() {
-
+    std::cout << "start optimizing" << std::endl;
     // Now start optimizing the route by going through the whole route
     Position* predecessor = nullptr;
     while(getRouteNodeCount() > 0) {
@@ -162,8 +164,8 @@ short RouteCalculation::optimizeRouteDestinations() {
             short indexPredecessor = _destinations.size()-1;
             if(predecessor == nullptr) {
                 Position pre;
-                pre.x = _destinations[indexPredecessor].x;
-                pre.y = _destinations[indexPredecessor].y;
+                pre.x = _destinations[indexPredecessor]->x;
+                pre.y = _destinations[indexPredecessor]->y;
                 predecessor = &pre;
             }
 
@@ -206,16 +208,16 @@ short RouteCalculation::optimizeRouteDestinations() {
             predecessor->y = node.getY();
         }
     }
+    std::cout << "end optimization" << std::endl;
 }
 
 void RouteCalculation::saveToDestination(short x, short y) {
 
     // transform node to position
-    Position pos;
-    pos.x = x;
-    pos.y = y;
+    Position *pos = new Position();
+    pos->x = x;
+    pos->y = y;
 
     // save the position
     _destinations.push_back(pos);
-    std::cout << "saved node " << x << "|" << y << std::endl;
 }

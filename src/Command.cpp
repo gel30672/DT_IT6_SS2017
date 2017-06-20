@@ -37,16 +37,20 @@ void Command::execute() {
     switch (_direction) {
 
         case DIRECTION_LEFT:
-            std::cout << "### LEFT DRIVING (" << LEFT_WHEEL_ANGLE << ") ###" << std::endl;
+            SteerDegrees(LEFT_WHEEL_ANGLE);
+            break;
+        case DIRECTION_BWD_LEFT:
+            SteerDegrees(RIGHT_WHEEL_ANGLE);
+            break;
+        case DIRECTION_BWD_RIGHT:
             SteerDegrees(LEFT_WHEEL_ANGLE);
             break;
         case DIRECTION_RIGHT:
-            std::cout << "### RIGHT DRIVING (" << RIGHT_WHEEL_ANGLE << ") ###" << std::endl;
             SteerDegrees(RIGHT_WHEEL_ANGLE);
             break;
 
         default:
-            SteerDegrees(0);
+            SteerDegrees(STRAIGHT_WHEEL_ANGLE);
     }
 
     // Need to call the motor to start driving
