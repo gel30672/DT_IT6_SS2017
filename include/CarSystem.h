@@ -26,7 +26,8 @@ public:
     short run();
     short finishedCurrentDestination();
     Position* getCurrentDestination();
-    void checkSensor();
+    int checkSensor();
+    void emergencystop(bool shouldstop);
 
 
 private:

@@ -55,9 +55,9 @@ short CarSystem::initialize() {
     return SUCCESS;
 }
 
-void CarSystem::checkSensor()
+int CarSystem::checkSensor()
 {
-    _laser->doLaserScanAndMapUpdate();
+    return _laser->doLaserScanAndMapUpdate();
 }
 
 Position* CarSystem::getCurrentDestination() {
@@ -225,4 +225,9 @@ void CarSystem::askUserForDefinedDestination() {
 
     std::cout << "########### The calculation to Position (" << _finalDestinaion.x << "|" << _finalDestinaion.y << ") will start now! ###########\n\n" << std::endl;
 
+}
+
+void CarSystem::emergencystop(bool shouldstop){
+    if(shouldstop)
+        _car->tellCarToStop();
 }
