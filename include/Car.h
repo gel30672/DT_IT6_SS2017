@@ -21,7 +21,7 @@ class Car {
 public:
 
     // Constructor
-    Car();
+    Car(int* needEmergencyStop);
     ~Car();
     Position _currentPosition;
 
@@ -45,6 +45,7 @@ private:
     Position* _currentDestination;
     Vector* _currentDirection;
     short _carState;
+    int* _emergency;
 
     // Other Modules
     LocDet* _localization;

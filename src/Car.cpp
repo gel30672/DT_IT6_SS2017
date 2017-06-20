@@ -7,10 +7,11 @@
 
 // CONSTRUCTOR
 
-Car::Car() {
+Car::Car(int* needEmergencyStop) {
 
     // init the car
     init();
+    _emergency = needEmergencyStop;
 }
 
 Car::~Car() {
@@ -328,6 +329,13 @@ void Car::straightDrive(float angle, short side, Vector* destVector) {
 
         std::cout << "staright with angle " << angle << std::endl;
 
+        if(_emergency) {
+            _cmdInterface->sendStopCommand();
+            continue;
+        } else {
+            _cmdInterface->sendForwardDrive(destVector->getLength(), destVector->getHead());
+        }
+
         // we need to configure steering if necessary
         if (angle == 0.0) {
             SteerDegrees(STRAIGHT_WHEEL_ANGLE);
@@ -383,7 +391,7 @@ void Car::orientationTurn(short side, Vector* destVector) {
     std::cout << "sent turnaround forward" << std::endl;
     while(distanceSinceStart <= fullTurnDistance) {
         // do nothing
-        std::cout << "wait" << std::endl;
+        //std::cout << "wait" << std::endl;
     }
 
     distanceSinceStart = 0;

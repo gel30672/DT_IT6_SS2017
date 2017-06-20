@@ -31,8 +31,8 @@ short CarSystem::initialize() {
     short mapRes = initMap();
     std::cout << "init car" << std::endl;
     short carRes = initCar();
-    std::cout << "init route" << std::endl;
     short LaserRes = initLaserSensor();
+    std::cout << "init route" << std::endl;
     short routeRes = initRouteCalculation();
     std::cout << "end inits" << std::endl;
 
@@ -55,9 +55,12 @@ short CarSystem::initialize() {
     return SUCCESS;
 }
 
-int CarSystem::checkSensor()
+void* CarSystem::checkSensor(void* laser)
 {
-    return _laser->doLaserScanAndMapUpdate();
+	while(1)
+	{
+		((LaserSensor *)laser)->doLaserScanAndMapUpdate();
+	}
 }
 
 Position* CarSystem::getCurrentDestination() {
@@ -101,7 +104,6 @@ short CarSystem::run() {
     if(_routeCalc == nullptr) return ERROR_WHILE_ROUTECALC_INIT;
     if(_routeCalc->_destinations.size() <= 0) return ERROR_WHILE_DRIVECALC_INIT;
     if(_routeCalc->_destinations.size()-1 <= _reachedDestinationsIndex) {
-        exit(-1);
         return SUCCESS;
     }
 
@@ -153,7 +155,7 @@ short CarSystem::initCar() {
 
     // check if we already have a car
     if(_car == nullptr) {
-        _car = new Car();
+        _car = new Car(&_needEmergencyStop);
     }
     return SUCCESS;
 }
@@ -171,8 +173,15 @@ short CarSystem::initLaserSensor(){
 
     // check if we already have a laser object
     if(_laser == nullptr) {
-        _laser = new LaserSensor(_map,_car);
+        _laser = new LaserSensor(_map,_car, &_needEmergencyStop);
     }
+
+    short threadCount = 1;
+    pthread_t threads[threadCount];
+    int rc_1;
+    rc_1 = pthread_create(&threads[0], NULL, checkSensor, (void*) _laser);
+
+
     return SUCCESS;
 }
 

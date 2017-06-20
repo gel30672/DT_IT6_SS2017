@@ -26,7 +26,7 @@ public:
     short run();
     short finishedCurrentDestination();
     Position* getCurrentDestination();
-    int checkSensor();
+    static void* checkSensor(void* laser);
     void emergencystop(bool shouldstop);
 
 
@@ -42,6 +42,7 @@ private:
     Position _finalDestinaion;
     int _reachedDestinationsIndex;
     bool _carFinishedDestination;
+    int _needEmergencyStop;
 
     // System initializations
     short initMap();

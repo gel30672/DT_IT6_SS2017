@@ -157,11 +157,11 @@ void *callRouteCalculation(void *) {
 	std::cout << "CARSYSTEM: RUN" << std::endl;
 	while(1) {
 		short status = carSystem->run();
-		if (!carSystem->checkSensor()){
-			carSystem->emergencystop(true);
-			continue;
+		//if (!carSystem->checkSensor()){
+		//	carSystem->emergencystop(true);
+		//	continue;
 
-		}
+		//}
 		if(PRINT_ERROR_CODE && status != lastErrorCode) {
 			std::cout << "checkdrive(" << status << ")" << std::endl;
 			lastErrorCode = status;
