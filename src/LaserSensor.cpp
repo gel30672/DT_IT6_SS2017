@@ -10,11 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../include/Map.h"
 #include "../include/LaserSensor.h"
-#include "../include/PythonExecuter.h"
 
-LaserSensor::LaserSensor(Map* _map, Car* _car, int* _nearObstacle)
+LaserSensor::LaserSensor(Map* _map, int* _nearObstacle)
 {
 	obstacleLeft = 0;	//Hindernis zw. -45° & -15° 
 	obstacleRight = 0;	//Hindernis zw. 15° & 45° 
@@ -31,7 +29,7 @@ LaserSensor::LaserSensor(Map* _map, Car* _car, int* _nearObstacle)
 	counter = 0;
 	buffer = nullptr;
 	map = _map;
-	car = _car;
+	//car = _car;
 }
 
 void LaserSensor::fillLaserArray(char string[])
@@ -108,9 +106,9 @@ void LaserSensor::getLaserData()
 	char * argv[3];
 
 	argc = 3;
-	argv[0] = "a";
-	argv[1] = "laser";
-	argv[2] = "laser";
+	argv[0] = (char*) "a";
+	argv[1] = (char*) "laser";
+	argv[2] = (char*) "laser";
 
 	py->executeWithCharPointer(argc, argv, &buffer);
 	//printf("ende getLaserData");
@@ -167,7 +165,7 @@ void LaserSensor::UpdateMapWithLaserData()
 	short xDiffToCurrentPos, yDiffToCurrentPos;
 
 	//if(car == nullptr) std::cout << "NULLPOINTER!!!!!!" << std::endl;
-	Position *currentPosition = car->getCurrentPosition(); // Hier Map-Objekt angeben!
+	//Position *currentPosition = car->getCurrentPosition(); // Hier Map-Objekt angeben!
 	int i;
 	for(i = 0; i<CountArrayElements;i++) 	//für jedes Arrayelementepaar berechenen ob und in welchen Koordinaten ein Hindernis ist
 	{
@@ -178,13 +176,13 @@ void LaserSensor::UpdateMapWithLaserData()
 		//printf("degree: %f; distance: %d; xDiff: %d; yDiff: %d\n",laserArray[0][i],(int)laserArray[1][i], xDiffToCurrentPos, yDiffToCurrentPos);
 		if(IsNotFree )
 		{
-			map->updateField(currentPosition->x + xDiffToCurrentPos + 1, currentPosition->y + yDiffToCurrentPos, isObstacle);
-			map->updateField(currentPosition->x + xDiffToCurrentPos, currentPosition->y + yDiffToCurrentPos, isObstacle);
-			map->updateField(currentPosition->x + xDiffToCurrentPos - 1, currentPosition->y + yDiffToCurrentPos, isObstacle);
+			map->updateField(_currentPos->x + xDiffToCurrentPos + 1, _currentPos->y + yDiffToCurrentPos, isObstacle);
+			map->updateField(_currentPos->x + xDiffToCurrentPos, _currentPos->y + yDiffToCurrentPos, isObstacle);
+			map->updateField(_currentPos->x + xDiffToCurrentPos - 1, _currentPos->y + yDiffToCurrentPos, isObstacle);
 		}
 		else
 		{
-			map->updateField(currentPosition->x + xDiffToCurrentPos, currentPosition->y + yDiffToCurrentPos, isFree);
+			map->updateField(_currentPos->x + xDiffToCurrentPos, _currentPos->y + yDiffToCurrentPos, isFree);
 		}
 		
 	}
@@ -214,12 +212,27 @@ char* LaserSensor::readFile()
 	return buffer;
 }
 
-int LaserSensor::doLaserScanAndMapUpdate()
-{
-	getLaserData();
-	//printf("buffer gefuellt!\n");
-	if(buffer == nullptr)
-		printf("NULL FUUUUUUUU\n");
+int LaserSensor::doLaserScanAndMapUpdate(Position *currentPos) {
+
+	int _return = 0;
+
+	//save the current position
+	_currentPos = currentPos;
+
+	//
+	while(buffer == nullptr)
+	{	
+		static int i = 0;
+		if(i<3)
+		{
+			getLaserData();
+			i++;
+		}
+		else
+		{
+			return _return;
+		}
+	}
 	//printf("Buffer %c\n",buffer);
 	fillLaserArray(buffer);
 	//printf("laserarray gefuellt!\n");
@@ -240,7 +253,7 @@ int LaserSensor::doLaserScanAndMapUpdate()
 	printf("Erwartet: 		x = 10, y = 0\n\n");
 	calculateObstaclePosition(110,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
 	printf("Erwartet: 		x = 9, y = 3\n");*/
-	int _return = 0;
+	
 	_return = obstacleLeft * 4 | obstacleFront * 2 | obstacleRight;
 	obstacleLeft = 0;	
 	obstacleRight = 0;

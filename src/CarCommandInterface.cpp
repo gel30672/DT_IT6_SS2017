@@ -10,7 +10,7 @@ extern "C" {
 
 // CONSTRUCTOR AND DECONSTRUCTOR
 
-CarCommandInterface::CarCommandInterface() {}
+CarCommandInterface::CarCommandInterface() : emergencyStop(false) {}
 
 CarCommandInterface::~CarCommandInterface() {}
 
@@ -21,26 +21,37 @@ bool CarCommandInterface::isCurrentDriveFinished() {
 
     bool result = false;
 
+    if(emergencyStop) {
+        MotorMoveRpm(0);
+        return result;
+    } else {
+        current->execute();
+    }
+
     if(current == nullptr) {
         result = true;
 
-    } else {
+    } else if(current->getDistance() <= distanceSinceStart) {
 
-        if(current->getDirection() == DIRECTION_FORWARD) {
-            result = true;
+        result = true;
 
-        } else if(distanceSinceStart >= current->getDistance()) {
-
-            result = true;
-
-            if(current->isCommandWithBackdrive()) {
-                sendBackwardDrive(CIRCLERADIUS, current->getDestination());
-                result = false;
-            }
+        if(current->isCommandWithBackdrive() && current->getDirection() != DIRECTION_FORWARD) {
+            sendBackwardDrive(current->getDistance(), current->getDestination());
+            distanceSinceStart = 0;
+            current->setBackDrive(false);
+            result = false;
         }
     }
 
     return result;
+}
+
+void CarCommandInterface::activateEmergencyStop() {
+    emergencyStop = true;
+}
+
+void CarCommandInterface::deactivateEmergencyStop() {
+    emergencyStop = false;
 }
 
 short CarCommandInterface::sendForwardDrive(double length, Position *destination) {

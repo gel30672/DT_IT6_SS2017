@@ -25,6 +25,10 @@ public:
     short sendTurnAroundAndBackDrive(double length, Position* destination, short direction);
     short sendStopCommand();
 
+    // Emergency Stop
+    void activateEmergencyStop();
+    void deactivateEmergencyStop();
+
     // Get Methods
     bool isCurrentDriveFinished();
 
@@ -32,6 +36,7 @@ private:
 
     // Content
     Command* current;
+    bool emergencyStop;
 };
 
 

@@ -11,6 +11,7 @@
 #include "CarState.h"
 #include "Command.h"
 #include "CarCommandInterface.h"
+#include "LaserSensor.h"
 
 extern "C" {
 #include "../src/libmdrv/SENSING/current_sensing.h"
@@ -30,6 +31,9 @@ public:
     short go2(Position* dest);
     void tellCarToStop();
 
+    // Set-Methods
+    void setLaserSensor(LaserSensor* laser);
+
     // Get-Methods
     Position* getLastKnownPosition();
     Position* getCurrentPosition();
@@ -44,6 +48,7 @@ private:
     Position _lastKnownPosition;
     Position* _currentDestination;
     Vector* _currentDirection;
+    LaserSensor* _laser;
     short _carState;
     int* _emergency;
 

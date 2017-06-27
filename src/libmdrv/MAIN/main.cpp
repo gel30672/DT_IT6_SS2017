@@ -95,7 +95,7 @@ void vehicle_state_machine()
 		else
 		{
 			reset_pid(&motor_pid);
-			setSpeed(-5);
+			setSpeed(0);
 		}
 	break;
 	}

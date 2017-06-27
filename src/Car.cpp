@@ -188,6 +188,11 @@ short Car::getCurrentCarState() {
     return _carState;
 }
 
+void Car::setLaserSensor(LaserSensor *laser) {
+    _laser = laser;
+}
+
+
 
 // PRIVATE FUNCTIONS
 
@@ -325,15 +330,21 @@ void Car::straightDrive(float angle, short side, Vector* destVector) {
 
     // drive
     std::cout << "DRIVE STRAIGHT " << destVector->getLength() << " cm" << std::endl;
-    while(!didReachDestination() && distanceSinceStart < destVector->getLength()) {
+    while(!didReachDestination() && !_cmdInterface->isCurrentDriveFinished()) {
 
         std::cout << "staright with angle " << angle << std::endl;
+        if(directionCheckCnt >= 300) directionCheckCnt = 0; // just reset to prevent overwriting of other parts
 
-        if(_emergency) {
-            _cmdInterface->sendStopCommand();
-            continue;
-        } else {
-            _cmdInterface->sendForwardDrive(destVector->getLength(), destVector->getHead());
+        // check for emergency stop / check just every 2nd circle
+        if(directionCheckCnt%1==0) {
+
+            if(_laser->doLaserScanAndMapUpdate(getCurrentPosition())) {
+                _cmdInterface->activateEmergencyStop();
+                std::cout << "+++++++ STOP! OBSTACLE! ++++++" << std::endl;
+                continue;
+            } else {
+                _cmdInterface->deactivateEmergencyStop();
+            }
         }
 
         // we need to configure steering if necessary
@@ -356,7 +367,7 @@ void Car::straightDrive(float angle, short side, Vector* destVector) {
             lastSavedDistance = 0;
         }
 
-        // may check for angle correctness - only check every 10th try
+        // may check for angle correctness - only check every 3rd try
         if(directionCheckCnt%2==0) {
             updateCurrentPosition();
             destVector->setFoot(&_currentPosition);
@@ -386,20 +397,24 @@ void Car::orientationTurn(short side, Vector* destVector) {
 
     // now change the orientation - first step forward drive
     distanceSinceStart = 0;
+    int directionCheckCnt = 0;
     std::cout << "start turnaround forward" << std::endl;
-    _cmdInterface->sendTurnAroundDrive(fullTurnDistance, destVector->getHead(), side);
+    _cmdInterface->sendTurnAroundAndBackDrive(fullTurnDistance, destVector->getHead(), side);
     std::cout << "sent turnaround forward" << std::endl;
-    while(distanceSinceStart <= fullTurnDistance) {
+    while(!_cmdInterface->isCurrentDriveFinished()) {
         // do nothing
-        //std::cout << "wait" << std::endl;
-    }
 
-    distanceSinceStart = 0;
-    std::cout << "start turnaround forward" << std::endl;
-    _cmdInterface->sendBackwardDrive(fullTurnDistance, destVector->getHead(), side);
-    while(distanceSinceStart <= fullTurnDistance) {
-        // do nothing
-        std::cout << "wait" << std::endl;
+        // check for emergency stop / check just every 2nd time circle
+        if(directionCheckCnt%1==0) {
+            if(_laser->doLaserScanAndMapUpdate(getCurrentPosition())) {
+                _cmdInterface->activateEmergencyStop();
+                std::cout << "+++++++ STOP! OBSTACLE! ++++++" << std::endl;
+                continue;
+            } else {
+                _cmdInterface->deactivateEmergencyStop();
+            }
+        }
+        directionCheckCnt++;
     }
 
     std::cout << "finished turn" << std::endl;

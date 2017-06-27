@@ -8,8 +8,8 @@
 #ifndef INCLUDE_LASERSENSOR_H_
 #define INCLUDE_LASERSENSOR_H_
 
-#include "../include/Map.h"
-#include "../include/Car.h"
+#include "Map.h"
+#include "PythonExecuter.h"
 
 #define isObstacle 1
 #define isFree 0
@@ -23,11 +23,13 @@ private:
 	int row;
 	int ArrayPosition;
 	int counter;
+	Position* _currentPos;
 	//static constexpr double Pi = 3.141592653;
 
 public:
-	LaserSensor(Map* _map, Car* _car, int* _nearObstacle);
-	int doLaserScanAndMapUpdate();
+	//LaserSensor(Map* _map, Car* _car, int* _nearObstacle);
+	LaserSensor(Map* _map, int* _nearObstacle);
+	int doLaserScanAndMapUpdate(Position *currentPos);
 	char* buffer;
 	void fillLaserArray(char string[]);
 	void getLaserData();
@@ -35,7 +37,7 @@ public:
 	void UpdateMapWithLaserData();
 	char* readFile();
 	Map* map;
-	Car* car;
+	//Car* car;
 	bool obstacleLeft;	//Hindernis zw. -45� & -15� 
 	bool obstacleRight;	//Hindernis zw. 15� & 45� 
 	bool obstacleFront;	//Hindernis zw. -15� & 15�
