@@ -262,17 +262,105 @@ bool Map::isObstacleInRoute() {
 void Map::print() { //todo need to print it properly
 
     short check = 1;
-    for(int i = 0; i < _size; i++) {
+    for(int i = _size-1; i > -1; i--) {
 
         short item = nodelist[i];
+        //short item = nodelist[i*MapColumnsCount+MapRowsCount];
         for(int j = 0; j < MapColumnsCount; j++) {
+
+            if(j == 0){
+                if(i < 10)
+                    std::cout << 0 << i << " ";
+                else
+                    std::cout << i << " ";
+                continue;
+            }
+
+            if(j == 1){
+                std::cout << "|" << " ";
+                continue;
+            }
 
             short res = item&check;
             item = item >> 1;
-            std::cout << res << " ";
+             std::cout << res << " ";
         }
         std::cout << std::endl;
     }
 
+    for (int k = 0; k < MapColumnsCount; k++) {
+        if(k == 1)
+            std::cout << "+" << " ";
+        else if(k == 0)
+            std::cout << "--" << " ";
+        else
+            std::cout << "-" << " ";
+    }
+
     std::cout << std::endl;
+    for (int k = 0; k < MapColumnsCount; k++) {
+        if (k < 10+2){
+            if(k == 0)
+                std::cout << "  " << " ";
+            else if(k == 1)
+                std::cout << "|" << " ";
+            else
+                std::cout << k - 2 << " ";
+        }
+        else{
+            std::cout << k%12 << " ";
+        }
+    }
+    std::cout << std::endl;
+
+    for (int l = 0; l < MapColumnsCount; ++l) {
+        if(l < 12)
+            std::cout << " " << " ";
+        else{
+            std::cout << 1 << " ";
+        }
+
+    }
+    std::cout << std::endl;
+}
+
+void Map::getmap(unsigned short *map) const {
+    map = nodelist;
+}
+
+short Map::getsize() const {
+    return _size;
+}
+
+void Map::writexls(){
+
+    libxl::Book* book = xlCreateBookA();
+    std::string label = "Data";
+
+    book->load("/home/pfm/Documents/map.xls");
+
+
+    if(book){
+        //libxl::Sheet* sheet = book->addSheet(label.c_str(), 0);
+        libxl::Sheet* sheet = book->getSheet(0);
+        if(sheet){
+            sheet->writeStr(1, 0, std::to_string(MapRowsCount).c_str());
+            sheet->writeStr(1, 1, std::to_string(MapColumnsCount).c_str());
+            short check = 1;
+            for(int i = _size-1; i > -1; i--) {
+                short item = nodelist[i];
+                for(int j = 0; j < MapColumnsCount; j++) {
+                    short res = item&check;
+                    item = item >> 1;
+                    std::cout << res << " ";
+                    sheet->writeStr(_size-i+3, j, std::to_string(res).c_str());
+                }
+                std::cout << std::endl;
+            }
+
+        }
+
+        book->save("/home/pfm/Documents/map.xls");
+        book->release();
+    }
 }

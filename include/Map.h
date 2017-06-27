@@ -12,6 +12,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <vector>
+#include <xls/libxl.h>
 
 /*
  * The map will be saved this way:
@@ -28,7 +29,7 @@ class Map {
 public:
     Map();
     ~Map();
-    void init();
+    void print();
 
     Node* getNode(short x, short y);
 
@@ -37,6 +38,9 @@ public:
     short saveRouteInMap(vector<Node> route);
     bool isObstacleInRoute();
     bool isObstacleInFront(Position* current);
+    void getmap(unsigned short * map) const;
+    short getsize() const;
+    void writexls();
 
 
 private:
@@ -47,7 +51,8 @@ private:
     short updateField(short x, short y, bool isObstacle, unsigned short* map);
 
     void initTestMap(char* map); // Just for testing purpose
-    void print();
+
+    void init();
 
 
 
