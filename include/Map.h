@@ -41,6 +41,7 @@ public:
     void getmap(unsigned short * map) const;
     short getsize() const;
     void writexls();
+    void writecsv();
 
 
 private:

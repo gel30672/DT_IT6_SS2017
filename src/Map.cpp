@@ -2,6 +2,7 @@
 // Created by Andreas Zinkl on 25.04.17.
 //
 #include "../include/Map.h"
+#include <fstream>
 
 
 Map::Map() {
@@ -333,12 +334,9 @@ short Map::getsize() const {
 }
 
 void Map::writexls(){
-
     libxl::Book* book = xlCreateBookA();
     std::string label = "Data";
-
     book->load("/home/pfm/Documents/map.xls");
-
 
     if(book){
         //libxl::Sheet* sheet = book->addSheet(label.c_str(), 0);
@@ -357,10 +355,28 @@ void Map::writexls(){
                 }
                 std::cout << std::endl;
             }
-
         }
-
         book->save("/home/pfm/Documents/map.xls");
         book->release();
     }
+}
+
+void Map::writecsv() {
+    std::ofstream ofs("/home/pfm/Documents/map.csv", std::ofstream::trunc);
+    short check = 1;
+    for (int i = _size - 1; i > -1; i--) {
+        short item = nodelist[i];
+        for (int j = 0; j < MapColumnsCount; j++) {
+            short res = item & check;
+            item = item >> 1;
+            std::cout << res << " ";
+            if(j == 0)
+                ofs << res;
+            else
+                ofs  << "," << res;
+        }
+        std::cout << std::endl;
+        ofs << "\n";
+    }
+    ofs.close();
 }
