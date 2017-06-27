@@ -5,26 +5,31 @@ class csvReader:
     # define local values
     # ----------------------------------------------------
     sheetIndex = 0
-    fileName = "/home/pfm/Documents/map.csv"
+    inputFileName = "/home/pfm/Documents/map.csv"
+    exportFileName = "/var/www/html/map.html"
     rowCount = 0
     columnCount = 0
 
     excelStart = 3
 
+    data = []
+
     def __init__(self):
-        workbook = csv.reader(open(self.fileName, "rb"), delimiter=",")
+        inputfile = open(self.inputFileName, "rb")
+        workbook = csv.reader(inputfile, delimiter=",")
 
         # first check if we got a workbook and a sheet
         if workbook is None:
             exit(-1)
 
         # find the last index in row and colum
-        self.rowCount = 67
-        self.columnCount = 20
+        self.data = list(workbook)
+        self.rowCount = len(self.data)
+        self.columnCount = len(self.data[0])
         print "ROWS = " + str(self.rowCount)
         print "COLUMNS = " + str(self.columnCount)
 
-        htmlf = open('/var/www/html/map.html', 'w')
+        htmlf = open(exportFileName, 'w')
 
         lineStart = """<tr>"""
         lineEnd = "</tr>"
@@ -32,11 +37,11 @@ class csvReader:
         free = """<th width="10" height="10"> </th>"""
 
         startText = """<html>
-                <head></head>
-                <body><table border="1">"""
+            <head></head>
+            <body><table border="1">"""
 
         footText = """</table><script>setTimeout("location.reload(true);", 100);</script></body>
-                </html>"""
+            </html>"""
 
         complete = startText
 
@@ -48,12 +53,12 @@ class csvReader:
                 else:
                     complete += free
 
-            complete += lineEnd
+                complete += lineEnd
 
-        complete += footText
-        print complete
-
-        htmlf.write(complete)
-        htmlf.close()
+            complete += footText
+            print complete
+            
+            htmlf.write(complete)
+            htmlf.close()
 
 xls = csvReader()
