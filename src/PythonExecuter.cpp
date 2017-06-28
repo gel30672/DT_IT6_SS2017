@@ -51,10 +51,9 @@ long PythonExecuter::executeWithCharPointer(int argc, char *argv[], char* buf[])
             Py_DECREF(pArgs);
             if (pValue != NULL) {
                 //printf("Result of call: %s\n", PyString_AsString(pValue));
-            	if(argv[0] == "a")
-            	{
-            		*buf = PyString_AsString(pValue);
-            	}
+		//printf("ich schreibe in Buffer im Python executer\n");
+            	*buf = PyString_AsString(pValue);
+		//printf("hab das geschrieben: %c\n",*buf);
 		Py_DECREF(pValue);
             }
             else {

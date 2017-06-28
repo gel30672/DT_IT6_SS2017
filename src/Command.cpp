@@ -69,11 +69,6 @@ void Command::execute() {
     _active = true;
 }
 
-void Command::setBackDrive(bool backDrive){
-    _simpleBackDrive = backDrive;
-}
-
-
 short Command::getDirection() {
     return _direction;
 }
@@ -92,6 +87,10 @@ bool Command::isCommandWithBackdrive() {
 
 bool Command::isFinished() {
     return distanceSinceStart >= _distance;
+}
+
+void Command::setBackDrive(bool backDrive) {
+    _simpleBackDrive = backDrive;
 }
 
 Position* Command::getDestination() {

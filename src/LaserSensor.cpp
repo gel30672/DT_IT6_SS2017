@@ -229,7 +229,7 @@ int LaserSensor::doLaserScanAndMapUpdate(Position *currentPos) {
 			i++;
 		}
 		else
-		{
+		{	std::cout << "## >> << ### NOOOB!!! NOTHING IN LASER!!!!!" << std::endl;
 			return _return;
 		}
 	}

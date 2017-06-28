@@ -26,7 +26,6 @@ public:
     short run();
     short finishedCurrentDestination();
     Position* getCurrentDestination();
-    static void* checkSensor(void* laser);
     void emergencystop(bool shouldstop);
 
 
@@ -37,6 +36,7 @@ private:
     Car* _car;
     LaserSensor* _laser;
     RouteCalculation* _routeCalc;
+    LocDet* _localization;
 
     // Routing Content
     Position _finalDestinaion;
@@ -49,10 +49,15 @@ private:
     short initCar();
     short initLaserSensor();
     short initRouteCalculation();
+    short initUWBSensor();
 
     // System Tasks
     short calculateRoute();
     void tellCarToDrive(Position *position);
+
+    // Threading methods
+    static void* runLaser(void* laser);
+    static void* runCar(void* car);
 
     // I/O methods
     void askUserForDefinedDestination();

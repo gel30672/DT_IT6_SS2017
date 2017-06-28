@@ -1,4 +1,5 @@
 import csv
+import time
 
 class csvReader:
     # ----------------------------------------------------
@@ -56,9 +57,12 @@ class csvReader:
             complete += lineEnd
 
         complete += footText
-        print complete
+        #print complete
 
         htmlf.write(complete)
         htmlf.close()
 
-xls = csvReader()
+updates = 0
+while updates < 50:
+    xls = csvReader()
+    time.sleep(5)

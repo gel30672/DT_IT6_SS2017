@@ -27,14 +27,11 @@ CarSystem::~CarSystem() {
 short CarSystem::initialize() {
 
     // Initialize all internal modules
-    std::cout << "init map" << std::endl;
     short mapRes = initMap();
-    std::cout << "init car" << std::endl;
     short carRes = initCar();
-    short LaserRes = initLaserSensor();
-    std::cout << "init route" << std::endl;
+    short laserRes = initLaserSensor();
     short routeRes = initRouteCalculation();
-    std::cout << "end inits" << std::endl;
+    short locRes = initUWBSensor();
 
     // print the init states
     if(PRINT_ERROR_CODE) {
@@ -42,6 +39,8 @@ short CarSystem::initialize() {
         std::cout << "##CARSYSTEM## Map =" << mapRes << std::endl;
         std::cout << "##CARSYSTEM## Car =" << carRes << std::endl;
         std::cout << "##CARSYSTEM## Route =" << routeRes << std::endl;
+        std::cout << "##CARSYSTEM## Laser =" << laserRes << std::endl;
+        std::cout << "##CARSYSTEM## UWB Sensor =" << locRes << std::endl;
     }
 
     // check if the init was without any errors
@@ -173,16 +172,24 @@ short CarSystem::initLaserSensor(){
 
     // check if we already have a laser object
     if(_laser == nullptr) {
-        _laser = new LaserSensor(_map,_car, &_needEmergencyStop);
+        _laser = new LaserSensor(_map, &_needEmergencyStop);
+        _car->setLaserSensor(_laser);
     }
 
-    short threadCount = 1;
-    pthread_t threads[threadCount];
-    int rc_1;
-    rc_1 = pthread_create(&threads[0], NULL, checkSensor, (void*) _laser);
+    //short threadCount = 1;
+    //pthread_t threads[threadCount];
+    //int rc_1;
+    //rc_1 = pthread_create(&threads[0], NULL, checkSensor, (void*) _laser);
 
 
     return SUCCESS;
+}
+
+short CarSystem::initUWBSensor() {
+    if(_localization == nullptr) {
+        _localization = new LocDet();
+    }
+    return 0;
 }
 
 short CarSystem::calculateRoute() {

@@ -201,6 +201,9 @@ short Map::updateField(short x, short y, bool isObstacle, unsigned short* map) {
         map[cntIndex] = map[cntIndex] && obstacle;
     }
 
+    // now printout the map
+    writecsv();
+
     // Everything went through successfully!
     return 1;
 }
@@ -334,7 +337,7 @@ short Map::getsize() const {
 }
 
 void Map::writexls(){
-    libxl::Book* book = xlCreateBookA();
+    /*libxl::Book* book = xlCreateBookA();
     std::string label = "Data";
     book->load("/home/pfm/Documents/map.xls");
 
@@ -358,11 +361,11 @@ void Map::writexls(){
         }
         book->save("/home/pfm/Documents/map.xls");
         book->release();
-    }
+    }*/
 }
 
 void Map::writecsv() {
-    std::ofstream ofs("/home/pfm/Documents/map.csv", std::ofstream::trunc);
+    std::ofstream ofs("/home/pi/map.csv", std::ofstream::trunc);
     short check = 1;
     for (int i = _size - 1; i > -1; i--) {
         short item = nodelist[i];
