@@ -5,8 +5,7 @@ class csvReader:
     # define local values
     # ----------------------------------------------------
     sheetIndex = 0
-    inputFileName = "/home/pfm/Documents/map.csv"
-    exportFileName = "/var/www/html/map.html"
+    fileName = 'map.csv'
     rowCount = 0
     columnCount = 0
 
@@ -15,7 +14,7 @@ class csvReader:
     data = []
 
     def __init__(self):
-        inputfile = open(self.inputFileName, "rb")
+        inputfile = open(self.fileName, "rb")
         workbook = csv.reader(inputfile, delimiter=",")
 
         # first check if we got a workbook and a sheet
@@ -29,7 +28,7 @@ class csvReader:
         print "ROWS = " + str(self.rowCount)
         print "COLUMNS = " + str(self.columnCount)
 
-        htmlf = open(exportFileName, 'w')
+        htmlf = open('map.html', 'w')
 
         lineStart = """<tr>"""
         lineEnd = "</tr>"
@@ -37,28 +36,29 @@ class csvReader:
         free = """<th width="10" height="10"> </th>"""
 
         startText = """<html>
-            <head></head>
-            <body><table border="1">"""
+                <head></head>
+                <body><table border="1">"""
 
         footText = """</table><script>setTimeout("location.reload(true);", 100);</script></body>
-            </html>"""
+                </html>"""
 
         complete = startText
 
-        for row in workbook:
+        for row in self.data:
             complete += lineStart
+            print row
             for col in row:
                 if col.strip() == '1':
                     complete += border
                 else:
                     complete += free
 
-                complete += lineEnd
+            complete += lineEnd
 
-            complete += footText
-            print complete
-            
-            htmlf.write(complete)
-            htmlf.close()
+        complete += footText
+        print complete
+
+        htmlf.write(complete)
+        htmlf.close()
 
 xls = csvReader()
