@@ -69,6 +69,11 @@ void Command::execute() {
     _active = true;
 }
 
+void Command::setBackDrive(bool backDrive){
+    _simpleBackDrive = backDrive;
+}
+
+
 short Command::getDirection() {
     return _direction;
 }

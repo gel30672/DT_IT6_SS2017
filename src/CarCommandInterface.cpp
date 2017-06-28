@@ -108,3 +108,4 @@ short CarCommandInterface::sendStopCommand() {
 
     return SUCCESS;
 }
+
