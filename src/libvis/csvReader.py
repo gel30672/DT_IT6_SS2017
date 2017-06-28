@@ -6,7 +6,8 @@ class csvReader:
     # define local values
     # ----------------------------------------------------
     sheetIndex = 0
-    fileName = 'map.csv'
+    input_file_name = '/home/pi/map.csv'
+    output_file_name = '/var/www/html/map.html'
     rowCount = 0
     columnCount = 0
 
@@ -29,7 +30,7 @@ class csvReader:
         print "ROWS = " + str(self.rowCount)
         print "COLUMNS = " + str(self.columnCount)
 
-        htmlf = open('map.html', 'w')
+        htmlf = open(self.output_file_name, 'w')
 
         lineStart = """<tr>"""
         lineEnd = "</tr>"
