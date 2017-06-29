@@ -336,15 +336,12 @@ void Car::straightDrive(float angle, short side, Vector* destVector) {
         if(directionCheckCnt >= 300) directionCheckCnt = 0; // just reset to prevent overwriting of other parts
 
         // check for emergency stop / check just every 2nd circle
-        if(directionCheckCnt%1==0) {
-
-            if(_laser->doLaserScanAndMapUpdate(getCurrentPosition())) {
-                _cmdInterface->activateEmergencyStop();
-                std::cout << "+++++++ STOP! OBSTACLE! ++++++" << std::endl;
-                continue;
-            } else {
-                _cmdInterface->deactivateEmergencyStop();
-            }
+        if(_laser->doLaserScanAndMapUpdate(getCurrentPosition())) {
+            _cmdInterface->activateEmergencyStop();
+            std::cout << "+++++++ STOP! OBSTACLE! ++++++" << std::endl;
+            continue;
+        } else {
+            _cmdInterface->deactivateEmergencyStop();
         }
 
         // we need to configure steering if necessary
@@ -398,22 +395,18 @@ void Car::orientationTurn(short side, Vector* destVector) {
     // now change the orientation - first step forward drive
     distanceSinceStart = 0;
     int directionCheckCnt = 0;
-    std::cout << "start turnaround forward" << std::endl;
     _cmdInterface->sendTurnAroundAndBackDrive(fullTurnDistance, destVector->getHead(), side);
-    std::cout << "sent turnaround forward" << std::endl;
     while(!_cmdInterface->isCurrentDriveFinished()) {
-        // do nothing
 
         // check for emergency stop / check just every 2nd time circle
-        if(directionCheckCnt%1==0) {
-            if(_laser->doLaserScanAndMapUpdate(getCurrentPosition())) {
-                _cmdInterface->activateEmergencyStop();
-                std::cout << "+++++++ STOP! OBSTACLE! ++++++" << std::endl;
-                continue;
-            } else {
-                _cmdInterface->deactivateEmergencyStop();
-            }
+        if(_laser->doLaserScanAndMapUpdate(getCurrentPosition())) {
+            _cmdInterface->activateEmergencyStop();
+            std::cout << "+++++++ STOP! OBSTACLE! ++++++" << std::endl;
+            continue;
+        } else {
+            _cmdInterface->deactivateEmergencyStop();
         }
+
         directionCheckCnt++;
     }
 
