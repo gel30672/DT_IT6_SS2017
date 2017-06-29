@@ -33,6 +33,8 @@ Command::~Command() {}
 
 void Command::execute() {
 
+    std::cout << _direction << std::endl;
+
     // Need to call steering for the wheelangle
     switch (_direction) {
 

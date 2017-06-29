@@ -36,7 +36,7 @@ short Car::go2(Position* dest) {
     //std::cout << "DIRECTIONVECTOR = " << currentDirection->getX() << " | " << currentDirection->getY() << std::endl;
 
     // calculate the angle between
-    short side = currentDirection->getSideOf(destinationDirection);
+    short side = destinationDirection->getSideOf(currentDirection);
     float angle = 0.0;
     if(side == DIRECTION_LEFT) {
         angle = currentDirection->getAngleTo(destinationDirection);
@@ -427,6 +427,7 @@ int Car::orientationTurn(short side, Vector* destVector) {
     // now change the orientation - first step forward drive
     distanceSinceStart = 0;
     int directionCheckCnt = 1;
+    std::cout << "TURN TO " << side << std::endl;
     _cmdInterface->sendTurnAroundDrive(fullTurnDistance, destVector->getHead(), side);
     int laserValue;
     while(!_cmdInterface->isCurrentDriveFinished()) {
