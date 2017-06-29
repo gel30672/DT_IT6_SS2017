@@ -42,6 +42,8 @@ public:
 	bool obstacleRight;	//Hindernis zw. 15� & 45� 
 	bool obstacleFront;	//Hindernis zw. -15� & 15�
 	int* nearObstacle;
+	unsigned long ms_callEnded;
+	int _return;
 };
 
 #endif /* INCLUDE_LASERSENSOR_H_ */

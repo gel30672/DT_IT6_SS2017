@@ -6,7 +6,7 @@
 #define DT2017_MAPCONFIGURATION_H
 
 // This defines the position correctness (+/-)
-#define POSITION_PRECISION 2
+#define POSITION_PRECISION 3
 
 // Physical Dimensions of the Map
 #define MapRasterWidth_cm 15

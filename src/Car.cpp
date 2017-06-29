@@ -12,6 +12,7 @@ Car::Car(int* needEmergencyStop) {
     // init the car
     init();
     _emergency = needEmergencyStop;
+    _finishedDrive = false;
 }
 
 Car::~Car() {
@@ -26,12 +27,13 @@ short Car::go2(Position* dest) {
 
     // check if we reached the dest and return with YES!!
     _currentDestination = dest;
+    _finishedDrive = false;
 
     // Look for the current direction and the destination direction
     Vector* currentDirection = getCurrentDirection();
     Vector* destinationDirection = new Vector(*dest, *getCurrentPosition());
 
-    std::cout << "DIRECTIONVECTOR = " << currentDirection->getX() << " | " << currentDirection->getY() << std::endl;
+    //std::cout << "DIRECTIONVECTOR = " << currentDirection->getX() << " | " << currentDirection->getY() << std::endl;
 
     // calculate the angle between
     short side = currentDirection->getSideOf(destinationDirection);
@@ -44,16 +46,18 @@ short Car::go2(Position* dest) {
     std::cout << "ANGLE is " << angle << std::endl;
 
     // check what to do.. straight or turnaround
+    int res = SUCCESS;
     if(angle <= 20) {
         std::cout << "STRAIGHT!!!" << std::endl;
-        straightDrive(angle, side, destinationDirection);
+        res = straightDrive(angle, side, destinationDirection);
     } else {
         std::cout << "TURNAROUND!!!" << std::endl;
-        orientationTurn(side, destinationDirection);
-        go2(dest); // just 1 time recursive -> next time we need to drive less then 20 degrees
+        res = orientationTurn(side, destinationDirection);
+        if(res != SUCCESS) return res;
+        if(!_finishedDrive) res = straightDrive(angle, side, destinationDirection); // just 1 time recursive -> next time we need to drive less then 20 degrees
     }
 
-    return SUCCESS;
+    return res;
 }
 
 void* Car::driveTo(Position *destination) {
@@ -171,6 +175,12 @@ Position* Car::getCurrentPosition() {
     // First we need to update / check the current position by asking the uwb device
     updateCurrentPosition();
 
+    // check if we reached the destination
+    if(didReachDestination()) {
+        _cmdInterface->sendStopCommand();
+        _cmdInterface->activateEmergencyStop();
+    }
+
     // return the current position;
     return &_currentPosition;
 }
@@ -252,7 +262,7 @@ short Car::updateCurrentPosition() {
     // receive current position from uwb
     Position uwbPosition;
     _localization->get_position(&uwbPosition);
-    std::cout << "got position from uwb sensor" << std::endl;
+    //std::cout << "got position from uwb sensor" << std::endl;
 
     // we need to convert the given position values into our map values (mm -> cm -> 15cm raster)
     float currX = ((float)uwbPosition.x)/(10*MapRasterWidth_cm/UWBMapRasterPrecision);
@@ -265,7 +275,7 @@ short Car::updateCurrentPosition() {
 
     // only save the last current position, if the new current position has changed regarding the last current position
     if( _currentPosition.x != tempCurrent.x
-            && _currentPosition.y != tempCurrent.y) {
+        && _currentPosition.y != tempCurrent.y) {
         _lastKnownPosition = tempCurrent;
     } else if(_lastKnownPosition.x == -1 && _lastKnownPosition.y == -1) {
         _lastKnownPosition = tempCurrent;
@@ -290,7 +300,7 @@ short Car::resetDrovenDistance() {
 
 bool Car::didReachDestination() {
 
-    std::cout << "did reach check" << std::endl;
+    //std::cout << "did reach check" << std::endl;
 
     updateCurrentPosition();
 
@@ -310,33 +320,49 @@ bool Car::didReachDestination() {
     }
 
     if(x < POSITION_PRECISION && y < POSITION_PRECISION) {
+        std::cout << ">>>>>>>>>>>>>>>>>> REACHED DESTINATION!!!! <<<<<<<<<<<<<<<<<<<" << std::endl;
+        _finishedDrive = true;
         return true;
     }
 
     return false;
 }
 
-void Car::straightDrive(float angle, short side, Vector* destVector) {
+int Car::straightDrive(float angle, short side, Vector* destVector) {
 
     // need to tasks here..
     // task 1 = drive to the destination
     // task 2 = correct the drive by setting a angle
     double lastSavedDistance = distanceSinceStart = 0;
     short directionCheckCnt = 1;
+    double lastDistanceToDest = destVector->getLength();
 
     // just drive forward
     SteerDegrees(STRAIGHT_WHEEL_ANGLE);
     _cmdInterface->sendForwardDrive(destVector->getLength(), destVector->getHead());
 
     // drive
-    std::cout << "DRIVE STRAIGHT " << destVector->getLength() << " cm" << std::endl;
+    //std::cout << "DRIVE STRAIGHT " << destVector->getLength() << " cm" << std::endl;
+    int laserValue = 0;
     while(!didReachDestination() && !_cmdInterface->isCurrentDriveFinished()) {
 
-        std::cout << "staright with angle " << angle << std::endl;
+        directionCheckCnt++;
+        if(_finishedDrive) {
+            _cmdInterface->sendStopCommand();
+            return SUCCESS;
+        }
+
+        //std::cout << "staright with angle " << angle << std::endl;
         if(directionCheckCnt >= 300) directionCheckCnt = 0; // just reset to prevent overwriting of other parts
 
         // check for emergency stop / check just every 2nd circle
-        if(_laser->doLaserScanAndMapUpdate(getCurrentPosition())) {
+        if(directionCheckCnt%10) {
+            laserValue = _laser->doLaserScanAndMapUpdate(getCurrentPosition());
+        }
+
+        if(laserValue && 8){
+            return NEW_ROUTE_NEEDED;
+        } else if(laserValue) {
             _cmdInterface->activateEmergencyStop();
             std::cout << "+++++++ STOP! OBSTACLE! ++++++" << std::endl;
             continue;
@@ -349,17 +375,17 @@ void Car::straightDrive(float angle, short side, Vector* destVector) {
             SteerDegrees(STRAIGHT_WHEEL_ANGLE);
         } else if(side == DIRECTION_LEFT) {
             SteerDegrees(-1*angle/2+STRAIGHT_WHEEL_ANGLE);
-            std::cout << "LEFT" << std::endl;
+            //std::cout << "LEFT" << std::endl;
         } else if(side == DIRECTION_RIGHT) {
             SteerDegrees(angle/2+STRAIGHT_WHEEL_ANGLE);
-            std::cout << "RIGHT" << std::endl;
+            //std::cout << "RIGHT" << std::endl;
         }
 
         // now we need to check, if the steering drove is done
         if(distanceSinceStart-lastSavedDistance > WHEELBASE) {
 
             // reset steering
-            std::cout << "resets" << std::endl;
+            //std::cout << "resets" << std::endl;
             angle = 0.0;
             lastSavedDistance = 0;
         }
@@ -375,6 +401,10 @@ void Car::straightDrive(float angle, short side, Vector* destVector) {
                 angle = destVector->getAngleTo(getCurrentDirection());
             }
 
+            if(destVector->getLength() > lastDistanceToDest) {
+                orientationTurn(crSide, destVector);
+            }
+
             if(angle <= 5) {
                 angle = 0.0;
             }
@@ -382,9 +412,11 @@ void Car::straightDrive(float angle, short side, Vector* destVector) {
     }
     std::cout << "finished straight" << std::endl;
     _cmdInterface->sendStopCommand();
+
+    return SUCCESS;
 }
 
-void Car::orientationTurn(short side, Vector* destVector) {
+int Car::orientationTurn(short side, Vector* destVector) {
 
     // calculate the angle
     double destAngle = getCurrentDirection()->getAngleTo(destVector);
@@ -394,20 +426,60 @@ void Car::orientationTurn(short side, Vector* destVector) {
 
     // now change the orientation - first step forward drive
     distanceSinceStart = 0;
-    int directionCheckCnt = 0;
-    _cmdInterface->sendTurnAroundAndBackDrive(fullTurnDistance, destVector->getHead(), side);
+    int directionCheckCnt = 1;
+    _cmdInterface->sendTurnAroundDrive(fullTurnDistance, destVector->getHead(), side);
+    int laserValue;
     while(!_cmdInterface->isCurrentDriveFinished()) {
+        directionCheckCnt++;
+        if(_finishedDrive) {
+            _cmdInterface->sendStopCommand();
+            return SUCCESS;
+        }
+
+        if(directionCheckCnt >= 300) directionCheckCnt = 0;
 
         // check for emergency stop / check just every 2nd time circle
-        if(_laser->doLaserScanAndMapUpdate(getCurrentPosition())) {
+        if(directionCheckCnt%10) {
+            laserValue = _laser->doLaserScanAndMapUpdate(getCurrentPosition());
+        }
+
+        if(laserValue && 8){
+            return NEW_ROUTE_NEEDED;
+        } else if(laserValue) {
             _cmdInterface->activateEmergencyStop();
             std::cout << "+++++++ STOP! OBSTACLE! ++++++" << std::endl;
             continue;
         } else {
             _cmdInterface->deactivateEmergencyStop();
         }
+    }
 
+    _cmdInterface->sendStopCommand();
+    sleep(2);
+    _cmdInterface->sendBackwardDrive(fullTurnDistance, destVector->getHead(), side);
+    while(!_cmdInterface->isCurrentDriveFinished()) {
         directionCheckCnt++;
+        if(_finishedDrive) {
+            _cmdInterface->sendStopCommand();
+            return SUCCESS;
+        }
+
+        if(directionCheckCnt >= 300) directionCheckCnt = 0;
+
+        // check for emergency stop / check just every 2nd time circle
+        if(directionCheckCnt%10) {
+            laserValue = _laser->doLaserScanAndMapUpdate(getCurrentPosition());
+        }
+
+        if(laserValue && 8){
+            return NEW_ROUTE_NEEDED;
+        } else if(laserValue) {
+            _cmdInterface->activateEmergencyStop();
+            std::cout << "+++++++ STOP! OBSTACLE! ++++++" << std::endl;
+            continue;
+        } else {
+            _cmdInterface->deactivateEmergencyStop();
+        }
     }
 
     std::cout << "finished turn" << std::endl;
@@ -415,4 +487,6 @@ void Car::orientationTurn(short side, Vector* destVector) {
 
     //update currentposition
     updateCurrentPosition();
+
+    return SUCCESS;
 }

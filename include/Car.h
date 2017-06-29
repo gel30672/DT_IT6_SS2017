@@ -51,6 +51,7 @@ private:
     LaserSensor* _laser;
     short _carState;
     int* _emergency;
+    bool _finishedDrive;
 
     // Other Modules
     LocDet* _localization;
@@ -62,8 +63,8 @@ private:
     short updateCurrentPosition();
     short updateCarState(short state);
     short resetDrovenDistance();
-    void straightDrive(float angle, short side, Vector* destVector);
-    void orientationTurn(short side, Vector* destVector);
+    int straightDrive(float angle, short side, Vector* destVector);
+    int orientationTurn(short side, Vector* destVector);
 };
 
 

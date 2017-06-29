@@ -28,6 +28,9 @@ void Map::init() {
     std::cout << "MAX X = " << MapColumnsCount << std::endl;
     std::cout << "MAX Y = " << MapRowsCount << std::endl;
 
+    // write initital map
+    writecsv();
+
     // If a test map should
     if(useTestMap) initTestMap((char*)"000010000011100010001001000011100000000011100010");
 
@@ -168,7 +171,7 @@ short Map::getNeighbours(Node* nodelist, short x, short y) {
         }
     }
 
-    std::cout << std::endl;
+    //std::cout << std::endl;
 
     return index;
 }
@@ -265,6 +268,8 @@ bool Map::isObstacleInRoute() {
 
 void Map::print() { //todo need to print it properly
 
+    return;
+
     short check = 1;
     for(int i = _size-1; i > -1; i--) {
 
@@ -287,7 +292,7 @@ void Map::print() { //todo need to print it properly
 
             short res = item&check;
             item = item >> 1;
-             std::cout << res << " ";
+            std::cout << res << " ";
         }
         std::cout << std::endl;
     }
@@ -372,13 +377,13 @@ void Map::writecsv() {
         for (int j = 0; j < MapColumnsCount; j++) {
             short res = item & check;
             item = item >> 1;
-            std::cout << res << " ";
+            //std::cout << res << " ";
             if(j == 0)
                 ofs << res;
             else
                 ofs  << "," << res;
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
         ofs << "\n";
     }
     ofs.close();

@@ -69,6 +69,16 @@ void CarCommandTestInterface::startRemoteControl() {
                 _cmdInterface->sendBackwardDrive(0, nullptr);
             }
             if(c == 'f' || c == 'F') _cmdInterface->sendStopCommand();
+            if(c == 'r' || c == 'R') {
+                _cmdInterface->sendTurnAroundDrive(40, nullptr, DIRECTION_LEFT); int i = 0;
+                while(!_cmdInterface->isCurrentDriveFinished()) { std::cout << "fwd" << i << std::endl; i++; }
+                _cmdInterface->sendStopCommand();
+                sleep(2);
+                _cmdInterface->sendBackwardDrive(40, nullptr, DIRECTION_LEFT);
+                i = 0;
+                while(!_cmdInterface->isCurrentDriveFinished()) { std::cout << "bwd" << i << std::endl; i++; }
+                _cmdInterface->sendStopCommand();
+            }
 
             if(remote_direction != remote_directionold) {
                 SteerDegrees(remote_direction);

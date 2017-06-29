@@ -54,12 +54,13 @@ void Command::execute() {
     }
 
     // Need to call the motor to start driving
-    if(_direction == DIRECTION_FORWARD) {
+    if(_direction == DIRECTION_FORWARD
+       ||_direction == DIRECTION_LEFT
+       || _direction == DIRECTION_RIGHT) {
         MotorMoveRpm(FULLSPEED);
-    } else if(_direction == DIRECTION_LEFT
-            || _direction == DIRECTION_RIGHT) {
-        MotorMoveRpm(FULLSPEED);
-    } else if(_direction == DIRECTION_BACKWARD) {
+    } else if(_direction == DIRECTION_BACKWARD
+              || _direction == DIRECTION_BWD_RIGHT
+              || _direction == DIRECTION_BWD_LEFT) {
         MotorMoveRpm((-1)*FULLSPEED);
     } else {
         MotorMoveRpm(0);
