@@ -34,7 +34,7 @@ short CarSystem::initialize() {
     short locRes = initUWBSensor();
 
     // print the init states
-    if(PRINT_ERROR_CODE) {
+    if (PRINT_ERROR_CODE) {
         std::cout << "##SYSTEM INITIALIZATION##" << std::endl;
         std::cout << "##CARSYSTEM## Map =" << mapRes << std::endl;
         std::cout << "##CARSYSTEM## Car =" << carRes << std::endl;
@@ -44,7 +44,7 @@ short CarSystem::initialize() {
     }
 
     // check if the init was without any errors
-    if(mapRes != SUCCESS || carRes != SUCCESS || routeRes != SUCCESS) {
+    if (mapRes != SUCCESS || carRes != SUCCESS || routeRes != SUCCESS) {
         return ERROR_WHILE_SYSTEM_INITIALIZATION;
     }
 
@@ -52,14 +52,6 @@ short CarSystem::initialize() {
     calculateRoute();
 
     return SUCCESS;
-}
-
-void* CarSystem::checkSensor(void* laser)
-{
-	while(1)
-	{
-		((LaserSensor *)laser)->doLaserScanAndMapUpdate();
-	}
 }
 
 Position* CarSystem::getCurrentDestination() {
