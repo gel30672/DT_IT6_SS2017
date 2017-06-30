@@ -8,8 +8,8 @@
 #include <math.h>
 
 // Define the Destination coordinates
-#define DESTINATION_X_COORDINATE 5
-#define DESTINATION_Y_COORDINATE 5
+#define DESTINATION_X_COORDINATE 10
+#define DESTINATION_Y_COORDINATE 20
 #define USE_CONSOLE_FOR_DESTINATION_INPUT false
 
 // The wheelbase of the vehicle is 27.5 cm
@@ -24,7 +24,7 @@
 #define CALC_DROVEN_ANGLE_BY_LENGTH(x) ((x*360)/(2*M_PI*CIRCLERADIUS))
 
 // The droven distance for the configuration and the general distance
-#define INIT_CONFIG_DISTANCE 30
+#define INIT_CONFIG_DISTANCE 20
 #define INIT_CONFIG_TIME 5
 #define ORIENTATION_TURN_ANGLE 45
 

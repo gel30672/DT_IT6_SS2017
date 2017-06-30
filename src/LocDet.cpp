@@ -10,10 +10,10 @@
 
 
 LocDet::LocDet() {
-    Anchor_B.x = 3094;
+    Anchor_B.x = 2806;
     Anchor_B.y = 0000;
     Anchor_C.x = 0000;
-    Anchor_C.y = 4713;
+    Anchor_C.y = 6034;
 }
 
 LocDet::~LocDet() {
@@ -28,7 +28,7 @@ int LocDet::get_position(Position *pos){
     pos->x = Pos_x;
     pos->y = Pos_y;
 
-	//std::cout << pos->x << " " << pos->y << std::endl;
+    //std::cout << pos->x << " " << pos->y << std::endl;
     return ret;
 }
 
