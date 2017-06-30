@@ -28,7 +28,7 @@ LaserSensor::LaserSensor(Map* _map, int* _nearObstacle)
 	row = 0;
 	ArrayPosition = 0;
 	counter = 0;
-	buffer = nullptr;
+	buffer = new char[BUFFERSIZE];
 	map = _map;
 	ms_callEnded = 0;
 	_return = 0;
@@ -65,10 +65,10 @@ void LaserSensor::fillLaserArray(char string[])
 				laserArray[1][row] = strtod(ptr, NULL);
 				row++;
 				ArrayPosition = 0;
-
-				if(laserArray[1][row - 1] < 300 && laserArray[1][row - 1] > 80)
+				
+				if(laserArray[1][row - 1] < 500 && laserArray[1][row - 1] > 50)
 				{
-					std::cout << "obstacle near!" << std::endl;
+					//std::cout << " !!!! 				!!!!! 			obstacle near!" << std::endl;
 					if(laserArray[0][row - 1] > -45 && laserArray[0][row - 1] < -15 && !obstacleLeft) //Hindernis links!
 					{
 						obstacleLeft = 1;
@@ -104,13 +104,14 @@ void LaserSensor::getLaserData()
 	PythonExecuter* py = new PythonExecuter;
 
 	int argc;
-	char * argv[3];
+	char* argv[3];
 
 	argc = 3;
-	argv[0] = (char*) "a";
 	argv[1] = (char*) "laser";
-	argv[2] = (char*) "laser";
+	argv[2] = (char*) "laser_scan";
 
+    if(buffer!= nullptr) delete[] buffer;
+	buffer = new char[BUFFERSIZE];
 	py->executeWithCharPointer(argc, argv, &buffer);
 	//printf("ende getLaserData");
 }
@@ -121,7 +122,7 @@ bool LaserSensor::calculateObstaclePosition(double degree, int distance, short *
 	//printf("in Calc: \n");
 	//printf("degree: %f, distance: %d\n",degree, distance);
 
-	if(distance > 100 ) 											// muss gr??er 0 sein, da kein Hindernis = 0, 100 wegen Gr??e des Fahrzeugs
+	if(distance > 100 ) 											// muss groesser 0 sein, da kein Hindernis = 0, 100 wegen Gr��e des Fahrzeugs
 	{
 		double a = degree * Pi / 180; //Grad in Rad umrechnen
 
@@ -177,6 +178,9 @@ void LaserSensor::UpdateMapWithLaserData()
 		//printf("degree: %f; distance: %d; xDiff: %d; yDiff: %d\n",laserArray[0][i],(int)laserArray[1][i], xDiffToCurrentPos, yDiffToCurrentPos);
 		if(IsNotFree )
 		{
+			//std::cout << "hindernis wird in map geschrieben" << std::endl;
+			//std::cout << "current x: " << _currentPos->x << "current y: " << _currentPos->y << std::endl;
+			//std::cout << "hindernis wird geschrieben auf position: " << _currentPos->x + xDiffToCurrentPos << " | " <<  _currentPos->y + yDiffToCurrentPos <<std::endl;
 			map->updateField(_currentPos->x + xDiffToCurrentPos + 1, _currentPos->y + yDiffToCurrentPos, isObstacle);
 			map->updateField(_currentPos->x + xDiffToCurrentPos, _currentPos->y + yDiffToCurrentPos, isObstacle);
 			map->updateField(_currentPos->x + xDiffToCurrentPos - 1, _currentPos->y + yDiffToCurrentPos, isObstacle);
@@ -213,41 +217,31 @@ char* LaserSensor::readFile()
 	return buffer;
 }
 
+unsigned long LaserSensor::getTimeStamp()
+{
+	unsigned long ms = 0;
+	struct timeval ms_struct;
+	gettimeofday(&ms_struct, NULL);
+	ms = ms_struct.tv_sec * 1000 + ms_struct.tv_usec / 1000;
+	return ms;
+}
+
 int LaserSensor::doLaserScanAndMapUpdate(Position *currentPos) {
-
-	struct timeval ms_call_struct;
-	gettimeofday(&ms_call_struct, NULL);
-	unsigned long ms_call = ms_call_struct.tv_sec * 1000 + ms_call_struct.tv_usec / 1000;
-	//std::cout << "!!! 										ms_call:" << ms_call << std::endl;
-
-	long long timediff = ms_call - ms_callEnded;
-	//std::cout << "!!! 										timediff:" << timediff << std::endl;
-	//std::cout << "!!! 										ms_callEnded:" << ms_callEnded << std::endl;
-	if(timediff < 5000)
-	{
-		return _return;
-	}
-
 	//save the current position
 	_currentPos = currentPos;
 
-	//
-	int i = 0;
-	while(buffer == nullptr)
-	{
-		if(i<3)
-		{
-			getLaserData();
-			i++;
-		}
-		else
-		{	std::cout << "## >> << ### NOOOB!!! NOTHING IN LASER!!!!!" << std::endl;
-			return _return;
-		}
+	unsigned long ms_call = getTimeStamp();
+	long long timediff = ms_call - ms_callEnded;
+	if(timediff < 350) {
+		return _return;
 	}
-	fillLaserArray(buffer);
-	//printf("laserarray gefuellt!\n");
-	UpdateMapWithLaserData();
+	getLaserData();
+
+	if(buffer != nullptr) {
+		fillLaserArray(buffer);
+		//printf("laserarray gefuellt!\n");
+		UpdateMapWithLaserData();
+	}
 
 	//Testing purpose
 	/*calculateObstaclePosition(-110,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
@@ -265,18 +259,15 @@ int LaserSensor::doLaserScanAndMapUpdate(Position *currentPos) {
 	calculateObstaclePosition(110,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
 	printf("Erwartet: 		x = 9, y = 3\n");*/
 
-	std::cout << obstacleLeft << "|" << obstacleFront << "|" << obstacleRight << std::endl;
+    //std::cout << obstacleLeft << "|" << obstacleFront << "|" << obstacleRight << std::endl;
 
-	if(map->isObstacleInRoute()) _return |= 8;
+	if(map->isObstacleInRoute()) _return |= NEW_ROUTE_NEEDED;
 	_return = obstacleLeft * 4 | obstacleFront * 2 | obstacleRight;
 	obstacleLeft = 0;
 	obstacleRight = 0;
 	obstacleFront = 0;
 	*nearObstacle = _return;
 
-	struct timeval ms_callEnded_struct;
-	gettimeofday(&ms_callEnded_struct, NULL);
-	ms_callEnded = ms_callEnded_struct.tv_sec * 1000 + ms_callEnded_struct.tv_usec / 1000;
-	//std::cout << "!!! 										ms_callEnded:" << ms_callEnded << std::endl;
+	ms_callEnded = getTimeStamp();
 	return _return;
 }

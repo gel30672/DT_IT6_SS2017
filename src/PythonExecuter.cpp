@@ -4,8 +4,9 @@
 //Code adapted from https://docs.python.org/2/extending/embedding.html
 //© Copyright 1990-2017, Python Software Foundation.
 
-#include "../include/PythonExecuter.h"
+#include "PythonExecuter.h"
 #include <python2.7/Python.h>
+#include <string>
 
 PythonExecuter::PythonExecuter() {}
 PythonExecuter::~PythonExecuter() {}
@@ -50,11 +51,14 @@ long PythonExecuter::executeWithCharPointer(int argc, char *argv[], char* buf[])
             pValue = PyObject_CallObject(pFunc, pArgs);
             Py_DECREF(pArgs);
             if (pValue != NULL) {
-                //printf("Result of call: %s\n", PyString_AsString(pValue));
-		//printf("ich schreibe in Buffer im Python executer\n");
-            	*buf = PyString_AsString(pValue);
-		//printf("hab das geschrieben: %c\n",*buf);
-		Py_DECREF(pValue);
+                std::string p = PyString_AsString(pValue);
+                printf("Result of call: %d\n", p.size());
+                if(p.size() > BUFFERSIZE) {
+                    *buf = nullptr;
+                } else {
+                    *buf = PyString_AsString(pValue);
+                }
+                Py_DECREF(pValue);
             }
             else {
                 Py_DECREF(pFunc);

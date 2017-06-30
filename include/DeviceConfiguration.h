@@ -8,8 +8,8 @@
 #include <math.h>
 
 // Define the Destination coordinates
-#define DESTINATION_X_COORDINATE 14
-#define DESTINATION_Y_COORDINATE 20
+#define DESTINATION_X_COORDINATE 5
+#define DESTINATION_Y_COORDINATE 5
 #define USE_CONSOLE_FOR_DESTINATION_INPUT false
 
 // The wheelbase of the vehicle is 27.5 cm

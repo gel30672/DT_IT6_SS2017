@@ -38,6 +38,7 @@ public:
     Position* getLastKnownPosition();
     Position* getCurrentPosition();
     Vector* getCurrentDirection();
+    Vector* getCurrentDestinationDirection();
     bool didReachDestination();
     double getDrovenDistance();
     short getCurrentCarState();
@@ -48,6 +49,7 @@ private:
     Position _lastKnownPosition;
     Position* _currentDestination;
     Vector* _currentDirection;
+    Vector* _currentDestinationDirection;
     LaserSensor* _laser;
     short _carState;
     int* _emergency;
@@ -63,8 +65,9 @@ private:
     short updateCurrentPosition();
     short updateCarState(short state);
     short resetDrovenDistance();
+    short checkForObstacles(int obstacleCounter);
     int straightDrive(float angle, short side, Vector* destVector);
-    int orientationTurn(short side, Vector* destVector);
+    int orientationTurn(float angle, short side, Vector* destVector);
 };
 
 

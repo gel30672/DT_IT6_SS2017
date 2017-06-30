@@ -205,6 +205,7 @@ short Map::updateField(short x, short y, bool isObstacle, unsigned short* map) {
     }
 
     // now printout the map
+    print();
     writecsv();
 
     // Everything went through successfully!
@@ -266,9 +267,7 @@ bool Map::isObstacleInRoute() {
     return result;
 }
 
-void Map::print() { //todo need to print it properly
-
-    return;
+void Map::print() {
 
     short check = 1;
     for(int i = _size-1; i > -1; i--) {
@@ -292,7 +291,7 @@ void Map::print() { //todo need to print it properly
 
             short res = item&check;
             item = item >> 1;
-            std::cout << res << " ";
+             std::cout << res << " ";
         }
         std::cout << std::endl;
     }

@@ -111,9 +111,11 @@ void CarSystem::tellCarToDrive(Position *position) {
     std::cout << "CARSYSTEM: CALLED CAR" << std::endl;
 
     // define the destination and tell it the car
-    if(_car->go2(position) == NEW_ROUTE_NEEDED) {
+    short res = _car->go2(position);
+    while(res != SUCCESS && res == NEW_ROUTE_NEEDED) {
+        std::cout << "NEW CALCULATION" << std::endl;
         calculateRoute();
-        _car->go2(getCurrentDestination());
+        res = _car->go2(position);
     }
 
     // the car has finished it's drive

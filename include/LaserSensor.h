@@ -10,6 +10,7 @@
 
 #include "Map.h"
 #include "PythonExecuter.h"
+#include "ErrorHandling.h"
 
 #define isObstacle 1
 #define isFree 0
@@ -24,6 +25,7 @@ private:
 	int ArrayPosition;
 	int counter;
 	Position* _currentPos;
+	unsigned long getTimeStamp();
 	//static constexpr double Pi = 3.141592653;
 
 public:
