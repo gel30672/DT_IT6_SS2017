@@ -32,6 +32,7 @@ short RouteCalculation::calculate(Map *map, Position* start, Position* destinati
     _map = map;
     _start = Node(start->x, start->y);
     _destination = Node(destination->x, destination->y);
+    while(_routeNodeCount > 0) popNodeFromRouteStack();
 
     // start the calculation
     std::cout << "START ROUTE CALCULATION" << std::endl;

@@ -66,9 +66,8 @@ void LaserSensor::fillLaserArray(char string[])
 				row++;
 				ArrayPosition = 0;
 				
-				if(laserArray[1][row - 1] < 500 && laserArray[1][row - 1] > 50)
+				if(laserArray[1][row - 1] < 600 && laserArray[1][row - 1] > 100)
 				{
-					//std::cout << " !!!! 				!!!!! 			obstacle near!" << std::endl;
 					if(laserArray[0][row - 1] > -45 && laserArray[0][row - 1] < -15 && !obstacleLeft) //Hindernis links!
 					{
 						obstacleLeft = 1;
@@ -110,21 +109,34 @@ void LaserSensor::getLaserData()
 	argv[1] = (char*) "laser";
 	argv[2] = (char*) "laser_scan";
 
-    if(buffer!= nullptr) delete[] buffer;
-	buffer = new char[BUFFERSIZE];
+	buffer = new char [BUFFERSIZE];
 	py->executeWithCharPointer(argc, argv, &buffer);
 	//printf("ende getLaserData");
 }
 
-bool LaserSensor::calculateObstaclePosition(double degree, int distance, short *x, short *y)
+double LaserSensor::calculateCarRotation(Vector* currentDir)
 {
+	Position centrum = {0,0};
+	Position yValueHigh = {0,1};
+	Vector *yAxis = new Vector(yValueHigh,centrum);
+	double carRotation = currentDir->getAngleTo(yAxis);
+	if(currentDir->getX() < 0) //Arccos kann nur positive Werte zwischen 0° und 180° berechnen
+	{
+		carRotation = carRotation * -1;
+	}
+	std::cout << "######## ########## 	########### 	######## 	winkel: " << carRotation << std::endl;
 
+	return carRotation;
+}
+
+bool LaserSensor::calculateObstaclePosition(double degree, int distance, short *x, short *y, double carRotation)
+{
 	//printf("in Calc: \n");
 	//printf("degree: %f, distance: %d\n",degree, distance);
 
 	if(distance > 100 ) 											// muss groesser 0 sein, da kein Hindernis = 0, 100 wegen Grï¿½ï¿½e des Fahrzeugs
 	{
-		double a = degree * Pi / 180; //Grad in Rad umrechnen
+		double a = (degree + carRotation) * Pi / 180; //Grad in Rad umrechnen
 
 		//printf("%f\n",a);
 		//printf("sinus: %f\n", sin(a));
@@ -136,17 +148,17 @@ bool LaserSensor::calculateObstaclePosition(double degree, int distance, short *
 		//printf("x: %d\n", *x);
 		//printf("y: %d\n", *y);
 
-		if(degree < -90) 		//left and down
+		if(degree + carRotation < -90) 		//left and down
 		{
 
 		}
-		else if(degree < 0) 	//left and up
+		else if(degree + carRotation < 0) 	//left and up
 		{
 			*y = *y * -1;
 		}
-		else if(degree <= 90) 	//right and up
+		else if(degree + carRotation <= 90) 	//right and up
 		{}
-		else if(degree >=90)	//right and down
+		else if(degree + carRotation >=90)	//right and down
 		{
 			*y = *y * -1;
 		}
@@ -161,20 +173,47 @@ bool LaserSensor::calculateObstaclePosition(double degree, int distance, short *
 	}
 }
 
-void LaserSensor::UpdateMapWithLaserData()
+void LaserSensor::UpdateMapWithLaserData(Vector *currentDir)
 {
 	//std::cout << "in upadte map" << std::endl;
 	short xDiffToCurrentPos, yDiffToCurrentPos;
 
+	//Testing purpose
+	/*calculateObstaclePosition(-110,1500, &xDiffToCurrentPos, &yDiffToCurrentPos , 110);
+	std::cout << "x: " << xDiffToCurrentPos << " y: " << yDiffToCurrentPos << std::endl;
+	printf("Erwartet: 		x = -9, y = -3\n\n");
+	calculateObstaclePosition(-90,1500, &xDiffToCurrentPos, &yDiffToCurrentPos , 90);
+	std::cout << "x: " << xDiffToCurrentPos << " y: " << yDiffToCurrentPos << std::endl;
+	printf("Erwartet: 		x = -10, y = 0\n\n");
+	calculateObstaclePosition(-45,1500, &xDiffToCurrentPos, &yDiffToCurrentPos , 45);
+	std::cout << "x: " << xDiffToCurrentPos << " y: " << yDiffToCurrentPos << std::endl;
+	printf("Erwartet: 		x = -7, y = -7\n\n");
+	calculateObstaclePosition(0,1500, &xDiffToCurrentPos, &yDiffToCurrentPos , 0);
+	std::cout << "x: " << xDiffToCurrentPos << " y: " << yDiffToCurrentPos << std::endl;
+	printf("Erwartet: 		x = 0, y = 10\n\n");
+	calculateObstaclePosition(45,1500, &xDiffToCurrentPos, &yDiffToCurrentPos , -45);
+	std::cout << "x: " << xDiffToCurrentPos << " y: " << yDiffToCurrentPos << std::endl;
+	printf("Erwartet: 		x = 7, y = 7\n\n");
+	calculateObstaclePosition(90,1500, &xDiffToCurrentPos, &yDiffToCurrentPos , -90);
+	std::cout << "x: " << xDiffToCurrentPos << " y: " << yDiffToCurrentPos << std::endl;
+	printf("Erwartet: 		x = 10, y = 0\n\n");
+	calculateObstaclePosition(110,1500, &xDiffToCurrentPos, &yDiffToCurrentPos , -110);
+	std::cout << "x: " << xDiffToCurrentPos << " y: " << yDiffToCurrentPos << std::endl;
+	printf("Erwartet: 		x = 9, y = 3\n");*/
+
 	//if(car == nullptr) std::cout << "NULLPOINTER!!!!!!" << std::endl;
-	//Position *currentPosition = car->getCurrentPosition(); // Hier Map-Objekt angeben!
+
+	//calculate Car Rotation for obstacle positions
+	double carRotation = calculateCarRotation(currentDir);
+
 	int i;
+	Position* _currentPos = currentDir->getFoot();
 	for(i = 0; i<CountArrayElements;i++) 	//f?r jedes Arrayelementepaar berechenen ob und in welchen Koordinaten ein Hindernis ist
 	{
 		if(laserArray[0][i] == -1)
 			break;
 		xDiffToCurrentPos = 0, yDiffToCurrentPos = 0;
-		bool IsNotFree = calculateObstaclePosition(laserArray[0][i],(int)laserArray[1][i], &xDiffToCurrentPos, &yDiffToCurrentPos);
+		bool IsNotFree = calculateObstaclePosition(laserArray[0][i],(int)laserArray[1][i], &xDiffToCurrentPos, &yDiffToCurrentPos, carRotation);
 		//printf("degree: %f; distance: %d; xDiff: %d; yDiff: %d\n",laserArray[0][i],(int)laserArray[1][i], xDiffToCurrentPos, yDiffToCurrentPos);
 		if(IsNotFree )
 		{
@@ -226,13 +265,12 @@ unsigned long LaserSensor::getTimeStamp()
 	return ms;
 }
 
-int LaserSensor::doLaserScanAndMapUpdate(Position *currentPos) {
-	//save the current position
-	_currentPos = currentPos;
+int LaserSensor::doLaserScanAndMapUpdate(Vector* currentDir) {
 
+	//return 0;
 	unsigned long ms_call = getTimeStamp();
 	long long timediff = ms_call - ms_callEnded;
-	if(timediff < 350) {
+	if(timediff < 200) {
 		return _return;
 	}
 	getLaserData();
@@ -240,34 +278,23 @@ int LaserSensor::doLaserScanAndMapUpdate(Position *currentPos) {
 	if(buffer != nullptr) {
 		fillLaserArray(buffer);
 		//printf("laserarray gefuellt!\n");
-		UpdateMapWithLaserData();
+		//UpdateMapWithLaserData(currentDir);
 	}
-
-	//Testing purpose
-	/*calculateObstaclePosition(-110,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
-	printf("Erwartet: 		x = -9, y = -3\n\n");
-	calculateObstaclePosition(-90,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
-	printf("Erwartet: 		x = -10, y = 0\n\n");
-	calculateObstaclePosition(-45,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
-	printf("Erwartet: 		x = -7, y = -7\n\n");
-	calculateObstaclePosition(0,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
-	printf("Erwartet: 		x = 0, y = 10\n\n");
-	calculateObstaclePosition(45,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
-	printf("Erwartet: 		x = 7, y = 7\n\n");
-	calculateObstaclePosition(90,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
-	printf("Erwartet: 		x = 10, y = 0\n\n");
-	calculateObstaclePosition(110,1500, &xDiffToCurrentPos, &yDiffToCurrentPos);
-	printf("Erwartet: 		x = 9, y = 3\n");*/
 
     //std::cout << obstacleLeft << "|" << obstacleFront << "|" << obstacleRight << std::endl;
 
-	if(map->isObstacleInRoute()) _return |= NEW_ROUTE_NEEDED;
-	_return = obstacleLeft * 4 | obstacleFront * 2 | obstacleRight;
+	_return = 0;
+	if(map->isObstacleInRoute())
+	{
+		_return |= NEW_ROUTE_NEEDED;
+	}
+	_return = _return |obstacleLeft * 4 | obstacleFront * 2 | obstacleRight;
 	obstacleLeft = 0;
 	obstacleRight = 0;
 	obstacleFront = 0;
 	*nearObstacle = _return;
 
 	ms_callEnded = getTimeStamp();
+	std::cout << " ####### 			########		######## ende Lasersensor return: " << _return << std::endl;
 	return _return;
 }

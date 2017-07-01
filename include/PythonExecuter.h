@@ -4,7 +4,6 @@
 
 #ifndef LOCSRV_PYTHONEXECUTER_H
 #define LOCSRV_PYTHONEXECUTER_H
-
 #define BUFFERSIZE 24000
 
 class PythonExecuter {

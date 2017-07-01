@@ -7,12 +7,13 @@
 #include "PythonExecuter.h"
 #include <python2.7/Python.h>
 #include <string>
+#include <iostream>
 
 PythonExecuter::PythonExecuter() {}
 PythonExecuter::~PythonExecuter() {}
 
 
-long PythonExecuter::executeWithCharPointer(int argc, char *argv[], char* buf[]) {
+long PythonExecuter::executeWithCharPointer(int argc, char *argv[], char** buf) {
 
     PyObject *pName, *pModule, *pDict, *pFunc;
     PyObject *pArgs, *pValue;

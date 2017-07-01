@@ -83,10 +83,8 @@ short Vector::getSideOf(Vector* v) {
     short position = getX()*v->getY() - getY()*v->getX();
 
     // return the direction
-    short res = position < 0 ? DIRECTION_RIGHT : DIRECTION_LEFT;
-    if (res == DIRECTION_RIGHT) std::cout << "ZIEL LIEGT RECHTS" << std::endl;
-    if (res == DIRECTION_LEFT) std::cout << "ZIEL LIEGT LINKS" << std::endl;
-    return res;
+    if(getX() > 0) return position < 0 ? DIRECTION_RIGHT : DIRECTION_LEFT;
+    else return position < 0 ? DIRECTION_LEFT : DIRECTION_RIGHT;
 }
 
 bool Vector::isOnLineTo(struct Position *p) {

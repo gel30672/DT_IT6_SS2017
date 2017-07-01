@@ -3,6 +3,7 @@
 //
 
 #include <unistd.h>
+#include <iostream>
 #include "../include/Command.h"
 
 double distanceSinceStart = 0.0;

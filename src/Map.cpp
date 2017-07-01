@@ -244,7 +244,7 @@ short Map::updateField(short x, short y, bool isObstacle) {
 bool Map::isObstacleInRoute() {
 
     // now check if the route is still available or if we need a new route
-    bool result = true;
+    bool result = false;
 
     // check the route and map
     for(int i = 0; i < _size; i++) {
@@ -258,7 +258,7 @@ bool Map::isObstacleInRoute() {
 
         // now evaluate the result
         if(res != 0) {
-            result = false;
+            result = true;
             break;
         }
     }
@@ -266,6 +266,7 @@ bool Map::isObstacleInRoute() {
     // return the result value
     return result;
 }
+
 
 void Map::print() {
 

@@ -10,10 +10,10 @@
 
 
 LocDet::LocDet() {
-    Anchor_B.x = 2806;
+    Anchor_B.x = 5621;
     Anchor_B.y = 0000;
     Anchor_C.x = 0000;
-    Anchor_C.y = 6034;
+    Anchor_C.y = 6137;
 }
 
 LocDet::~LocDet() {

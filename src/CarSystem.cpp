@@ -114,7 +114,9 @@ void CarSystem::tellCarToDrive(Position *position) {
     short res = _car->go2(position);
     while(res != SUCCESS && res == NEW_ROUTE_NEEDED) {
         std::cout << "NEW CALCULATION" << std::endl;
+        std::cout << "Old dest == " << _routeCalc->_destinations.size() << std::endl;
         calculateRoute();
+        std::cout << "New dest == " << _routeCalc->_destinations.size() << std::endl;
         res = _car->go2(position);
     }
 

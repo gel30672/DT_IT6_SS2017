@@ -11,6 +11,7 @@
 #include "Map.h"
 #include "PythonExecuter.h"
 #include "ErrorHandling.h"
+#include "Vector.h"
 
 #define isObstacle 1
 #define isFree 0
@@ -24,28 +25,25 @@ private:
 	int row;
 	int ArrayPosition;
 	int counter;
-	Position* _currentPos;
 	unsigned long getTimeStamp();
-	//static constexpr double Pi = 3.141592653;
-
-public:
-	//LaserSensor(Map* _map, Car* _car, int* _nearObstacle);
-	LaserSensor(Map* _map, int* _nearObstacle);
-	int doLaserScanAndMapUpdate(Position *currentPos);
-	char* buffer;
 	void fillLaserArray(char string[]);
 	void getLaserData();
-	bool calculateObstaclePosition(double degree, int distance, short *x, short *y);
-	void UpdateMapWithLaserData();
+	bool calculateObstaclePosition(double degree, int distance, short *x, short *y, double carRotation);
+	double calculateCarRotation(Vector* currentDir);
 	char* readFile();
-	Map* map;
-	//Car* car;
 	bool obstacleLeft;	//Hindernis zw. -45� & -15� 
 	bool obstacleRight;	//Hindernis zw. 15� & 45� 
 	bool obstacleFront;	//Hindernis zw. -15� & 15�
-	int* nearObstacle;
-	unsigned long ms_callEnded;
 	int _return;
+	unsigned long ms_callEnded;
+	char* buffer;
+	void UpdateMapWithLaserData(Vector *currentDir);
+	Map* map;
+	int* nearObstacle;
+
+public:
+	LaserSensor(Map* _map, int* _nearObstacle);
+	int doLaserScanAndMapUpdate(Vector *currentDir);
 };
 
 #endif /* INCLUDE_LASERSENSOR_H_ */

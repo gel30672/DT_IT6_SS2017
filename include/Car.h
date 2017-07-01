@@ -54,6 +54,7 @@ private:
     short _carState;
     int* _emergency;
     bool _finishedDrive;
+    int _updatePositionCounter;
 
     // Other Modules
     LocDet* _localization;
