@@ -13,12 +13,21 @@
 #include "DeviceConfiguration.h"
 #include "MapConfiguration.h"
 #include "LocDet.h"
+#include <vector>
 
 class Vector {
 
 private:
     Position head;
     Position foot;
+    Position regHead;
+    Position regFoot;
+
+    std::vector<Position> regressionPositions;
+    int regXSum;
+    int regYSum;
+
+    void calculateRegression();
 
 public:
     Vector(Position head, Position foot);
@@ -31,6 +40,9 @@ public:
     Position* getFoot();
 
     double getLength();
+    double getRegressionVectorLength();
+
+    void addPosition(Position* pos);
 
     float getAngleTo(Vector *v);
     short getSideOf(Vector *v);
